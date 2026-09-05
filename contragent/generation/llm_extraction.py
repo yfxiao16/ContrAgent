@@ -666,7 +666,7 @@ class UnifiedExtractor:
                     raise ImportError(
                         "anthropic is required for --provider anthropic. "
                         "Install with: pip install anthropic"
-                    )
+                    ) from None
                 kwargs = {"api_key": self._api_key} if self._api_key else {}
                 self._client = anthropic.Anthropic(**kwargs)
         else:  # "openai" — also covers OpenAI-compatible base_url providers

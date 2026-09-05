@@ -70,7 +70,7 @@ from __future__ import annotations
 from collections import deque
 from collections.abc import Iterable
 from itertools import combinations, product
-from typing import Any, Union
+from typing import Any
 
 from contragent.formulas.formula import (
     And,
@@ -105,7 +105,7 @@ from contragent.formulas.formula import (
 #                               (propositional negation is pushed to leaves)
 #   ("G", Node) ("F", Node) ("X", Node) ("U", Node, Node)
 
-Node = Union[bool, tuple]
+Node = bool | tuple
 
 _TEMPORAL_TAGS = ("G", "F", "X", "U")
 
@@ -387,7 +387,7 @@ class _CounterGadget:
         """Advance the registers over one event's valuation."""
         return tuple(
             min(v + 1, bound) if driver in val else v
-            for v, (driver, bound, _) in zip(regs, self._registers)
+            for v, (driver, bound, _) in zip(regs, self._registers, strict=True)
         )
 
     def true_props(self, regs: tuple[int, ...]) -> frozenset[int]:
@@ -397,7 +397,7 @@ class _CounterGadget:
         tracked threshold is < bound, so all specs decide to False there.
         """
         out: set[int] = set()
-        for v, (_, _, specs) in zip(regs, self._registers):
+        for v, (_, _, specs) in zip(regs, self._registers, strict=True):
             for pid, kind, k in specs:
                 if (kind == "le" and v <= k) or (kind == "eq" and v == k):
                     out.add(pid)

@@ -10,7 +10,6 @@ outside this artifact.
 from __future__ import annotations
 
 from pathlib import Path
-from typing import Union
 
 from contragent.discovery._types import (
     ConstraintStatus,
@@ -23,7 +22,7 @@ from contragent.discovery.loaders import load_documents, load_traces
 
 
 def discover(
-    documents: Union[str, Path, list[Union[str, Path]], None] = None,
+    documents: str | Path | list[str | Path] | None = None,
     *,
     model: str | None = None,
     api_key: str | None = None,

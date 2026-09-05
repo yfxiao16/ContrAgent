@@ -335,7 +335,7 @@ def run_eval(cases: Iterable[EvalCase], contracts: list[str]) -> EvalReport:
     # for the overall confusion matrix.
     for case in cases:
         any_blocked = False
-        for (nl_text, parsed), metric in zip(parsed_contracts, report.contracts):
+        for (nl_text, parsed), metric in zip(parsed_contracts, report.contracts, strict=False):
             verdict = _eval_contract_on_trace(parsed, case.trace)
             if verdict is None:
                 metric.skipped += 1

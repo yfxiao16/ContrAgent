@@ -282,7 +282,7 @@ def _parse_const(tokens: list[str], pos: int) -> tuple:
         try:
             val = float(val_str)
         except ValueError:
-            raise ParseError(f"Const value must be numeric, got: {val_str}")
+            raise ParseError(f"Const value must be numeric, got: {val_str}") from None
     pos += 1
     pos = _expect(tokens, pos, ")")
     return Const(val), pos

@@ -16,7 +16,7 @@ from __future__ import annotations
 
 import json
 from pathlib import Path
-from typing import Any, Union
+from typing import Any
 
 from contragent._paths import safe_resolve
 from contragent.models.trace import Event, Trace
@@ -94,9 +94,9 @@ _TEXT_EXTENSIONS = {".txt", ".md", ".markdown", ".rst", ".text"}
 
 
 def load_document(
-    path: Union[str, Path],
+    path: str | Path,
     *,
-    safe_root: Union[str, Path, None] = None,
+    safe_root: str | Path | None = None,
 ) -> str:
     """Load a document file and return its text content.
 
@@ -141,7 +141,7 @@ def load_document(
     )
 
 
-def load_documents(paths: list[Union[str, Path]]) -> list[str]:
+def load_documents(paths: list[str | Path]) -> list[str]:
     """Load multiple document files. Returns list of text strings."""
     return [load_document(p) for p in paths]
 
@@ -169,7 +169,7 @@ def _load_pdf(path: Path) -> str:
         raise ImportError(
             "PDF support requires pdfplumber or PyPDF2. "
             "Install with: pip install pdfplumber"
-        )
+        ) from None
 
 
 # ---------------------------------------------------------------------------
@@ -417,9 +417,9 @@ def _files_in_directory(path: Path) -> list[Path]:
 
 
 def load_trace(
-    path: Union[str, Path],
+    path: str | Path,
     *,
-    safe_root: Union[str, Path, None] = None,
+    safe_root: str | Path | None = None,
 ) -> list[Trace]:
     """Load traces from a single file or directory.
 
@@ -525,7 +525,7 @@ def _expand_glob(path_str: str) -> list[Path]:
     return sorted(parent.glob(pattern))
 
 
-def load_traces(paths: list[Union[str, Path]]) -> list[Trace]:
+def load_traces(paths: list[str | Path]) -> list[Trace]:
     """Load traces from multiple files, directories, or glob patterns.
 
     Args:
@@ -558,7 +558,7 @@ def load_traces(paths: list[Union[str, Path]]) -> list[Trace]:
 # ---------------------------------------------------------------------------
 
 
-def resolve_code_paths(paths: list[Union[str, Path]]) -> list[Path]:
+def resolve_code_paths(paths: list[str | Path]) -> list[Path]:
     """Resolve code paths to actual ``.py`` files.
 
     Accepts:

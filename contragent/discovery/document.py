@@ -31,7 +31,7 @@ knows which tool names are valid and avoids hallucinating identifiers::
 from __future__ import annotations
 
 import logging
-from typing import Any, Optional
+from typing import Any
 
 from contragent.discovery._types import (
     ConstraintStatus,
@@ -62,7 +62,7 @@ class DocumentExtractor:
     def __init__(
         self,
         model: str | None = None,
-        api_key: Optional[str] = None,
+        api_key: str | None = None,
         client: Any = None,
         provider: str | None = None,
         base_url: str | None = None,

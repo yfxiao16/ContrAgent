@@ -204,7 +204,7 @@ class TestIncrementalGrounding:
             v_inc.sync(partial)
 
         assert len(v_batch.valuations) == len(v_inc.valuations)
-        for a, b in zip(v_batch.valuations, v_inc.valuations):
+        for a, b in zip(v_batch.valuations, v_inc.valuations, strict=True):
             assert a == b
 
 

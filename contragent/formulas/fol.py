@@ -14,7 +14,7 @@ from __future__ import annotations
 import re
 import warnings
 from dataclasses import dataclass
-from typing import Any, Union
+from typing import Any
 
 from contragent.models.trace import Event
 
@@ -162,19 +162,19 @@ class ForAllPaths:
 # Union type
 # ---------------------------------------------------------------------------
 
-Predicate = Union[
-    Equals,
-    Matches,
-    HasPrefix,
-    InSet,
-    GreaterThan,
-    LessThanEq,
-    PNot,
-    PAnd,
-    POr,
-    PImplies,
-    ForAllPaths,
-]
+Predicate = (
+    Equals
+    | Matches
+    | HasPrefix
+    | InSet
+    | GreaterThan
+    | LessThanEq
+    | PNot
+    | PAnd
+    | POr
+    | PImplies
+    | ForAllPaths
+)
 
 
 # ---------------------------------------------------------------------------

@@ -78,7 +78,7 @@ from __future__ import annotations
 
 import logging
 from dataclasses import dataclass, field
-from typing import Any, Optional
+from typing import Any
 
 from contragent.formulas.det import DetFormula, _physical_tool
 from contragent.formulas.formula import (
@@ -791,7 +791,7 @@ def compile_ir(ir: ConstraintIR) -> IRCompilationResult:
     return result
 
 
-def _compile_guard(guard_text: str, ir: ConstraintIR) -> Optional[Any]:
+def _compile_guard(guard_text: str, ir: ConstraintIR) -> Any | None:
     """Compile a guard/assumption from its text description.
 
     For simple guards like "called(X)", we can parse directly.
@@ -909,7 +909,7 @@ def parse_ir_item(item: dict) -> ConstraintIR:
     )
 
 
-def _parse_int(value: Any) -> Optional[int]:
+def _parse_int(value: Any) -> int | None:
     """Safely parse an integer from LLM output."""
     if value is None:
         return None

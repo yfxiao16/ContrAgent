@@ -21,7 +21,7 @@ All nodes are frozen dataclasses (immutable, hashable).
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import Literal, Union
+from typing import Literal
 
 from contragent.formulas._pred_key import pred_key
 
@@ -571,26 +571,23 @@ class Subset(FormulaMixin):
 # Union type
 # ---------------------------------------------------------------------------
 
-Formula = Union[
-    # Propositional
-    Atom,
-    Not,
-    And,
-    Or,
-    Implies,
-    # Temporal (LTL)
-    G,
-    F,
-    X,
-    U,
-    # Arithmetic / Set (SMT)
-    Le,
-    Lt,
-    Ge,
-    Gt,
-    Eq,
-    Subset,
-]
+Formula = (
+    Atom
+    | Not
+    | And
+    | Or
+    | Implies
+    | G
+    | F
+    | X
+    | U
+    | Le
+    | Lt
+    | Ge
+    | Gt
+    | Eq
+    | Subset
+)
 
 
 # ---------------------------------------------------------------------------

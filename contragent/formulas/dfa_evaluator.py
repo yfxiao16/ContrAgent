@@ -49,7 +49,7 @@ Typical use::
 
 from __future__ import annotations
 
-from typing import Any, Literal, Union
+from typing import Any, Literal
 
 from contragent.formulas.formula import (
     And,
@@ -82,7 +82,7 @@ Verdict3 = Literal["⊤", "⊥", "?"]
 # Residual formulas during progression can be either a Formula AST node or
 # a Python ``True`` / ``False`` sentinel once simplification has fully
 # decided that subterm. ``_simplify`` returns one of these.
-Residual = Union[Formula, bool]
+Residual = Formula | bool
 
 
 # ---------------------------------------------------------------------------
