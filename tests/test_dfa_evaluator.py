@@ -503,7 +503,7 @@ class TestLivenessFinalize:
 
 
 class TestDFAMatchesFinishSessionBehavior:
-    """End-to-end: BaseGuard.finish_session() works identically under dfa
+    """End-to-end: ContrAgent.finish_session() works identically under dfa
     backend (swap via _monitor._verifier)."""
 
     def test_finish_session_via_dfa(self):

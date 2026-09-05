@@ -1,7 +1,7 @@
 """Hot-path latency of the ContrAgent before-call deterministic check.
 
 Fills the SOPBench / R-Judge / tau2 rows of the paper's latency table. Uses
-each workload's OWN contract bundle + converted traces and times the SAME
+each workload's OWN contract library + converted traces and times the SAME
 primitive an online guard runs at a tool call: ground the trace-so-far and
 evaluate every loaded det contract.
 

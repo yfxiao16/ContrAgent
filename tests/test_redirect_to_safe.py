@@ -8,7 +8,7 @@ The contract this pins down:
 * The pattern attaches a ``Redirect`` strategy to the DetFormula
   so a violation surfaces as a ``redirected`` outcome with
   ``fallback_action=safe_name``, not as a plain ``blocked``.
-* The default-policy auto-population in ``BaseGuard.__init__`` honours
+* The default-policy auto-population in ``ContrAgent.__init__`` honours
   the attached strategy (regression check. earlier the loop
   unconditionally assigned ``Block`` and silently overrode the
   pattern's intent).

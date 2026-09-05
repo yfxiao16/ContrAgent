@@ -214,8 +214,10 @@ contragent/
   discovery/    loaders for requirement artifacts
   contracts/    shipped contract libraries
   config.py     library files and compilation
+  contract.py   fluent Python helper for writing contracts
+  eval_runner.py  offline evaluation of trace directories
   core.py       the ContrAgent supervisor
-  cli.py        eval, replay, conflicts
+  cli.py        eval, replay, conflicts, export-chase
 ```
 
 ## Tests

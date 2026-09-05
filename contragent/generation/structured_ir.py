@@ -6,15 +6,13 @@ defines a structured IR that the LLM fills out as a JSON form.
 Deterministic rules then compile the IR **directly into LTL AST nodes**
 using the formula primitives (G, F, U, Not, Implies, _called, etc.).
 
-The IR layer is **self-contained** — it does not route through
-``_PATTERN_REGISTRY`` or ``patterns/core.py`` pattern functions.  Each IR
-relation has its own synthesis function that directly composes the
-LTL formula.  This gives us:
+The IR layer is **self-contained**: each IR relation has its own
+synthesis function that directly composes the LTL formula.  This gives us:
 
-1. **No coupling** to pattern function signatures (adding a new IR
-   relation doesn't require a ``patterns/core.py`` entry).
-2. **Richer expressiveness** — IR can express combinations that no
-   single pattern function covers (e.g., "A or B must precede C").
+1. **No indirection** — adding a relation means adding one synthesis
+   function.
+2. **Richer expressiveness** — IR can express combinations such as
+   "A or B must precede C".
 3. **Transparent mapping** — the IR→LTL table is self-documenting
    and directly presentable in a paper.
 
@@ -37,7 +35,7 @@ Architecture::
              ▼
     ┌─────────────────┐
     │  compile_ir()    │  ← deterministic: IR → direct LTL AST composition
-    │  (this module)   │     (no pattern registry indirection)
+    │  (this module)   │     (one synthesis function per relation)
     └────────┬────────┘
              │
              ▼
@@ -112,7 +110,7 @@ class ConstraintIR:
 
     The LLM generates this structured form.  Deterministic rules in
     ``compile_ir()`` convert it to a ``DetFormula`` or ``StoFormula``
-    via the pattern registry.
+    with one synthesis function per relation.
 
     The LLM never needs to know LTL operator semantics — it only picks
     a ``relation`` type and fills in tool names + qualifiers.
@@ -253,14 +251,13 @@ def _bounded_never(phi: Formula, n: int) -> Formula:
 # Synthesis functions — one per IR relation
 # ---------------------------------------------------------------------------
 # Each function takes a ConstraintIR and returns (Formula, str_desc, str_kind).
-# No dependency on _PATTERN_REGISTRY or patterns/core.py.
 
 
 def _synth_precedes(ir: ConstraintIR) -> tuple[Formula, str, str]:
     """!called(B) U called(A), or G(!called(B))"""
     A, B = ir.subject, ir.object
     f = Or(U(Not(_called(B)), _called(A)), G(Not(_called(B))))
-    return f, f"{A} must precede {B}", "must_precede"
+    return f, f"{A} must precede {B}", "precedes"
 
 
 def _synth_follows(ir: ConstraintIR) -> tuple[Formula, str, str]:
@@ -409,7 +406,7 @@ def _synth_data_intact(ir: ConstraintIR) -> tuple[Formula, str, str]:
     return f, f"{bound_tool} must use only original data from {paths}", "data_intact"
 
 
-# --- Layer 1: OWASP patterns (direct LTL, no patterns/core.py dependency) ---
+# --- Layer 1: OWASP rules (direct LTL) ---
 
 
 def _synth_untrusted_gate(ir: ConstraintIR) -> tuple[Formula, str, str]:
@@ -701,7 +698,7 @@ def compile_ir(ir: ConstraintIR) -> IRCompilationResult:
     """Compile a single ConstraintIR into a DetFormula or StoFormula.
 
     Deterministic synthesis: each IR relation maps to a function that
-    directly composes LTL AST nodes.  No pattern registry indirection.
+    directly composes LTL AST nodes.
 
     Args:
         ir: The structured IR to compile.

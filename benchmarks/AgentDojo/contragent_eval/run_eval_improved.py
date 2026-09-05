@@ -10,18 +10,18 @@ the *legitimate* gmail/yahoo recipients a user task itself names. Inspecting the
 injection-free traces shows exactly which contracts over-block; we then ADJUST
 the contract library:
 
-  * DROP the over-broad public-mail-domain arg_blacklists and the raw-URL-in-DM
-    blacklist (the FP source), and the payload-specific attacker blacklists.
+  * DROP the over-broad public-mail-domain recipient deny lists and the raw-URL-in-DM
+    deny list (the FP source), and the payload-specific attacker deny lists.
   * REPLACE all target-based blocking with the per-task legitimate-target
     allowlist (task_allowlist.py) -- low FP, generalises to new payloads.
   * KEEP only the payload-agnostic STRUCTURAL / TEMPORAL contracts that the
     target allowlist cannot express and that never fire on legitimate flows:
-      - arg_value_range   (single-transfer cap)
-      - cooldown          (>=2 non-send calls between send_money)
-      - duplicate_call_limit (<=2 send_money/session)
-      - no_reversal       (send_email then delete_email cover-up)
-      - arg_length_limit  (email-body exfil cap)
-      - mutual_exclusion  (slack invite/remove cover-up)
+      - single-transfer amount cap
+      - cooldown (>=2 non-send calls between send_money)
+      - at most two send_money calls per session
+      - no send_email followed by a delete_email cover-up
+      - email-body length cap (exfiltration)
+      - slack invite/remove mutual exclusion (cover-up)
 
 So blocked(trace) = allowlist_violation  OR  any kept structural contract fires.
 
@@ -52,20 +52,20 @@ from task_allowlist import call_violates, legit_targets_for  # noqa: E402
 
 CONTRACTS = os.path.join(_REPO, "contragent", "contracts", "benchmark", "agentdojo.yaml")
 
-# Trace-driven refinement: keep the whole bundle on top of the per-task
+# Trace-driven refinement: keep the whole library on top of the per-task
 # allowlist, but DROP the contracts that inspection of the injection-free traces
 # flags as the over-block (utility-FP) source. A contract is dropped iff its DSL
 # string contains any DROP substring. Selectable via the CG_DROP env var
 # (comma-separated) for the gpt-4o config sweep; default is the winning config.
 #
 # Candidate FP sources identified from the traces:
-#   "@gmail"     -> the broad public-mail-domain arg_blacklists (block legit
+#   "@gmail"     -> the broad public-mail-domain recipient deny lists (block legit
 #                   gmail/yahoo recipients the user task itself names)
-#   "https?://"  -> the raw-URL-in-DM blacklist (blocks legit DMs with links)
-#   "cooldown" / "count_with" / "arg_numeric" -> banking rate/cap/temporal rules
+#   "https?://"  -> the raw-URL-in-DM deny list (blocks legit DMs with links)
+#   "non-send calls between" / "count_with" / "arg_numeric" -> banking cooldown/cap/rate rules
 #                   that fire on legitimate multi-/large-transfer tasks
 #   "delete_email" -> send-then-delete no_reversal (fires on legit send+cleanup)
-_DEFAULT_DROP = "@gmail,https?://,cooldown,count_with,arg_numeric,delete_email"
+_DEFAULT_DROP = "@gmail,https?://,non-send calls between,count_with,arg_numeric,delete_email"
 DROP_SUBSTRS = [s for s in os.environ.get("CG_DROP", _DEFAULT_DROP).split(",") if s]
 
 
@@ -82,12 +82,12 @@ def _load_structural():
                 continue
             for e in (part if isinstance(part, list) else [part]):
                 nl, p = resolve_entry(e)
-                if p is None or not p is not None:
+                if p is None:
                     continue
-                # `p` is a ContractParseResult; match against its DSL string AND
-                # the compiled formula repr (the latter exposes atoms like
+                # Match against the contract's description AND the compiled
+                # formula repr (the latter exposes predicates such as
                 # arg_numeric / count_with / delete_email used by temporal rules).
-                hay = (getattr(p, "original_nl", "") or "") + " " + repr(
+                hay = f"{getattr(ce, 'desc', '') or ''} {nl or ''} " + repr(
                     getattr(getattr(p, "hard", None), "formula", "")
                 )
                 if any(sub in hay for sub in DROP_SUBSTRS):

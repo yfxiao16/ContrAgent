@@ -13,7 +13,7 @@ reports, per model/suite:
     == "none") traces that the agent completed (utility=True) -- the over-block cost.
 
 Faithful + quota-free: each tool call becomes a tool_call event with its REAL
-function name and args; the arg_blacklist contracts in
+function name and args; the argument deny-list contracts in
 contragent/contracts/benchmark/agentdojo.yaml fire on attacker signatures. No
 LLM, no labels read beyond AgentDojo's own security/utility flags.
 

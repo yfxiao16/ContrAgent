@@ -1,7 +1,7 @@
 # ContrAgent x tau2-bench (procedure-correctness eval)
 
 Offline replay of tau2-bench's **shipped** simulation transcripts through
-the bundled ContrAgent contract library
+the shipped ContrAgent contract library
 (`contragent/contracts/benchmark/tau2_bench.yaml`). No API/LLM calls.
 
 ## What tau2-bench ships offline
@@ -43,7 +43,7 @@ traces are sufficient for offline procedure-violation scoring.
   `same_turn_text_and_tool_call` flag (an assistant message containing
   BOTH user-facing text and a tool call — a direct property of the
   message, not a policy inference).
-- `eval_proc.py` — loads the contract bundle (tolerant per-entry
+- `eval_proc.py` — loads the contract library (tolerant per-entry
   compile), classifies each contract, replays every sim through the
   honestly-evaluable subset with `TraceVerifier`, and reports per-cell
   procedure-violation fire-rates + `pass^4`/`proc-clean^4`/`joint^4`.
@@ -51,11 +51,11 @@ traces are sufficient for offline procedure-violation scoring.
 
 ## Honest-evaluation policy
 
-The 120-contract bundle splits, by atom dependency, into:
+The 120-contract library splits, by atom dependency, into:
 
 - **53 honest** — evaluable from real tool names/args/ordering alone:
-  all `pattern` contracts (`must_precede`, `rate_limit`,
-  `arg_blacklist`, `arg_allowlist`, `arg_value_range`), pure-LTL
+  contracts over tool names, argument values, and counts (precedence,
+  count limits, argument allow/deny lists, value ranges), pure-LTL
   ordering + post-action-verification (`called`/`X(called)`), and the
   structural `same_turn_text_and_tool_call` protocol flag. **These are
   the only contracts that fire in this eval.**
@@ -89,7 +89,7 @@ The per-category `output_spec` fire-rates reproduce the write-up
 exactly (e.g. retail Claude 98.9%, GPT-4.1 2.0%, mini 36.8%, o4-mini
 0.0%; airline 98.0/9.0/46.5/0.0; telecom 99.1/38.4/74.1/0.0), and every
 Claude cell is `proc-clean^4 = 0.0%` while `pass^4` stays 25-60%. Cells
-that differ from the doc's full-bundle numbers (transition_spec, some
+that differ from the doc's full-library numbers (transition_spec, some
 blind-spot rates) differ precisely because the doc's run also evaluates
 the 63 ctx-gated contracts via the env-grounding adapter, which this
 offline-from-text eval correctly does not fabricate.

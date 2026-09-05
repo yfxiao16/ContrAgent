@@ -304,7 +304,7 @@ class _LeafTable:
 _GADGET_VAR_TO_DRIVER = {"count": "called", "count_with": "called_with"}
 
 # Saturation-bound cap. A comparison against a huge constant (e.g.
-# ``rate_limit(x, 10**6)``) would need that many gadget states; above
+# ``Var('count', x) <= 10**6``) would need that many gadget states; above
 # the cap the register falls back to the sound-only treatment
 # (free proposition + pointwise theory + ban/persistence axioms).
 _GADGET_CAP = 64

@@ -203,7 +203,7 @@ class ViolationSpan(Span):
     Attributes:
         kind: ``"assumption"``, ``"guarantee"``, ``"sto"``, or
             ``"liveness"``. The ``"liveness"`` kind is emitted only by
-            :meth:`BaseGuard.finish_session` when a pending ``F(...)``
+            :meth:`ContrAgent.finish_session` when a pending ``F(...)``
             obligation was never discharged before session end;
             runtime violations never use this kind.
         severity: ``"HIGH"``, ``"MEDIUM"``, or ``"LOW"``.
@@ -364,7 +364,7 @@ class SpanCollector:
             pass
         span_tree = collector.root  # AgentTurnSpan with all children
 
-    The collector is synchronous (matches RuntimeMonitor's threading model).
+    The collector is synchronous (matches the Supervisor's threading model).
     """
 
     def __init__(self, agent_id: str, action: str) -> None:

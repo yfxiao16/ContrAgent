@@ -26,7 +26,7 @@ import textwrap
 
 import pytest
 
-from contragent.core import ContrAgent as BaseGuard
+from contragent.core import ContrAgent
 from contragent.formulas.det import DetFormula
 from contragent.formulas.formula import Atom, F, G, Not
 from contragent.models.agent import Agent
@@ -135,7 +135,7 @@ def test_reactive_first_match_flags_post_activation_q():
 
 
 def test_reactive_first_match_e2e_through_baseguard():
-    """End-to-end via BaseGuard: trace [Q, P, Q] under reactive semantics.
+    """End-to-end via ContrAgent: trace [Q, P, Q] under reactive semantics.
 
     Expected:
       pos 0 Q: allow (no P yet)
@@ -149,7 +149,7 @@ def test_reactive_first_match_e2e_through_baseguard():
         guarantee=_det(G(Not(Atom("called", "Q"))), "G(!Q)"),
         activate_at="first_match",
     )
-    g = BaseGuard(
+    g = ContrAgent(
         agent_id="t",
         contracts=[contract],
         mode="enforce",
@@ -376,7 +376,7 @@ def test_yaml_rejects_invalid_activate_at_value(tmp_path):
 
 
 def test_yaml_e2e_first_match_through_baseguard(tmp_path):
-    """Full path: YAML → BaseGuard → reactive enforcement."""
+    """Full path: YAML → ContrAgent → reactive enforcement."""
     from contragent.config import config_to_guard_kwargs, load_config
 
     cfg_path = tmp_path / "cfg.yaml"
@@ -398,7 +398,7 @@ def test_yaml_e2e_first_match_through_baseguard(tmp_path):
     )
     parsed = load_config(str(cfg_path))
     cfg = config_to_guard_kwargs(parsed, "t")
-    g = BaseGuard(
+    g = ContrAgent(
         agent_id="t",
         contracts=cfg["contracts"],
         mode="enforce",

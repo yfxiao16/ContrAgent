@@ -42,7 +42,6 @@ runs), then
 
 ```bash
 PYTHONPATH=. python benchmarks/tau2/contragent_eval/eval_proc.py
-python benchmarks/tau2/contragent_eval/per_sim_labels.py
 ```
 
 `eval_proc.py` writes `proc_eval_results.json` with per-cell fire rates and

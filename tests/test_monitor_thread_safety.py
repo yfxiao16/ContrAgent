@@ -1,6 +1,6 @@
-"""Regression tests for ``RuntimeMonitor`` thread safety.
+"""Regression tests for ``Supervisor`` thread safety.
 
-Two code paths drive ``RuntimeMonitor.check_action`` from multiple
+Two code paths drive ``Supervisor.check_action`` from multiple
 threads in production:
 
 1. ``api/state.py`` — a single ``AppState.monitor`` is shared across
@@ -32,14 +32,14 @@ import threading
 from concurrent.futures import ThreadPoolExecutor
 
 from contragent.models.system import System
-from contragent.runtime.supervisor import Supervisor as RuntimeMonitor
+from contragent.runtime.supervisor import Supervisor
 
 
-def _build_monitor() -> RuntimeMonitor:
+def _build_monitor() -> Supervisor:
     # Bare system — contracts aren't needed to exercise the race,
     # since the data race is in the event/span/verifier plumbing of
     # ``check_action`` itself, not in any individual contract check.
-    return RuntimeMonitor(System("t"))
+    return Supervisor(System("t"))
 
 
 class TestCheckActionRace:

@@ -519,16 +519,16 @@ class TestWitnessCertificate:
 
 
 # ---------------------------------------------------------------------------
-# BaseGuard integration
+# ContrAgent integration
 # ---------------------------------------------------------------------------
 
 
 class TestGuardIntegration:
     def _guard(self, **kwargs):
-        from contragent.core import ContrAgent as BaseGuard
+        from contragent.core import ContrAgent
         from tests._builders import must_precede
 
-        return BaseGuard(
+        return ContrAgent(
             agent_id="bot",
             contracts=[
                 {"guarantee": must_precede("check_policy", "issue_refund")},

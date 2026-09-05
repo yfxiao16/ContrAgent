@@ -1,7 +1,7 @@
 """Offline procedure-violation eval: replay tau2 traces through ContrAgent.
 
 Loads the bundled ``contragent/contracts/benchmark/tau2_bench.yaml``
-contract bundle, converts every tau2 simulation transcript to a native
+contract library, converts every tau2 simulation transcript to a native
 ContrAgent trace (see ``convert.py``), and replays each trace through the
 contracts with ``TraceVerifier``. Reports per-(domain, model) procedure-
 violation fire-rates -- the "proc-clean vs pass" idea from
@@ -18,8 +18,8 @@ Honest-evaluation policy
 Contracts split into three classes by their atom dependencies:
 
   * HONEST -- evaluable from real tool names / args / ordering alone.
-    Includes all ``pattern``-based contracts (must_precede, rate_limit,
-    arg_blacklist, arg_allowlist, arg_value_range) plus pure-LTL ones
+    Includes all contracts over tool names, argument values and counts
+    (precedence, count limits, argument allow/deny lists, value ranges) plus pure-LTL ones
     over ``called`` / ``X(called)`` (ordering, post-action verification)
     and the structural ``same_turn_text_and_tool_call`` protocol flag.
 
@@ -57,7 +57,7 @@ from contragent.models.contract import Contract  # noqa: E402
 from contragent.models.trace import Trace  # noqa: E402
 from contragent.runtime.verifier import TraceVerifier, _raw_formula  # noqa: E402
 
-BUNDLE = REPO_ROOT / "contragent" / "contracts" / "benchmark" / "tau2_bench.yaml"
+LIBRARY = REPO_ROOT / "contragent" / "contracts" / "benchmark" / "tau2_bench.yaml"
 RESULTS_DIR = (
     Path(__file__).resolve().parent.parent / "data" / "tau2" / "results" / "final"
 )
@@ -107,7 +107,7 @@ def load_classified_contracts():
     ``honest`` is a list of (Contract, source_category) tuples for the
     contracts that are evaluable from real tool data alone.
     """
-    raw = yaml.safe_load(BUNDLE.read_text())
+    raw = yaml.safe_load(LIBRARY.read_text())
     entries = raw["agents"]["*"]["contracts"]
     agent = Agent(id="*")
 
@@ -179,7 +179,7 @@ def evaluate():
         f"{needs_ctx} need derived ctx (skipped)  |  "
         f"{unparseable} unparseable Cat-C (skipped)"
     )
-    print(f"Total in bundle: {len(honest) + needs_ctx + unparseable}\n")
+    print(f"Total in library: {len(honest) + needs_ctx + unparseable}\n")
 
     files = sorted(p for p in RESULTS_DIR.iterdir() if _FILE_RE.search(p.name))
     rows = []

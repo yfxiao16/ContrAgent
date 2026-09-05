@@ -247,15 +247,14 @@ def _is_temporally_flat(node: Any) -> bool:
     suffix. So we only cache G(φ) when φ is temporally flat —
     propositional or arithmetic only.
 
-    Common G-rooted patterns that are temporally flat:
+    Common G-rooted formulas that are temporally flat:
 
-    * ``rate_limit(X, K)``      = ``G(count(X) <= K)``
-    * ``scope_limit(X, paths)`` = ``G(arg_paths_within(X, *paths))``
-    * ``arg_blacklist(...)``    = ``G(!arg_field_has(...))``
-    * ``idempotent(X)``         = ``G(count(X) <= 1)``
+    * ``G(Var('count', X) <= K)``         (count limit; ``K = 1`` is at-most-once)
+    * ``G(arg_paths_within(X, *paths))``  (path scope)
+    * ``G(!arg_field_has(X, f, p))``      (argument deny list)
 
-    ``no_reversal`` / ``must_confirm`` / ``cooldown`` / ``mutual_exclusion``
-    contain nested temporal operators and fall through to full eval.
+    Formulas with nested temporal operators (``G(A -> F(B))``,
+    ``G(A -> X(!B))``, cooldowns, mutual exclusion) fall through to full eval.
     """
     from contragent.formulas.formula import F, G, U, X
 
@@ -306,7 +305,7 @@ class TraceVerifier:
 
     Typical callers:
 
-    * :class:`contragent.runtime.monitor.RuntimeMonitor` wraps one of these
+    * :class:`contragent.runtime.supervisor.Supervisor` wraps one of these
       internally and syncs after every ``check_action`` mutation.
     * Ad-hoc scripts / offline checks: ``v = TraceVerifier(); v.sync(trace); v.check(f)``.
     """
@@ -353,7 +352,7 @@ class TraceVerifier:
     def reset(self) -> None:
         """Drop all cached valuations + accumulators.
 
-        Call this when the trace is reset (e.g. ``RuntimeMonitor.reset``)
+        Call this when the trace is reset (e.g. ``Supervisor.reset``)
         or when the contract set changes in a way that invalidates the
         cached content atoms.
 

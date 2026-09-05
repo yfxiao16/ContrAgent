@@ -21,7 +21,7 @@ or a list. A list is interpreted as the logical AND of its elements.
 Threshold fields (``alpha``, ``beta``) are part of the schema for
 deterministic evaluation of the assumption and guarantee formulas
 implies ``conf(G) >= beta``. This build exposes only the
-``alpha == beta == 1.0`` degenerate case (boolean det); ``BaseGuard``
+``alpha == beta == 1.0`` degenerate case (boolean det); ``ContrAgent``
 rejects non-default values at construction time. The
 probabilistic-lifting math (``conf(.)``, independent-product semantics,
 threshold composition) is not part of this build.
@@ -126,9 +126,9 @@ def _formula_is_pure_det(formula: Any) -> bool:
     return False
 
 
-# ``eq=False`` keeps Contract hashable by identity. The runtime monitor
+# ``eq=False`` keeps Contract hashable by identity. The supervisor
 # uses Contracts as keys in a ``WeakKeyDictionary`` for the per-contract
-# atom cache (``RuntimeMonitor._atom_caches``), and a default
+# atom cache (``Supervisor._atom_caches``), and a default
 # ``@dataclass`` (eq=True, frozen=False) sets ``__hash__`` to None — that
 # would break the cache. We don't use Contract value-equality anywhere,
 # so falling back to ``object.__eq__`` is safe.

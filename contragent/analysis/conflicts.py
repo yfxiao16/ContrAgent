@@ -196,8 +196,8 @@ def derive_domain_constraints(
     * Ban-style count comparisons are linked to their call atom: the
       grounding layer increments ``count(t)`` *before* emitting the
       valuation, so at any event where ``called(t)`` holds,
-      ``count(t) >= 1``. Hence ``count(t) <= 0`` (``rate_limit(t, 0)``
-      and friends) is pointwise incompatible with ``called(t)``. These
+      ``count(t) >= 1``. Hence ``count(t) <= 0`` (a ban on ``t``)
+      is pointwise incompatible with ``called(t)``. These
       are returned as extra axiom *formulas* to conjoin with every
       satisfiability query (third element of the result).
 

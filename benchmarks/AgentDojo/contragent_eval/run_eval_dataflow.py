@@ -215,8 +215,8 @@ def _blocked(suite, utid, messages, inj_text=""):
         # else (user prompt + benign tool data).
         tool_text, user_text = inj_text, ""
     # taintlib: also enforce the full library, but only when untrusted content
-    # is present (benign traces carry no injection -> the bundle is gated off ->
-    # its over-blocking cannot produce a false positive). Combines the bundle's
+    # is present (benign traces carry no injection -> the library is gated off ->
+    # its over-blocking cannot produce a false positive). Combines the library's
     # recall (lowest ASR) with the taint gate's ~zero FP.
     if _MODE == "taintlib" and inj_text and _library_fires(messages):
         return True

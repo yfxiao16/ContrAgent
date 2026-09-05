@@ -1,9 +1,0 @@
-[01:15:14] IMPORT retail/main
-[01:28:37] artifact: artifacts/retail_main-240583da-1782288914
-[01:28:37] EVAL retail/main (parallel=5)
-[93m⚠ WARNING: aggregation_eval returned 'No reasoning provided' (score=0.0). This indicates the LLM returned an incomplete response.[0m
-[92m✓ Run-level summary saved to /private/tmp/agentpex/artifacts/imported/modern-moon/run_eval_summary_20260624_013452_347.json[0m
-[92m✓ All traces evaluated and saved successfully in /private/tmp/agentpex/artifacts/imported/modern-moon[0m
-[92m✓ Evaluation complete. 100 traces evaluated.[0m
-[92m✓ CLI execution completed successfully![0m
-[01:34:52] DONE retail/main -> artifacts/retail_main-240583da-1782288914

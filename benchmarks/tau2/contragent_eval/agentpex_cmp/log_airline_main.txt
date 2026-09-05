@@ -1,9 +1,0 @@
-[01:15:14] IMPORT airline/main
-[01:28:16] artifact: artifacts/airline_main-1a374f3d-1782288914
-[01:28:16] EVAL airline/main (parallel=5)
-[93m⚠ WARNING: output_spec_eval returned 'No reasoning provided' (score=0.0). This indicates the LLM returned an incomplete response.[0m
-[92m✓ Run-level summary saved to /private/tmp/agentpex/artifacts/imported/young-pearl/run_eval_summary_20260624_013457_877.json[0m
-[92m✓ All traces evaluated and saved successfully in /private/tmp/agentpex/artifacts/imported/young-pearl[0m
-[92m✓ Evaluation complete. 100 traces evaluated.[0m
-[92m✓ CLI execution completed successfully![0m
-[01:34:58] DONE airline/main -> artifacts/airline_main-1a374f3d-1782288914

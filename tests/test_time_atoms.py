@@ -1,6 +1,6 @@
 """Tests for the event-clock time atoms (now / time_since) and the
 Phase-1 args conventions (data_write scope, llm_response segment) and
-the ``observe_approval`` BaseGuard helper.
+the ``observe_approval`` ContrAgent helper.
 
 These are the only new public surfaces this round — keep the suite
 focused on the contracts they exposed (recency gating, approval gating,

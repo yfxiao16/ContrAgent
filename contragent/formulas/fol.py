@@ -3,10 +3,9 @@
 .. deprecated:: 0.2
     The FOL module is deprecated. Use the unified Atom system in
     ``contragent.formulas.formula`` + ``contragent.tracer.grounding`` instead.
-    FOL predicates have been replaced by grounding-level atoms:
-    - ``arg_blacklist`` -> ``arg_has(tool, pattern)``
-    - ``scope_limit`` -> ``arg_paths_within(tool, *prefixes)``
-    - ``data_intact`` -> ``arg_has`` + ``arg_paths_within`` composition
+    FOL predicates have been replaced by grounding-level predicates such as
+    ``arg_has(tool, pattern)`` and ``arg_paths_within(tool, *prefixes)`` and
+    their compositions.
 """
 
 from __future__ import annotations

@@ -55,7 +55,7 @@ class Event:
         content: Free-text content. Used on ``"message"``,
             ``"llm_request"``, ``"llm_response"``, and also on
             ``"tool_call"`` events once the guard is enriched via
-            :meth:`BaseGuard.observe_tool_output`.
+            :meth:`ContrAgent.observe_tool_output`.
     """
 
     ts: int

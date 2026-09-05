@@ -38,7 +38,7 @@ Typical use::
     from contragent.formulas.dfa_evaluator import DFAEvaluator
     from contragent.formulas.parser import parse_repr
 
-    f = rate_limit("X", 3).formula      # raw LTL AST
+    f = parse_repr("G((Var('count', 'X') <= 3))")   # raw LTL AST
     dfa = DFAEvaluator(f)
     for event_valuation in grounded_trace:
         verdict = dfa.step(event_valuation)  # "⊤" | "⊥" | "?"
@@ -496,7 +496,7 @@ class DFAEvaluator:
         """Session-end: collapse pending temporal obligations via weak semantics.
 
         Does **not** mutate the internal state — safe to call multiple
-        times. Use this for :meth:`BaseGuard.finish_session` style
+        times. Use this for :meth:`ContrAgent.finish_session` style
         checks where the trace is final.
 
         Returns ``"⊤"`` if all obligations were discharged (or vacuous),

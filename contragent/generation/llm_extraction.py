@@ -7,19 +7,20 @@ all three input paths:
 2. **Policy documents** — natural language SOPs, compliance docs
 3. **Code scanning** — tool inventory + source context → inferred constraints
 
-The LLM is told about the **Atom vocabulary** (what grounding can observe)
-and the **Pattern catalog** (how Atoms compose into LTL/arithmetic formulas).
-Its structured JSON output is compiled into ``DetFormula`` (hard) or
-``StoFormula`` (sto) objects via the pattern registry.
+The LLM is told about the **predicate vocabulary** (what grounding can
+observe) and the **relation catalog** of the structured IR (how predicates
+compose into LTL/arithmetic formulas). Its structured JSON output is
+compiled into ``DetFormula`` (hard) or ``StoFormula`` (sto) objects by
+``structured_ir.compile_ir``.
 
 Design principles:
 
-- **Atom-grounded**: The LLM prompt enumerates every Atom predicate that
-  ``grounding.py`` can produce.  This prevents the LLM from hallucinating
-  patterns that can't be evaluated at runtime.
-- **Pattern-compiled**: The LLM output references pattern function names
-  and args.  Compilation goes through the same ``_PATTERN_REGISTRY`` used
-  by rule-based parsing, so formulas are identical regardless of input path.
+- **Predicate-grounded**: The LLM prompt enumerates every predicate that
+  ``grounding.py`` can produce.  This prevents the LLM from inventing
+  predicates that can't be evaluated at runtime.
+- **Deterministically compiled**: The LLM output names a relation and its
+  arguments; ``compile_ir`` composes the formula, so formulas are identical
+  regardless of input path.
 - **Det/sto auto-classification**: The LLM classifies each constraint as
   ``"hard"`` (enforceable via tool-call trace) or ``"sto"`` (requires
   content/LLM evaluation).  This replaces the heuristic keyword routing.
@@ -402,14 +403,14 @@ def _build_system_prompt(
             "read its docstring, parameter names, validation logic, and error "
             "handling to extract preconditions and constraints:\n"
             "- **Preconditions in docstrings**: 'If the order is already processed, "
-            "it cannot be cancelled' → must_precede(get_order_details, cancel) or "
-            "arg_blacklist to check status\n"
+            "it cannot be cancelled' → get_order_details must precede cancel, or "
+            "an argument check on the status field\n"
             "- **Required ordering**: If tool B needs output from tool A (e.g., "
-            "user_id from find_user), then must_precede(find_user, tool_B)\n"
+            "user_id from find_user), then find_user must precede tool_B\n"
             "- **Identity verification**: If tools require user lookup before "
             "mutation (modify/cancel/return/exchange), enforce the ordering\n"
             "- **Parameter constraints**: If a tool checks a parameter value "
-            "(e.g., status must be 'pending'), use arg_field_has or arg_blacklist\n"
+            "(e.g., status must be 'pending'), use arg_field_has\n"
             "- **Mutual exclusion**: If two tools conflict (e.g., cancel vs modify "
             "same order), use mutual_exclusion\n"
             "- **State dependencies**: If a tool's docstring says 'order must be "
@@ -515,7 +516,7 @@ characters, ALWAYS wrap them in double quotes:
   ✓ Var(count, issue_refund)                — no spaces, fine
 
 IMPORTANT: The "formula" field must contain ONLY atoms and operators.
-Do NOT use shorthand names like must_precede(), rate_limit(), etc.
+Do NOT use shorthand or helper names for whole constraints.
 Always write the expanded form using called(), Var(), G(), Or(), U(), etc.
 
 Output a JSON object with:
@@ -831,7 +832,7 @@ class UnifiedExtractor:
         When ``self._use_ir`` is True, uses the Structured IR pipeline
         (``contragent.generation.structured_ir``) — the LLM outputs a
         structured JSON form instead of raw LTL formula text, and
-        deterministic rules compile it via the pattern registry. This
+        ``compile_ir`` composes the formula from it. This
         avoids formula-text parsing failures (spaces in atom args,
         nested quotes, operator nesting errors).
 
@@ -902,7 +903,7 @@ class UnifiedExtractor:
         """Structured IR extraction path.
 
         LLM outputs {subject, relation, ...} JSON → compile_ir() →
-        DetFormula / StoFormula via the pattern registry. No raw LTL
+        DetFormula / StoFormula by ``compile_ir``. No raw LTL
         formula text involved.
         """
         from contragent.generation.structured_ir import (

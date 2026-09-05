@@ -9,7 +9,7 @@ def make_guard(*contracts) -> contragent.ContrAgent:
     """Build a quiet ``ContrAgent`` guard from a list of contracts.
 
     Each contract may be a plain ``DetFormula`` (wrapped into the
-    canonical ``{"guarantee": det}`` dict expected by ``BaseGuard``)
+    canonical ``{"guarantee": det}`` dict expected by ``ContrAgent``)
     or a pre-built dict / NL string. Banners + auto-summary are
     suppressed so the test output stays clean.
     """

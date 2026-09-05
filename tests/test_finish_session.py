@@ -1,8 +1,8 @@
-"""Tests for BaseGuard.finish_session() — end-of-session liveness checks.
+"""Tests for ContrAgent.finish_session() — end-of-session liveness checks.
 
 Liveness formulas (``always_followed_by`` = ``G(trigger -> F(response))``)
 can't be decided mid-session. They're skipped by the runtime monitor and
-only judged at session end via :meth:`BaseGuard.finish_session`.
+only judged at session end via :meth:`ContrAgent.finish_session`.
 """
 
 from __future__ import annotations
