@@ -1,4 +1,4 @@
-# Symbolic Temporal Supervision of LLM Agents Using Contracts
+# ContrAgent: Symbolic Temporal Supervision of LLM Agents Using Contracts
 
 **ContrAgent** is the reference implementation of the paper of the same
 name. It supervises a tool-using LLM agent with assume-guarantee contracts:
@@ -16,6 +16,12 @@ A contract library is independent of the agent's model and transfers across
 agents that share a tool interface. Loading a library runs a conflict check
 so that no two contracts that can be active together impose guarantees that
 cannot be met jointly.
+
+![ContrAgent: contracts are compiled once into DFA monitors, which gate tool calls online and replay recorded traces offline](docs/figures/framework.png)
+
+*Contracts are compiled once into DFA monitors; the same monitors gate tool
+calls online (runtime enforcement) and replay recorded traces offline
+(evaluation).*
 
 ## Installation
 
