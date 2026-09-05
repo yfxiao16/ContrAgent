@@ -22,4 +22,5 @@ benchmarks/**/raw/
 .DS_Store
 benchmarks/**/data/
 benchmarks/**/runs/
-
+benchmarks/AgentDojo/runs/
+benchmarks/**/pi_flags*.json
