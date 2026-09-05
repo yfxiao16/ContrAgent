@@ -377,6 +377,9 @@ class ChaseSession:
     def __init__(self, logics_path: str | Path, workdir: str | Path | None = None) -> None:
         if not is_available():
             raise ChaseUnavailable(unavailable_reason())
+        # The console module returns core types (System, Contract); importing the
+        # core bindings first registers them with pybind11.
+        import pychase  # type: ignore[import-not-found]  # noqa: F401
         import pychase_logicsLang as _cl  # type: ignore[import-not-found]
 
         self._builder = _cl.LogicsSpecsBuilder()
@@ -385,7 +388,14 @@ class ChaseSession:
         self._console = _cl.Console(self.system, str(workdir or Path(logics_path).parent))
 
     def run(self, command: str) -> int:
-        """Run one console command; returns the console's status code."""
+        """Run one console command; returns the console's status code.
+
+        CHASE's console requires a terminating semicolon; one is added when
+        missing.
+        """
+        command = command.strip()
+        if not command.endswith(";"):
+            command += ";"
         return self._console.run(command)
 
     def verify(self, contract: str, out_file: str) -> int:
