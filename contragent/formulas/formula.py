@@ -297,14 +297,14 @@ class Var(FormulaMixin, Term):
 
     Examples: ``Var("cost")``, ``Var("count", "tool")``.
 
-    Note: ``==`` / ``<`` / ``<=`` / ``>`` / ``>=`` are overloaded to
-    *build comparison AST nodes* (``Var("x") == 5`` returns
-    ``Eq(Var("x"), Const(5))``), SQLAlchemy-column style — they do NOT
-    return a bool. So ``Var("x") == Var("x")`` is a truthy ``Eq`` node,
-    not ``True``; don't rely on ``==`` to value-compare two ``Var``
-    instances or to dedupe them in ordinary code. Hashing still works
-    (the frozen-dataclass ``__hash__`` is based on ``name``/``args``),
-    so ``Var`` is usable as a dict key / set member.
+    Note: the comparison operators ``==``, ``<``, ``<=``, ``>`` and ``>=`` are
+    overloaded to *construct comparison nodes*, in the style of ORM column
+    objects: ``Var("x") == 5`` returns ``Eq(Var("x"), Const(5))`` rather than
+    a bool, and ``Var("x") == Var("x")`` is an ``Eq`` node (truthy), not
+    ``True``. Do not use ``==`` to compare or deduplicate ``Var`` instances in
+    ordinary code. Hashing is unaffected (the frozen dataclass hashes on
+    ``name`` and ``args``), so a ``Var`` can still serve as a dict key or set
+    member.
 
     Attributes:
         name: Variable name.

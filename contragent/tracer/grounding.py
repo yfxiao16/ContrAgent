@@ -469,12 +469,12 @@ def ground_event(
         # Terms read by direct key lookup, not by content_atoms
         # extraction.
         #
-        # Memory note: this stores the raw arg value (by reference) into
-        # the per-timestep valuation, which is retained for the whole
-        # trace. For tools with large or deeply-nested args that keeps
-        # those objects alive until ``reset`` / ``rotate_session``. Fine
-        # for typical scalar args; if a tool passes megabyte payloads,
-        # bound the trace with ``rotate_session``.
+        # Memory: the raw argument value is stored by reference in the valuation of
+        # this time step, and valuations live as long as the trace does, so large or
+        # deeply nested arguments stay reachable until ``reset`` or
+        # ``rotate_session``. That is fine for ordinary scalar arguments; a tool that
+        # passes very large payloads should be paired with ``rotate_session`` to
+        # bound the trace.
         if event.args:
             for _field, _val in event.args.items():
                 v[pred_key("arg_value", event.tool, _field)] = _val
