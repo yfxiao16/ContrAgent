@@ -1,4 +1,4 @@
-# Long-Horizon Symbolic Supervision of LLM Agents Using Contracts
+# Symbolic Temporal Supervision of LLM Agents Using Contracts
 
 **ContrAgent** is the reference implementation of the paper of the same
 name. It supervises a tool-using LLM agent with assume-guarantee contracts:
