@@ -137,6 +137,37 @@ optional tools refine it.
   holding the binaries. `contragent conflicts --backend mus2muc` then uses it;
   the default `--backend auto` uses it whenever it is available.
 
+## Design-time analysis with CHASE
+
+[CHASE](https://chase-cps.github.io) is a contract-based requirement-engineering
+framework with a contract algebra (composition, conjunction, refinement) and
+model-checking and synthesis back ends. A ContrAgent library exports to CHASE's
+*logics* specification language:
+
+```bash
+contragent export-chase --config contragent/contracts/sopbench/bank.yaml -o bank.logics
+```
+
+The export grounds the library: every instantiated interaction predicate
+becomes a proposition, every quantity an integer variable (saturating counters
+with an explicit range), and each contract a `CONTRACT` block with its
+`Assumptions` and `Guarantees`. Because CHASE reasons over infinite words, the
+default `--semantics finite` applies the LTL<sub>f</sub>-to-LTL translation
+with an `alive` proposition; `--semantics infinite` exports the formulas as
+written.
+
+With CHASE's Python bindings on `PYTHONPATH` (`pychase` from
+`chase-cps/core-library`, `pychase_logicsLang` from `chase-cps/logics_tool`,
+both built with pybind11), two more paths open up:
+
+* `contragent.analysis.chase.PychaseTranslator` builds CHASE `Contract`
+  objects directly and folds the contract algebra over a library
+  (`conjoin` for several contracts on one agent, `compose` for contracts on
+  different components), identifying the variables that contracts share;
+* `contragent.analysis.chase.ChaseSession` loads an exported `.logics` file
+  into the CHASE console and runs `verify` (NuSMV model of a contract),
+  `refinement`, or `synthesize`, whose outputs go to nuXmv, slugs, or gr1c.
+
 ## Experiments
 
 The paper evaluates both roles on four benchmarks. Libraries ship under

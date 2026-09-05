@@ -103,7 +103,9 @@ def replay_cmd(trace_path: Path, config_path, agent_id, as_json) -> None:
     click.echo(click.style(f"verdict: {result['verdict']}", fg=color, bold=True))
     if result["first_violation"] is not None:
         ev = trace.events[result["first_violation"]]
-        click.echo(f"first violation: event {result['first_violation']} ({ev.event_type} {ev.tool or ''})")
+        click.echo(
+            f"first violation: event {result['first_violation']} ({ev.event_type} {ev.tool or ''})"
+        )
     for v in result["violations"]:
         click.echo(f"  - {v['contract'] or v['guarantee']}")
     sys.exit(1 if result["verdict"] == "FAIL" else 0)
@@ -129,6 +131,36 @@ def conflicts_cmd(config_path, agent_id, backend, as_json) -> None:
     else:
         click.echo(report.render())
     sys.exit(0 if report.ok else 1)
+
+
+@cli.command(name="export-chase")
+@click.option("--config", "-c", "config_path", required=True, type=click.Path(exists=True))
+@click.option(
+    "--out",
+    "-o",
+    "out_path",
+    type=click.Path(dir_okay=False),
+    default=None,
+    help="Destination .logics file (default: print to stdout).",
+)
+@click.option("--agent", "-a", "agent_id", default=None)
+@click.option(
+    "--semantics",
+    type=click.Choice(["finite", "infinite"]),
+    default="finite",
+    show_default=True,
+    help="finite: LTLf-to-LTL translation with an 'alive' proposition.",
+)
+def export_chase_cmd(config_path, out_path, agent_id, semantics) -> None:
+    """Export a library to CHASE's logics specification language."""
+    from contragent.analysis.chase import contract_identifiers, export_library
+
+    text = export_library(config_path, out_path, agent_id=agent_id, semantics=semantics)
+    if out_path:
+        n = len(contract_identifiers(text))
+        click.echo(f"wrote {out_path}: {n} contracts ({semantics}-trace semantics)")
+    else:
+        click.echo(text, nl=False)
 
 
 main = cli

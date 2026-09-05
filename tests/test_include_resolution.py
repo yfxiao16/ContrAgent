@@ -91,14 +91,18 @@ class TestIncludeIntoAgent:
 
     def test_pulled_contracts_compile(self, tmp_path):
         _write(tmp_path / "shared.yaml", LOCAL_LIB)
-        host = _write(tmp_path / "host.yaml", 'version: "1"\nagents:\n  bot:\n    include: ["shared.yaml"]\n')
+        host = _write(
+            tmp_path / "host.yaml", 'version: "1"\nagents:\n  bot:\n    include: ["shared.yaml"]\n'
+        )
         system = config_to_system(load_config(host))
         assert len(system.contracts) == 1
         assert system.contracts[0].agent.id == "bot"
 
     def test_library_must_define_single_wildcard_agent(self, tmp_path):
         _write(tmp_path / "bad.yaml", 'version: "1"\nagents:\n  alice:\n    contracts: []\n')
-        host = _write(tmp_path / "host.yaml", 'version: "1"\nagents:\n  bot:\n    include: ["bad.yaml"]\n')
+        host = _write(
+            tmp_path / "host.yaml", 'version: "1"\nagents:\n  bot:\n    include: ["bad.yaml"]\n'
+        )
         with pytest.raises(ConfigError, match="exactly one"):
             load_config(host)
 
@@ -111,13 +115,23 @@ class TestNestedInclude:
             'version: "1"\nagents:\n  "*":\n    include: ["leaf.yaml"]\n'
             '    contracts:\n      - desc: "mid"\n        G: {ltl: "G(!(called(\'drop\')))"}\n',
         )
-        host = _write(tmp_path / "host.yaml", 'version: "1"\nagents:\n  bot:\n    include: ["mid.yaml"]\n')
+        host = _write(
+            tmp_path / "host.yaml", 'version: "1"\nagents:\n  bot:\n    include: ["mid.yaml"]\n'
+        )
         cfg = load_config(host)
         assert [e.desc for e in cfg.agents["bot"].contracts] == ["pay_bill at most twice", "mid"]
 
     def test_cycle_detected(self, tmp_path):
-        _write(tmp_path / "a.yaml", 'version: "1"\nagents:\n  "*":\n    include: ["b.yaml"]\n    contracts: []\n')
-        _write(tmp_path / "b.yaml", 'version: "1"\nagents:\n  "*":\n    include: ["a.yaml"]\n    contracts: []\n')
-        host = _write(tmp_path / "host.yaml", 'version: "1"\nagents:\n  bot:\n    include: ["a.yaml"]\n')
+        _write(
+            tmp_path / "a.yaml",
+            'version: "1"\nagents:\n  "*":\n    include: ["b.yaml"]\n    contracts: []\n',
+        )
+        _write(
+            tmp_path / "b.yaml",
+            'version: "1"\nagents:\n  "*":\n    include: ["a.yaml"]\n    contracts: []\n',
+        )
+        host = _write(
+            tmp_path / "host.yaml", 'version: "1"\nagents:\n  bot:\n    include: ["a.yaml"]\n'
+        )
         with pytest.raises(ConfigError, match="cycle"):
             load_config(host)
