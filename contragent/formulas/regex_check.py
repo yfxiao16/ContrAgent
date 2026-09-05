@@ -38,7 +38,6 @@ from contragent.formulas.formula import (
     X,
 )
 
-
 # Maps predicate name → 0-based argument index of the regex pattern.
 # Only includes atoms whose arg slot is treated as a Python ``re``
 # pattern by ``contragent.tracer.grounding``.  ``arg_paths_within``,

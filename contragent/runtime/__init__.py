@@ -8,7 +8,7 @@ from contragent.runtime.strategies import (
     Escalate,
     Redirect,
 )
-from contragent.runtime.supervisor import Supervisor, SupervisionEvent
+from contragent.runtime.supervisor import SupervisionEvent, Supervisor
 from contragent.runtime.verifier import ContractVerdict, TraceVerifier, Verdict
 
 __all__ = [

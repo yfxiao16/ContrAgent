@@ -2,10 +2,10 @@
 
 from __future__ import annotations
 
+from contragent.formulas.det import DetFormula
 from contragent.formulas.formula import Formula
 from contragent.models.agent import Agent
 from contragent.models.contract import Contract
-from contragent.formulas.det import DetFormula
 
 
 class AgentBuilder:

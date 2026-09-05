@@ -23,7 +23,6 @@ import pytest
 
 from contragent.formulas.det import _is_namespaced_tool_name, _physical_tool
 
-
 # ---------------------------------------------------------------------------
 # Cases that MUST be treated as literal namespaced tool names
 # ---------------------------------------------------------------------------

@@ -1,26 +1,26 @@
 """Unit tests for contragent/formulas/formula.py — AST nodes."""
 
 import pytest
+
 from contragent.formulas.formula import (
-    Atom,
-    Not,
     And,
-    Or,
-    Implies,
-    G,
+    Atom,
+    Const,
+    Eq,
     F,
-    X,
-    U,
-    Le,
-    Lt,
+    G,
     Ge,
     Gt,
-    Eq,
+    Implies,
+    Le,
+    Lt,
+    Not,
+    Or,
+    U,
     Var,
-    Const,
+    X,
     collect_atoms,
 )
-
 
 # ---------------------------------------------------------------------------
 # Atom

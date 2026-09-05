@@ -25,7 +25,6 @@ from typing import Literal, Union
 
 from contragent.formulas._pred_key import pred_key
 
-
 # ---------------------------------------------------------------------------
 # Mixin: operator overloading for composing formulas
 # ---------------------------------------------------------------------------
@@ -350,7 +349,7 @@ class Var(FormulaMixin, Term):
         return 0
 
     # Comparison operators — return AST nodes so repr() is round-trippable.
-    def _coerce_term(self, other: object) -> "Term":
+    def _coerce_term(self, other: object) -> Term:
         """Coerce ``other`` into a Term: pass Terms through, wrap int/float in Const."""
         if isinstance(other, Term):
             return other

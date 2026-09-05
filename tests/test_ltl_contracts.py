@@ -32,7 +32,6 @@ from contragent.config import (
 )
 from contragent.formulas.parser import parse_repr
 
-
 # ---------------------------------------------------------------------------
 # 1. parse_repr covers every LTL shape used in the contract packs
 # ---------------------------------------------------------------------------

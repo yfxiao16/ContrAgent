@@ -39,6 +39,7 @@ from contragent.formulas.formula import (
 from contragent.models.agent import Agent
 from contragent.models.contract import Contract
 from contragent.models.trace import Event, Trace
+from contragent.runtime.verifier import TraceVerifier
 from tests._builders import (
     always_followed_by,
     arg_allowlist,
@@ -47,7 +48,6 @@ from tests._builders import (
     no_reversal,
     rate_limit,
 )
-from contragent.runtime.verifier import TraceVerifier
 
 
 def _trace(*tool_calls: str) -> Trace:

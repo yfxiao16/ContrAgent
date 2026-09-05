@@ -272,9 +272,9 @@ def _compile_det(item: dict) -> ExtractionResult:
     # Path 1: Direct formula string
     if formula_str:
         try:
-            from contragent.formulas.parser import parse_formula
-            from contragent.formulas.nl_gen import formula_to_nl
             from contragent.formulas.det import DetFormula
+            from contragent.formulas.nl_gen import formula_to_nl
+            from contragent.formulas.parser import parse_formula
 
             ast_node = parse_formula(formula_str)
             generated_nl = formula_to_nl(ast_node)

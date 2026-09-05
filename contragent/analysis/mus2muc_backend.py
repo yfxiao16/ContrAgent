@@ -35,10 +35,10 @@ import shutil
 import subprocess
 import sys
 import tempfile
+from collections.abc import Iterable, Sequence
 from pathlib import Path
-from typing import Iterable, Sequence
 
-from contragent.formulas.sat import _abstract, _LeafTable, Node
+from contragent.formulas.sat import Node, _abstract, _LeafTable
 
 # Exit codes from mus2muc.enumeration.MUS2MUCResult that indicate a
 # completed (or deliberately truncated) enumeration rather than a crash.

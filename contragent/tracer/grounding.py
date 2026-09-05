@@ -71,8 +71,8 @@ import re
 import warnings
 from dataclasses import dataclass, field
 
-from contragent.models.trace import Event, Trace
 from contragent.formulas._pred_key import pred_key
+from contragent.models.trace import Event, Trace
 
 
 @dataclass
@@ -240,7 +240,8 @@ def collect_content_atoms(formulas) -> dict[str, set[tuple[str, ...]]]:
     Returns:
         Dict mapping predicate name to set of arg tuples.
     """
-    from contragent.formulas.formula import Atom as AtomType, Var as VarType
+    from contragent.formulas.formula import Atom as AtomType
+    from contragent.formulas.formula import Var as VarType
 
     result: dict[str, set[tuple[str, ...]]] = {}
 

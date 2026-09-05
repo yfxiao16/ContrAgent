@@ -33,11 +33,11 @@ import pytest
 from contragent import contract
 from contragent.core import ContrAgent
 from contragent.models.result import Violation
-from tests._builders import tool_allowlist
 from contragent.runtime.strategies import (
     ActionContext,
     Escalate,
 )
+from tests._builders import tool_allowlist
 
 
 def _make_violation(desc: str = "test violation") -> Violation:

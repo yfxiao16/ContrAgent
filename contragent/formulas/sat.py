@@ -68,8 +68,9 @@ This is exact for the abstraction; the caps only bound runtime.
 from __future__ import annotations
 
 from collections import deque
+from collections.abc import Iterable
 from itertools import combinations, product
-from typing import Any, Iterable, Union
+from typing import Any, Union
 
 from contragent.formulas.formula import (
     And,
@@ -342,7 +343,7 @@ class _CounterGadget:
         self.initial: tuple[int, ...] = (0,) * len(registers)
 
     @classmethod
-    def build(cls, table: _LeafTable, cap: int = _GADGET_CAP) -> "_CounterGadget":
+    def build(cls, table: _LeafTable, cap: int = _GADGET_CAP) -> _CounterGadget:
         import math
 
         from contragent.formulas.formula import Const, Var

@@ -23,8 +23,8 @@ sys.path.insert(0, REPO)
 warnings.simplefilter("ignore")
 
 from contragent.formulas.det import DetFormula  # noqa: E402
-from contragent.formulas.parser import parse_repr  # noqa: E402
 from contragent.formulas.evaluator import evaluate as eval_formula  # noqa: E402
+from contragent.formulas.parser import parse_repr  # noqa: E402
 from contragent.models.trace import Trace  # noqa: E402
 from contragent.tracer.grounding import collect_content_atoms, ground  # noqa: E402
 

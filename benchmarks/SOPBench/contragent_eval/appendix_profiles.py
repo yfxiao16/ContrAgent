@@ -34,8 +34,8 @@ CAP = 60  # per (domain, model, label) sample cap
 
 
 def load_det_contracts(yaml_path):
-    from contragent.eval_runner import resolve_entry
     from contragent.config import load_config
+    from contragent.eval_runner import resolve_entry
 
     cfg = load_config(yaml_path)
     agent = cfg.agents.get("*") or next(iter(cfg.agents.values()))

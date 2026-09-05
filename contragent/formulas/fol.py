@@ -110,23 +110,23 @@ class LessThanEq:
 class PNot:
     """Negation."""
 
-    child: "Predicate"
+    child: Predicate
 
 
 @dataclass(frozen=True)
 class PAnd:
     """Conjunction."""
 
-    left: "Predicate"
-    right: "Predicate"
+    left: Predicate
+    right: Predicate
 
 
 @dataclass(frozen=True)
 class POr:
     """Disjunction."""
 
-    left: "Predicate"
-    right: "Predicate"
+    left: Predicate
+    right: Predicate
 
 
 @dataclass(frozen=True)
@@ -136,8 +136,8 @@ class PImplies:
     If the guard is false, the predicate is vacuously true.
     """
 
-    guard: "Predicate"
-    body: "Predicate"
+    guard: Predicate
+    body: Predicate
 
 
 # ---------------------------------------------------------------------------
@@ -155,7 +155,7 @@ class ForAllPaths:
     """
 
     field: Field
-    path_predicate: "Predicate"
+    path_predicate: Predicate
 
 
 # ---------------------------------------------------------------------------

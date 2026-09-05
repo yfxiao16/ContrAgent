@@ -6,7 +6,6 @@ import json
 from dataclasses import dataclass, field
 from pathlib import Path
 
-
 # Accepted ``event_type`` discriminator values. Keep in sync with the
 # grounding layer — new types must be handled by ``ground_event`` before
 # being added here, otherwise contracts will silently miss them.

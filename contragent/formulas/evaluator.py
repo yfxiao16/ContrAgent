@@ -19,25 +19,25 @@ from __future__ import annotations
 import warnings
 
 from contragent.formulas.formula import (
-    Atom,
-    Not,
     And,
-    Or,
-    Implies,
-    G,
+    Atom,
+    Const,
+    Eq,
     F,
-    X,
-    U,
-    Le,
-    Lt,
+    Formula,
+    G,
     Ge,
     Gt,
-    Eq,
+    Implies,
+    Le,
+    Lt,
+    Not,
+    Or,
     Subset,
     Term,
+    U,
     Var,
-    Const,
-    Formula,
+    X,
 )
 
 # Var name prefixes that have counter semantics — for these, "missing

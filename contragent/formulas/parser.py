@@ -33,12 +33,11 @@ Usage::
 
 from __future__ import annotations
 
-
 from contragent.formulas.formula import (
     And,
-    Atom,
     ArgLength,
     ArgValue,
+    Atom,
     Const,
     CtxValue,
     Eq,

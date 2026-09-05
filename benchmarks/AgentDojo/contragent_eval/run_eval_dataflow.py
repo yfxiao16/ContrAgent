@@ -51,15 +51,15 @@ from task_allowlist import (  # noqa: E402
 
 _MODE = os.environ.get("CG_MODE", "strict")
 _CONTRACTS_YAML = os.path.join(_REPO, "contragent", "contracts", "benchmark", "agentdojo.yaml")
-_BUNDLE = None  # lazily-loaded full det bundle (for taintbundle mode)
+_LIBRARY = None  # lazily-loaded full contract library (for taintlib mode)
 
 
-def _load_bundle():
-    global _BUNDLE
-    if _BUNDLE is not None:
-        return _BUNDLE
-    from contragent.eval_runner import resolve_entry
+def _load_library():
+    global _LIBRARY
+    if _LIBRARY is not None:
+        return _LIBRARY
     from contragent.config import load_config
+    from contragent.eval_runner import resolve_entry
 
     cfg = load_config(_CONTRACTS_YAML)
     agent = cfg.agents.get("*") or next(iter(cfg.agents.values()))
@@ -72,12 +72,12 @@ def _load_bundle():
                 _nl, p = resolve_entry(e)
                 if p is not None:
                     parsed.append(p)
-    _BUNDLE = parsed
+    _LIBRARY = parsed
     return parsed
 
 
-def _bundle_fires(messages):
-    """True if ANY det contract in the full bundle fires on this trace."""
+def _library_fires(messages):
+    """True if ANY det contract in the full library fires on this trace."""
     import warnings
 
     from contragent.eval_runner import _eval_contract_on_trace
@@ -96,7 +96,7 @@ def _bundle_fires(messages):
     t = Trace.from_dict({"metadata": {}, "events": events})
     with warnings.catch_warnings():
         warnings.simplefilter("ignore")
-        for p in _load_bundle():
+        for p in _load_library():
             try:
                 if _eval_contract_on_trace(p, t) is True:
                     return True
@@ -153,7 +153,7 @@ def _anchors(v):
     # In taint mode anchors are matched ONLY against the (benign-empty) injection
     # span, so broadening them cannot raise FP -- only recall. We therefore allow
     # short distinctive entities (e.g. an invitee name "Fred", channel "External").
-    min_len = 4 if _MODE in ("taint", "taintbundle") else 5
+    min_len = 4 if _MODE in ("taint", "taintlib") else 5
     return {a for a in out if len(a) >= min_len}
 
 
@@ -210,15 +210,15 @@ def _injection_text(d):
 def _blocked(suite, utid, messages, inj_text=""):
     legit = legit_targets_for(suite, utid)
     user_text, tool_text = _texts(messages)
-    if _MODE in ("taint", "taintbundle"):
+    if _MODE in ("taint", "taintlib"):
         # untrusted == the injected (tainted) span only; trusted == everything
         # else (user prompt + benign tool data).
         tool_text, user_text = inj_text, ""
-    # taintbundle: also enforce the FULL bundle, but only when untrusted content
+    # taintlib: also enforce the full library, but only when untrusted content
     # is present (benign traces carry no injection -> the bundle is gated off ->
     # its over-blocking cannot produce a false positive). Combines the bundle's
     # recall (lowest ASR) with the taint gate's ~zero FP.
-    if _MODE == "taintbundle" and inj_text and _bundle_fires(messages):
+    if _MODE == "taintlib" and inj_text and _library_fires(messages):
         return True
     for name, args in _iter_side_calls(messages):
         # scoped no-target high-impact tool the task never requested -> block

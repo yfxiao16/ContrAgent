@@ -22,3 +22,8 @@ benchmarks/**/raw/
 .DS_Store
 benchmarks/**/data/
 benchmarks/**/runs/
+
+# Regenerable tau2 comparison samples (build_sample.py / per_sim_labels.py)
+benchmarks/tau2/contragent_eval/agentpex_cmp/*_sample.json
+benchmarks/tau2/contragent_eval/agentpex_cmp/pilot_*.json
+benchmarks/tau2/contragent_eval/per_sim_labels.json

@@ -8,7 +8,6 @@ Usage:
 
 import json
 import sys
-from collections import defaultdict
 
 
 def load(paths):

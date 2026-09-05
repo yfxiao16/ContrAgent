@@ -21,9 +21,9 @@ Span taxonomy::
 from __future__ import annotations
 
 import time
+from collections.abc import Iterator
 from dataclasses import dataclass, field
-from typing import Any, Iterator
-
+from typing import Any
 
 # ---------------------------------------------------------------------------
 # Base span
@@ -346,11 +346,6 @@ def _span_description(span: Span) -> str:
             if span.strategy
             else span.result_action
         )
-    if isinstance(span, StoCheckSpan):
-        return "sto pipeline"
-    if isinstance(span, StoEvalSpan):
-        passed = "PASSED" if span.passed else "FAILED"
-        return f"{span.constraint_name} (score={span.score:.2f}, threshold={span.threshold:.2f}) -- {passed}"
     return ""
 
 
@@ -489,32 +484,4 @@ class SpanCollector:
         )
         span.finish()
         self.current.children.append(span)
-        return span
-
-    def start_sto_check(self) -> StoCheckSpan:
-        """Start the sto pipeline container span."""
-        span = StoCheckSpan(
-            span_type="contragent.sto_check",
-            start_time=time.monotonic(),
-        )
-        self.start_span(span)
-        return span
-
-    def start_sto_eval(
-        self,
-        constraint_name: str,
-        score: float = 0.0,
-        threshold: float = 0.5,
-        passed: bool = True,
-    ) -> StoEvalSpan:
-        """Start a sto constraint evaluation span."""
-        span = StoEvalSpan(
-            span_type="contragent.sto_eval",
-            start_time=time.monotonic(),
-            constraint_name=constraint_name,
-            score=score,
-            threshold=threshold,
-            passed=passed,
-        )
-        self.start_span(span)
         return span

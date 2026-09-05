@@ -34,7 +34,7 @@ class BucketStats:
     max_ns: int = 0
 
     @staticmethod
-    def from_samples(ns_list: list[int]) -> "BucketStats":
+    def from_samples(ns_list: list[int]) -> BucketStats:
         if not ns_list:
             return BucketStats()
         s = sorted(ns_list)
@@ -116,7 +116,7 @@ class CheckTimer:
         self._label = label
         self._start = 0
 
-    def __enter__(self) -> "CheckTimer":
+    def __enter__(self) -> CheckTimer:
         self._start = time.perf_counter_ns()
         return self
 

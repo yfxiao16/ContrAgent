@@ -38,7 +38,6 @@ Only HONEST contracts contribute to the reported fire-rates.
 from __future__ import annotations
 
 import json
-import os
 import re
 import sys
 from collections import defaultdict
@@ -49,14 +48,14 @@ import yaml
 REPO_ROOT = Path(__file__).resolve().parents[3]
 sys.path.insert(0, str(REPO_ROOT))
 
+from convert import tau2_sim_to_trace  # noqa: E402
+
 from contragent.config import ConstraintEntry, _compile_single  # noqa: E402
 from contragent.formulas.formula import Atom, Var  # noqa: E402
-from contragent.models.contract import Contract  # noqa: E402
 from contragent.models.agent import Agent  # noqa: E402
+from contragent.models.contract import Contract  # noqa: E402
 from contragent.models.trace import Trace  # noqa: E402
 from contragent.runtime.verifier import TraceVerifier, _raw_formula  # noqa: E402
-
-from convert import tau2_sim_to_trace  # noqa: E402
 
 BUNDLE = REPO_ROOT / "contragent" / "contracts" / "benchmark" / "tau2_bench.yaml"
 RESULTS_DIR = (

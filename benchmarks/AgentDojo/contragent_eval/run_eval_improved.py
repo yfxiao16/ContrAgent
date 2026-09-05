@@ -3,7 +3,7 @@ AgentDojo offline enforcement eval for ContrAgent -- TRACE-IMPROVED variant.
 
 Point 3 of the three-point comparison (baseline / generic / trace-improved).
 
-Motivation: the raw payload-specific bundle (run_eval.py on agentdojo.yaml)
+Motivation: the raw payload-specific library (run_eval.py on agentdojo.yaml)
 reaches a low ASR but at ~30% utility false-positives, because its broad
 public-mail-domain blacklists (block any send_email to @gmail/@yahoo/...) fire on
 the *legitimate* gmail/yahoo recipients a user task itself names. Inspecting the
@@ -27,7 +27,7 @@ So blocked(trace) = allowlist_violation  OR  any kept structural contract fires.
 
 This is the "we improved the contract library by learning from traces" point:
 strictly lower residual ASR than the generic allowlist alone, at essentially the
-same (low) utility FP -- it dominates the raw bundle on the FP axis.
+same (low) utility FP -- it dominates the raw library on the FP axis.
 
 Usage:
   PYTHONPATH=../.. python contragent_eval/run_eval_improved.py [model ...]
@@ -70,8 +70,8 @@ DROP_SUBSTRS = [s for s in os.environ.get("CG_DROP", _DEFAULT_DROP).split(",") i
 
 
 def _load_structural():
-    from contragent.eval_runner import resolve_entry
     from contragent.config import load_config
+    from contragent.eval_runner import resolve_entry
 
     cfg = load_config(CONTRACTS)
     agent = cfg.agents.get("*") or next(iter(cfg.agents.values()))

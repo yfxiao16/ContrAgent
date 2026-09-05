@@ -7,7 +7,6 @@ only judged at session end via :meth:`BaseGuard.finish_session`.
 
 from __future__ import annotations
 
-
 import contragent
 from contragent.runtime.verifier import Verdict
 
@@ -201,7 +200,7 @@ class TestFinishSessionReturnTypes:
 
 class TestFinishSessionSpanEmission:
     """finish_session must produce the same span tree shape as runtime checks
-    so OTEL exporters, dashboard, and render_tree all work unchanged."""
+    so span consumers and render_tree all work unchanged."""
 
     def test_span_tree_appears_in_check_spans(self):
         """Session-end spans should be appended to ``guard.check_spans``."""

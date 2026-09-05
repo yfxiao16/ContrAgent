@@ -13,7 +13,6 @@ from contragent.discovery.loaders import (
 )
 from contragent.models.trace import Event, Trace
 
-
 # ---------------------------------------------------------------------------
 # Document loading
 # ---------------------------------------------------------------------------

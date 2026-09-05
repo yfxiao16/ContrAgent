@@ -87,6 +87,7 @@ class LiveEnforcer:
         # it stays false-positive-free. See compile_tree.py.
         try:
             from compile_tree import compile_guarantee
+
             from contragent.config import ConstraintEntry
 
             g = compile_guarantee(self.goal, task.get("constraints"))

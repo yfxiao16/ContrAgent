@@ -672,7 +672,7 @@ class TraceVerifier:
 
         Short-circuits on the first failing assumption and returns that
         verdict. Sto assumptions are skipped silently (they're handled
-        by the sto pipeline, not the verifier).
+        outside the verifier).
 
         Returns a trivially-true verdict (``holds=True``,
         ``desc="true"``) if the contract has no det assumptions or all
@@ -733,7 +733,7 @@ class TraceVerifier:
         Other notes:
 
         * Sto constraints (those without a ``formula`` attribute) are
-          skipped — they go through the sto pipeline, not here.
+          skipped.
         * Liveness formulas (``DetFormula.liveness == True``) are
           skipped by default — at runtime they can't be enforced by
           blocking, so the monitor ignores them mid-session.  Pass

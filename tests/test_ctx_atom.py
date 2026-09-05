@@ -13,11 +13,11 @@ from contragent.formulas._pred_key import pred_key
 from contragent.formulas.evaluator import evaluate
 from contragent.formulas.formula import Atom
 from contragent.models.trace import Event, Trace
+from contragent.tracer.grounding import GroundingState, collect_content_atoms, ground
 from tests._builders import (
     ctx_matches_required,
     ctx_required,
 )
-from contragent.tracer.grounding import GroundingState, collect_content_atoms, ground
 
 
 def _trace(*events: Event) -> Trace:

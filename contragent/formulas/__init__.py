@@ -1,31 +1,31 @@
+from contragent.formulas.evaluator import evaluate
 from contragent.formulas.formula import (
+    And,
+    # Propositional
+    Atom,
+    Const,
+    Eq,
+    F,
     # Base
     Formula,
     FormulaMixin,
     # Temporal (LTL)
     G,
-    F,
-    X,
-    U,
-    # Propositional
-    Atom,
-    Not,
-    And,
-    Or,
+    Ge,
+    Gt,
     Implies,
     # Arithmetic / Set (SMT-ready)
     Le,
     Lt,
-    Ge,
-    Gt,
-    Eq,
-    Var,
-    Const,
+    Not,
+    Or,
     Subset,
+    U,
+    Var,
+    X,
     # Utilities
     collect_atoms,
 )
-from contragent.formulas.evaluator import evaluate
 
 __all__ = [
     "Formula",

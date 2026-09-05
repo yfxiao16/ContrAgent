@@ -53,7 +53,7 @@ trace outright. When no witness works, the check falls through to the
 search unchanged (``certificate == "search"`` when it decides;
 unknown-budget bailouts still leave ``certificate`` ``None``).
 
-Only pure-det contracts participate; sto contracts are skipped and
+Only deterministic contracts participate; other constraints are skipped and
 counted in ``ConflictReport.skipped``. Reported conflicts are always
 sound (a reported core is genuinely unsatisfiable), and the check is
 additionally *complete* for the fragment ContrAgent ships: numeric
@@ -70,8 +70,9 @@ theory checker.
 
 from __future__ import annotations
 
+from collections.abc import Callable, Iterable, Iterator, Sequence
 from dataclasses import dataclass, field
-from typing import Any, Callable, Iterable, Iterator, Sequence
+from typing import Any
 
 from contragent.formulas._pred_key import pred_key
 from contragent.formulas.formula import (
@@ -245,21 +246,29 @@ _COUNT_VAR_TO_CALL_ATOM = {
 
 
 def _collect_comparisons(formula: Any, out: list) -> None:
-    from contragent.formulas.formula import F as _F
-    from contragent.formulas.formula import G as _G
-    from contragent.formulas.formula import U as _U
-    from contragent.formulas.formula import X as _X
     from contragent.formulas.formula import (
         And as _And,
+    )
+    from contragent.formulas.formula import (
         Eq,
         Ge,
         Gt,
-        Implies as _Implies,
         Le,
         Lt,
+    )
+    from contragent.formulas.formula import F as _F
+    from contragent.formulas.formula import G as _G
+    from contragent.formulas.formula import (
+        Implies as _Implies,
+    )
+    from contragent.formulas.formula import (
         Not as _Not,
+    )
+    from contragent.formulas.formula import (
         Or as _Or,
     )
+    from contragent.formulas.formula import U as _U
+    from contragent.formulas.formula import X as _X
 
     if isinstance(formula, (Le, Lt, Ge, Gt, Eq)):
         out.append(formula)

@@ -19,7 +19,7 @@ or a list. A list is interpreted as the logical AND of its elements.
 ``assumption=None`` (the default) means the contract is unconditional.
 
 Threshold fields (``alpha``, ``beta``) are part of the schema for
-stochastic relaxation: a sto contract holds when ``conf(A) >= alpha``
+deterministic evaluation of the assumption and guarantee formulas
 implies ``conf(G) >= beta``. This build exposes only the
 ``alpha == beta == 1.0`` degenerate case (boolean det); ``BaseGuard``
 rejects non-default values at construction time. The
@@ -82,7 +82,7 @@ def _formula_is_pure_det(formula: Any) -> bool:
 
     Lives here so ``Contract.is_pure_det`` doesn't need to reach into
     a sto lifting module to decide dispatch. Mirrors the canonical
-    implementation expected by sto evaluators; if a sto pipeline is
+    implementation of the deterministic check; if another evaluator is
     plugged in, its evaluator decides what to do with non-pure-det
     contracts, but the structural classification is the same on both
     sides.
@@ -190,12 +190,12 @@ class Contract:
         reject the unsupported shapes at construction time rather than
         silently treating them as a per-position re-evaluation.
         """
-        from contragent.formulas.formula import Atom, F
         from contragent.formulas.det import DetFormula
+        from contragent.formulas.formula import Atom, F
 
         def _check(constraint: Any, idx: int) -> None:
             if not hasattr(constraint, "formula"):
-                # Sto / non-DetFormula assumption — sto pipeline owns it.
+                # Not a DetFormula: nothing to validate here.
                 return
             raw = (
                 constraint.formula if isinstance(constraint, DetFormula) else constraint
@@ -223,7 +223,7 @@ class Contract:
 
         When true, the monitor can dispatch to the existing LTL/DFA
         evaluator without paying the probabilistic-lifting overhead.
-        Sto contracts (``atom_type == "sto"`` or non-default α / β)
+        Contracts with non-deterministic atoms
         return ``False`` so dispatch routes them away from the det
         pipeline.
         """

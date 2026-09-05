@@ -6,8 +6,8 @@ from dataclasses import dataclass, field
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
-    from contragent.formulas.formula import Formula
     from contragent.formulas.det import DetFormula
+    from contragent.formulas.formula import Formula
 
 
 # Valid violation categories. Reporting pipelines and enforcement

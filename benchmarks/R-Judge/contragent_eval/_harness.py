@@ -6,15 +6,19 @@ overall + per-category + per-contract confusion matrices and the FP/FN lists.
 Use: PYTHONPATH=. python benchmarks/R-Judge/contragent_eval/_harness.py [contracts.yaml]
 """
 from __future__ import annotations
-import glob, json, sys
+
+import glob
+import json
+import sys
 from collections import defaultdict
 from pathlib import Path
+
 import yaml
 
 from contragent.formulas.evaluator import evaluate
 from contragent.formulas.parser import parse_repr
-from contragent.tracer.grounding import ground, collect_content_atoms
 from contragent.models.trace import Trace
+from contragent.tracer.grounding import collect_content_atoms, ground
 
 HERE = Path(__file__).resolve().parent
 

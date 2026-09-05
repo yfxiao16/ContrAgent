@@ -1,24 +1,25 @@
 """Unit tests for contragent/formulas/evaluator.py — finite-trace evaluation."""
 
 import pytest
+
 from contragent.formulas.evaluator import evaluate
 from contragent.formulas.formula import (
-    Atom,
-    Not,
     And,
-    Or,
-    Implies,
-    G,
+    Atom,
+    Const,
+    Eq,
     F,
-    X,
-    U,
-    Le,
-    Lt,
+    G,
     Ge,
     Gt,
-    Eq,
+    Implies,
+    Le,
+    Lt,
+    Not,
+    Or,
+    U,
     Var,
-    Const,
+    X,
 )
 
 

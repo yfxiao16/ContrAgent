@@ -97,7 +97,7 @@ def main():
     emitted = set()
     for s in judged:
         emitted |= set(scores[s])
-    cmp_cats = sorted((emitted & GT_CATS))
+    cmp_cats = sorted(emitted & GT_CATS)
     print(f"compared categories: {cmp_cats}\n")
 
     for tau in (50, 60, 65, 70, 80, 90, 99):

@@ -5,7 +5,6 @@ per condition, plus the llm_guard LLM-call cost. Prints a LaTeX-ready line:
   domain & base s/sf & prompt s/sf & enforce s/sf & llm_guard s/sf & guardcalls
 """
 
-import glob
 import json
 import os
 

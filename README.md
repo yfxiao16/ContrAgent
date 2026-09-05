@@ -1,40 +1,33 @@
-# ContrAgent
+# Long-Horizon Symbolic Supervision of LLM Agents Using Contracts
 
-Contract-based deterministic trajectory supervision of LLM agents.
+**ContrAgent** is the reference implementation of the paper of the same
+name. It supervises a tool-using LLM agent with assume-guarantee contracts:
+each contract is a pair of ALTL<sub>f</sub> formulas (linear temporal logic on
+finite traces with linear arithmetic) over a fixed vocabulary of interaction
+predicates evaluated on the agent's tool-call trace. Every contract compiles
+to a deterministic finite automaton, and the same automata serve two roles:
 
-ContrAgent specifies what a tool-using agent may do as assume-guarantee
-contracts whose assumptions and guarantees are formulas of linear temporal
-logic on finite traces, extended with linear arithmetic (ALTL<sub>f</sub>),
-over a fixed vocabulary of interaction predicates evaluated on the agent's
-tool-call trace. Each contract compiles to a deterministic finite automaton.
-The same automata serve two roles:
-
-* **online**, they gate each tool call before it executes (block, redirect
-  to a safe alternative, or escalate to a human), with no model call on the
-  hot path;
-* **offline**, they replay a recorded trace and return a deterministic,
-  reproducible verdict with the first violating event and the violated
-  contract.
+* **Online**, they gate each tool call before it executes and block,
+  redirect, or escalate a violating call. No model is called on this path.
+* **Offline**, they replay a recorded trace and return a deterministic
+  verdict with the first violating event and the violated contract.
 
 A contract library is independent of the agent's model and transfers across
 agents that share a tool interface. Loading a library runs a conflict check
-(minimal unsatisfiable core, then joint satisfiability of the core's
-assumptions) so that no two contracts that can be active together impose
-guarantees that cannot be met jointly.
+so that no two contracts that can be active together impose guarantees that
+cannot be met jointly.
 
-This repository is the reference implementation accompanying the paper
-*Long-Horizon Symbolic Supervision of LLM Agents Using Contracts*.
+## Installation
 
-## Install
+Python 3.10 or later. The runtime depends only on `pyyaml` and `click`.
 
 ```bash
-pip install -e ".[dev]"          # core + test tooling (z3 for the exact numeric check)
-pip install -e ".[llm]"          # model providers for the formulation pipeline
+pip install -e .              # runtime and command line
+pip install -e ".[dev]"       # plus pytest, ruff, and z3
+pip install -e ".[llm]"       # plus model providers for contract formulation
 ```
 
-Python 3.10 or later. The runtime has two dependencies (`pyyaml`, `click`).
-
-## Writing contracts
+## Contracts
 
 A library is a YAML file. Each contract has a guarantee `G` and an optional
 assumption `A`, written as formulas over the interaction predicates:
@@ -49,15 +42,16 @@ agents:
         G: {ltl: "(!(called('transfer_funds')) U called('verify_identity')) | G(!(called('transfer_funds')))"}
       - desc: "at most three bill payments per session"
         G: {ltl: "G((Var('count', 'pay_bill') <= 3))"}
-      - desc: "no shell command may delete recursively"
+      - desc: "no recursive deletion from the shell"
         G: {ltl: "G((called('bash') -> !(arg_field_has('bash', 'command', 'rm -rf'))))"}
 ```
 
-Temporal operators are `G` (always), `F` (eventually), `X` (next), `U`
-(until); Boolean connectives are `&`, `|`, `!`, `->`. The prefix spelling
+Temporal operators are `G` (always), `F` (eventually), `X` (next), and `U`
+(until); connectives are `&`, `|`, `!`, and `->`. The prefix spelling
 `G(Implies(called(a), F(called(b))))` is accepted as well. A natural-language
 requirement (`nl:`) is lifted to a formula by the formulation pipeline when
-an `extractor:` section names a model.
+an `extractor:` section names a model. Another library is pulled in with
+`include: [contragent:sopbench/bank]`.
 
 ### Interaction predicates
 
@@ -67,7 +61,7 @@ an `extractor:` section names a model.
 | ArgHas(T,f,p) | `arg_field_has(T, f, p)` | argument f of T matches pattern p |
 | Path(T,P) | `arg_paths_within(T, P, ...)` | T's file paths lie within P |
 | Subset(f,S) | `Subset(ArgValue(T, f), S)` | values in field f lie within set S |
-| OutHas(T,p) | `output_has(T, p)` | result of T matches p |
+| OutHas(T,p) | `output_has(T, p)` | result of T matches pattern p |
 | Said(p), In(p) | `llm_said(p)`, `prompt_contains(p)` | model output / input matches p |
 | Match(f,k) | `Eq(ArgValue(T, f), CtxValue(k))` | argument field f equals context value k |
 | Ctx(k,v) | `ctx(k, v)` | context key k holds value v |
@@ -83,8 +77,7 @@ an `extractor:` section names a model.
 | Depth | `Var('delegation_depth')` | agent-delegation depth |
 | Since(e) | `Var('time_since', e)` | time elapsed since predicate e held |
 
-Numeric quantities are compared with `<=`, `<`, `>=`, `>`, `==` against
-constants or other quantities.
+Numeric quantities are compared with `<=`, `<`, `>=`, `>`, and `==`.
 
 ## Online supervision
 
@@ -95,21 +88,21 @@ guard = ContrAgent(agent_id="bank_agent", config="contragent/contracts/sopbench/
 
 result = guard.guard_before("transfer_funds", {"amount": 500})
 if result.blocked:
-    agent_feedback = result.feedback       # returned to the model instead of the tool result
+    reply = result.feedback                 # returned to the model instead of a tool result
 elif result.redirected:
     call(result.redirected_to)
 else:
     out = call("transfer_funds", amount=500)
-    guard.guard_after("transfer_funds", out)  # for guarantees over tool results
+    guard.guard_after("transfer_funds", out)  # guarantees over tool results
 
-guard.finish_session()                        # decides the pending eventualities
+guard.finish_session()                      # decides the pending eventualities
 ```
 
 Data-flow and context predicates are fed through `observe_data_write`,
 `observe_data_read`, `observe_delegation`, `observe_context`, and
-`observe_llm_call`. A per-contract enforcement strategy is chosen with
-`policy={"<contract desc>": Redirect("safe_tool")}`; the default is `Block`,
-and a failed assumption reports through `Escalate` without gating the call.
+`observe_llm_call`. The enforcement action of a contract is set with
+`policy={"<contract desc>": Redirect("safe_tool")}`; the default is `Block`.
+A failed assumption is reported through `Escalate` and does not gate the call.
 
 ## Offline evaluation
 
@@ -120,48 +113,63 @@ contragent conflicts --config contragent/contracts/sopbench/hotel.yaml
 ```
 
 `eval` replays a directory of `safe_*.json` / `unsafe_*.json` traces and
-reports precision, recall, and false-positive rate per contract; `replay`
-prints the end-of-trace verdict, the first violating event, and the
-violated contracts of one trace; `conflicts` runs the library conflict
-check. The trace format is a JSON object with an `events` list, each event
-carrying `ts`, `agent`, `type` (`tool_call`, `tool_output`, `data_read`,
-`data_write`, `message`, `context_update`, `llm_request`, `llm_response`),
-`tool`, `args`, and `content`.
+reports precision, recall, and false-positive rate per contract. `replay`
+prints the verdict, the first violating event, and the violated contracts of
+one trace. `conflicts` runs the library conflict check. A trace is a JSON
+object with an `events` list; each event carries `ts`, `agent`, `type`
+(`tool_call`, `data_read`, `data_write`, `message`, `context_update`,
+`llm_request`, `llm_response`), `tool`, `args`, and `content`.
+
+## Conflict check and optional solvers
+
+The conflict check treats the library as the conjunction of its contracts,
+extracts a minimal unsatisfiable core, and tests whether the assumptions of
+that core are jointly satisfiable. It runs with no extra dependencies; two
+optional tools refine it.
+
+* **Z3** (`pip install -e ".[smt]"`) makes the numeric consistency filter
+  exact. Without it a built-in interval checker is used.
+* **mus2muc** enumerates every minimal core instead of the disjoint cores
+  found by the built-in search. Install the package with
+  `pip install git+https://github.com/ainnoot/mus2muc`, build its patched
+  `wasp` solver and an LTL<sub>f</sub> solver (`aaltaf` or `black`) as
+  described in its README, and point `CONTRAGENT_MUS2MUC_BIN` at the folder
+  holding the binaries. `contragent conflicts --backend mus2muc` then uses it;
+  the default `--backend auto` uses it whenever it is available.
 
 ## Experiments
 
-The paper evaluates both roles on four benchmarks. Contract libraries ship
-under `contragent/contracts/`; the harnesses that convert each benchmark's
-data to traces and score the results are under `benchmarks/`; the
-experiment records are under `experiments/`.
+The paper evaluates both roles on four benchmarks. Libraries ship under
+`contragent/contracts/`, the harnesses that convert each benchmark's data and
+score the results under `benchmarks/`, and the experiment records under
+`experiments/`. Third-party datasets are not redistributed; each harness says
+where to obtain them.
 
 | Benchmark | Role | Library | Harness |
 |---|---|---|---|
-| SOPBench | enforcement | `contracts/sopbench/*.yaml` | `benchmarks/SOPBench/contragent_eval/` |
-| AgentDojo | enforcement | `contracts/benchmark/agentdojo.yaml` | `benchmarks/AgentDojo/contragent_eval/` |
-| R-Judge | evaluation | `contracts/benchmark/rjudge.yaml` | `benchmarks/R-Judge/contragent_eval/` |
-| tau²-bench | evaluation | `contracts/benchmark/tau2_bench.yaml` | `benchmarks/tau2/contragent_eval/` |
+| SOPBench | online enforcement | `contracts/sopbench/*.yaml` | `benchmarks/SOPBench/contragent_eval/` |
+| AgentDojo | online enforcement | `contracts/benchmark/agentdojo.yaml` | `benchmarks/AgentDojo/contragent_eval/` |
+| R-Judge | offline evaluation | `contracts/benchmark/rjudge.yaml` | `benchmarks/R-Judge/contragent_eval/` |
+| tau²-bench | offline evaluation | `contracts/benchmark/tau2_bench.yaml` | `benchmarks/tau2/contragent_eval/` |
 
-Third-party datasets are not redistributed; each harness README says where
-to obtain them and how to convert them. `benchmarks/latency_bench.py`
-reproduces the hot-path latency table and `benchmarks/temporal_expressiveness.py`
-the temporal-expressiveness table of the appendix.
+`benchmarks/latency_bench.py` and `benchmarks/temporal_expressiveness.py`
+reproduce the two appendix tables.
 
 ## Layout
 
 ```
 contragent/
-  formulas/      ALTLf AST, parsers, pointwise evaluator, DFA monitor, LTLf satisfiability, SMT theory
-  tracer/        grounding of trace events into predicate valuations
-  models/        Contract, Agent, System, Trace, spans
-  runtime/       Supervisor (online), TraceVerifier (offline), enforcement strategies
-  analysis/      library conflict check (MUC + joint satisfiability; optional mus2muc backend)
-  generation/    contract formulation from natural language and policy documents
-  discovery/     loaders for requirement artifacts (documents, traces)
-  contracts/     shipped contract libraries
-  config.py      library files, includes, compilation
-  core.py        ContrAgent facade
-  cli.py         eval / replay / conflicts
+  formulas/     ALTLf syntax, parsers, pointwise evaluator, DFA monitor, LTLf satisfiability
+  tracer/       grounding of trace events into predicate valuations
+  models/       Contract, Agent, System, Trace
+  runtime/      Supervisor (online), TraceVerifier (offline), enforcement actions
+  analysis/     library conflict check (built-in and mus2muc backends)
+  generation/   contract formulation from natural language and policy documents
+  discovery/    loaders for requirement artifacts
+  contracts/    shipped contract libraries
+  config.py     library files and compilation
+  core.py       the ContrAgent supervisor
+  cli.py        eval, replay, conflicts
 ```
 
 ## Tests

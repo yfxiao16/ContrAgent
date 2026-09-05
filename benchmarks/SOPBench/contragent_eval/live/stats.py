@@ -13,9 +13,8 @@ import json
 import os
 import re
 import statistics as st
-from collections import defaultdict
-
 import sys as _sys
+from collections import defaultdict
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 SEEDS = os.path.join(HERE, "results", _sys.argv[1] if len(_sys.argv) > 1 else "seeds")

@@ -26,14 +26,13 @@ import textwrap
 
 import pytest
 
-from contragent.formulas.formula import Atom, F, G, Not
 from contragent.core import ContrAgent as BaseGuard
+from contragent.formulas.det import DetFormula
+from contragent.formulas.formula import Atom, F, G, Not
 from contragent.models.agent import Agent
 from contragent.models.contract import Contract
 from contragent.models.trace import Event, Trace
-from contragent.formulas.det import DetFormula
 from contragent.runtime.verifier import TraceVerifier
-
 
 # ---------------------------------------------------------------------------
 # Helpers

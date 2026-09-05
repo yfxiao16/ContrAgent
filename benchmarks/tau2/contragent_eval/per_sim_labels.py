@@ -25,14 +25,15 @@ from pathlib import Path
 HERE = Path(__file__).resolve().parent
 sys.path.insert(0, str(HERE))  # for convert / eval_proc local imports
 
+from convert import tau2_sim_to_trace  # noqa: E402
 from eval_proc import (  # noqa: E402
-    RESULTS_DIR,
     _FILE_RE,
+    RESULTS_DIR,
     _category,
     fire_set_for_trace,
     load_classified_contracts,
 )
-from convert import tau2_sim_to_trace  # noqa: E402
+
 from contragent.models.trace import Trace  # noqa: E402
 
 

@@ -15,8 +15,9 @@ from __future__ import annotations
 import logging
 import threading
 import weakref
+from collections.abc import Callable
 from dataclasses import dataclass
-from typing import Any, Callable
+from typing import Any
 
 from contragent.models.result import Violation
 from contragent.models.spans import AgentTurnSpan, SpanCollector

@@ -80,23 +80,23 @@ import logging
 from dataclasses import dataclass, field
 from typing import Any, Optional
 
-from contragent.formulas.formula import (
-    Atom,
-    Not,
-    And,
-    Or,
-    Implies,
-    G,
-    F,
-    X,
-    U,
-    Formula,
-    Var,
-    Const,
-    Le,
-    Ge,
-)
 from contragent.formulas.det import DetFormula, _physical_tool
+from contragent.formulas.formula import (
+    And,
+    Atom,
+    Const,
+    F,
+    Formula,
+    G,
+    Ge,
+    Implies,
+    Le,
+    Not,
+    Or,
+    U,
+    Var,
+    X,
+)
 
 logger = logging.getLogger(__name__)
 

@@ -61,8 +61,8 @@ def _summ(name, c_lo, c_hi, samples):
 # config-loader path (SOPBench, R-Judge) -- same schema as AgentDojo
 # --------------------------------------------------------------------------
 def load_det_contracts(yaml_path):
-    from contragent.eval_runner import resolve_entry
     from contragent.config import load_config
+    from contragent.eval_runner import resolve_entry
 
     cfg = load_config(yaml_path)
     agent = cfg.agents.get("*") or next(iter(cfg.agents.values()))
@@ -91,9 +91,9 @@ def _per_call_samples(parsed, trace_dict, samples):
     """Time the REAL online hot path: one persistent verifier per trace, at
     each tool call we incrementally sync the newly-arrived events and step
     every contract's DFA. This is O(ΔN) per call, not a full re-ground."""
+    from contragent.models.trace import Trace
     from contragent.runtime.verifier import TraceVerifier
     from contragent.tracer.grounding import collect_content_atoms
-    from contragent.models.trace import Trace
 
     content_atoms = collect_content_atoms([p for p in parsed]) or None
     evs = trace_dict.get("events", [])
@@ -131,9 +131,9 @@ def bench_sopbench():
 
 
 def bench_rjudge():
+    from contragent.models.trace import Trace
     from contragent.runtime.verifier import TraceVerifier
     from contragent.tracer.grounding import collect_content_atoms
-    from contragent.models.trace import Trace
 
     yaml_path = os.path.join(REPO, "benchmarks", "R-Judge", "contragent_eval", "contracts.yaml")
     tdir = os.path.join(REPO, "benchmarks", "R-Judge", "contragent_eval", "traces")
@@ -165,9 +165,9 @@ def bench_tau2():
     t2dir = os.path.join(REPO, "benchmarks", "tau2", "contragent_eval")
     sys.path.insert(0, t2dir)
     import eval_proc  # noqa: E402
-    from contragent.models.trace import Trace  # noqa: E402
     from convert import tau2_sim_to_trace  # noqa: E402
 
+    from contragent.models.trace import Trace  # noqa: E402
     from contragent.runtime.verifier import TraceVerifier, _collect_det_formulas
     from contragent.tracer.grounding import collect_content_atoms
 

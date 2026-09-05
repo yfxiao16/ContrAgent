@@ -9,9 +9,8 @@ internal-state writes that don't trip ``flow``, segment-scoped checks).
 
 from contragent.formulas.evaluator import evaluate
 from contragent.models.trace import Event, Trace
-from tests._builders import approval_active, time_since
 from contragent.tracer.grounding import collect_content_atoms, ground
-
+from tests._builders import approval_active, time_since
 
 # ---------------------------------------------------------------------------
 # now atom

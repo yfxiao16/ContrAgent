@@ -1,7 +1,7 @@
 """Generate natural language descriptions from formula ASTs.
 
 Converts a formula AST into a human-readable description for display
-in YAML configs, CLI output, and dashboards.
+in library files and command-line output.
 
 Usage::
 

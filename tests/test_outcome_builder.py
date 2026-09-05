@@ -18,16 +18,15 @@ those voices ever drift, the integration-side rendering also drifts
 and we lose the block-vs-retry distinction at the agent level.
 """
 
-from contragent.formulas.formula import Atom, Implies, G
-from contragent.models.result import Violation
 from contragent.formulas.det import DetFormula
+from contragent.formulas.formula import Atom, G, Implies
+from contragent.models.result import Violation
 from contragent.runtime.strategies import (
     ActionContext,
     Block,
     Escalate,
     OutcomeBuilder,
 )
-
 
 # ---------------------------------------------------------------------------
 # Helpers

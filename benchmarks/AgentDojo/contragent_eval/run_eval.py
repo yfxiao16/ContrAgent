@@ -2,7 +2,7 @@
 AgentDojo offline enforcement eval for ContrAgent (EF-2: adversarial / injection).
 
 Replays AgentDojo's recorded run traces (runs/<model>/<suite>/<user_task>/<attack>/
-<injection>.json) through the ContrAgent injection-defense contract bundle and
+<injection>.json) through the ContrAgent injection-defense contract library and
 reports, per model/suite:
 
   * baseline ASR  = P(security=True) over attack traces (attacker goal achieved)
@@ -37,8 +37,8 @@ CONTRACTS = os.path.join(_REPO, "contragent", "contracts", "benchmark", "agentdo
 
 
 def _load_contracts():
-    from contragent.eval_runner import resolve_entry
     from contragent.config import load_config
+    from contragent.eval_runner import resolve_entry
 
     cfg = load_config(CONTRACTS)
     agent = cfg.agents.get("*") or next(iter(cfg.agents.values()))

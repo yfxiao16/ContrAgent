@@ -31,8 +31,8 @@ import pytest
 
 from contragent import contract
 from contragent.core import ContrAgent
-from tests._builders import redirect_to_safe
 from contragent.runtime.strategies import Redirect
+from tests._builders import redirect_to_safe
 
 
 class TestRedirectPattern:

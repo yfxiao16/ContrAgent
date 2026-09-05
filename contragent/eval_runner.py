@@ -32,9 +32,10 @@ whole agent's overblock rate, which is exactly the failure mode
 from __future__ import annotations
 
 import json
+from collections.abc import Iterable
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import Any, Iterable, Literal
+from typing import Any, Literal
 
 Label = Literal["safe", "unsafe", "unknown"]
 
@@ -129,7 +130,7 @@ class CaseOutcome:
     contract_nl: str
     label: Label
     blocked: bool  # contract said violation
-    skipped: bool = False  # sto contract or unparseable — not counted
+    skipped: bool = False  # unparseable entry — not counted
 
     @property
     def is_tp(self) -> bool:
@@ -271,7 +272,6 @@ def resolve_entry(entry: Any) -> tuple[str, Any]:
     into ``(label, DetFormula | None)``. Unparseable entries yield ``None``
     and are reported as skipped."""
     from contragent.config import ConfigError, ConstraintEntry, _compile_ltl
-    from contragent.formulas.det import DetFormula
 
     if isinstance(entry, ConstraintEntry):
         if not entry.is_ltl:
@@ -516,7 +516,7 @@ def diff_reports(baseline: dict, current: EvalReport) -> BaselineDiff:
     saved on disk — we accept the dict directly (rather than reading
     the file ourselves) so this function is testable without
     touching the filesystem and so callers can stitch in custom
-    storage backends (S3, dashboard API, …) trivially.
+    storage backends trivially.
 
     Contracts are matched by their ``nl`` string.  Two contracts
     with the same NL but different parsed semantics (e.g. an

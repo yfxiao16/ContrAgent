@@ -3,7 +3,6 @@
 from contragent.models.trace import Event, Trace
 from contragent.tracer.grounding import ground
 
-
 # ---------------------------------------------------------------------------
 # Helpers
 # ---------------------------------------------------------------------------

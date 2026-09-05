@@ -14,8 +14,9 @@ the supervisor reports it through ``Escalate`` without gating the call.
 
 from __future__ import annotations
 
+from collections.abc import Callable
 from dataclasses import dataclass, field
-from typing import Any, Callable, Literal, Protocol, runtime_checkable
+from typing import Any, Literal, Protocol, runtime_checkable
 
 from contragent.models.result import Violation
 

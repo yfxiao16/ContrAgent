@@ -15,13 +15,13 @@ from __future__ import annotations
 from contragent.models.agent import Agent
 from contragent.models.contract import Contract
 from contragent.models.trace import Event, Trace
+from contragent.runtime.verifier import ContractVerdict, TraceVerifier, Verdict
 from tests._builders import (
     arg_blacklist,
     must_precede,
     no_reversal,
     rate_limit,
 )
-from contragent.runtime.verifier import ContractVerdict, TraceVerifier, Verdict
 
 
 def _trace(*tool_calls: str) -> Trace:

@@ -52,7 +52,6 @@ FRAG = {
     "internal_is_restricted": "arg_value({goal}, state_book_restricted) >= 1",
     "internal_check_book_exist": "arg_value({goal}, state_book_exists) >= 1",
     "internal_check_username_exist": "arg_value({goal}, state_user_exists) >= 1",
-    "user_book_not_borrowed": "arg_value({goal}, state_user_book_not_borrowed) >= 1",
     # --- university (course facts already grounded by convert.py) ---
     "internal_check_course_exists": "arg_value({goal}, state_course_exists) >= 1",
     "internal_check_username_exists": "arg_value({goal}, state_user_exists) >= 1",
