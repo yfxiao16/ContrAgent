@@ -36,6 +36,12 @@ class TestWithPychase:
         assert r.getName().getString() == "hotel_head"
         assert len(list(r.declarations)) == len(t.variables)
 
+    def test_refinement_check_contract(self):
+        contracts = load_system(bundled_libraries_root() / "sopbench" / "hotel.yaml").contracts[:2]
+        r = PychaseTranslator().refines(contracts[0], contracts[1], name="c1_le_c2")
+        assert r.getName().getString() == "c1_le_c2"
+        assert list(r.assumptions) and list(r.guarantees)
+
     def test_shared_variables_are_identified(self):
         contracts = load_system(bundled_libraries_root() / "sopbench" / "hotel.yaml").contracts[:2]
         t = PychaseTranslator()

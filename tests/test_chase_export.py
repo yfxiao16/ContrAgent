@@ -7,10 +7,13 @@ import re
 import pytest
 
 from contragent.analysis.chase import (
+    FINITE_TRACE_CONTRACT,
+    MAX_CONTRACT_IDENT,
     ChaseExportError,
     contract_identifiers,
     export_library,
     export_logics,
+    smv_declarations,
 )
 from contragent.config import bundled_libraries_root
 from contragent.formulas.parser import parse_repr
@@ -101,6 +104,12 @@ class TestGrammarShape:
         ids = contract_identifiers(text)
         assert len(ids) == len(set(ids)) and ids
 
+    def test_contract_identifiers_fit_the_chase_console(self):
+        # CHASE's console segfaults in verify/refinement on names longer than eight characters.
+        for path in bundled_libraries_root().rglob("*.yaml"):
+            for ident in contract_identifiers(export_library(path)):
+                assert len(ident) <= MAX_CONTRACT_IDENT, (path, ident)
+
 
 class TestGrounding:
     def test_saturating_counter_gets_range_above_largest_bound(self):
@@ -135,7 +144,7 @@ class TestGrounding:
 class TestSemantics:
     def test_finite_adds_alive_axiom_and_guards(self):
         text = export_logics(_contracts(("F(called('a'))", "G((called('a') -> F(called('b'))))")))
-        assert "CONTRACT finite_trace:" in text
+        assert f"CONTRACT {FINITE_TRACE_CONTRACT}:" in text
         assert "(alive /\\ (alive U (G (! alive))))" in text
         assert "(G (alive -> (p_called_a -> (F (alive /\\ p_called_b)))))" in text
         assert "  Assumptions:\n    (F (alive /\\ p_called_a));" in text
@@ -151,6 +160,28 @@ class TestSemantics:
     def test_rejects_unknown_semantics(self):
         with pytest.raises(ValueError):
             export_logics([], semantics="omega")
+
+
+class TestSmvDeclarations:
+    TEXT = (
+        "NAME: t;\nproposition p_called_a;\n"
+        "integer (0:4) variable v_count_a;\ninteger variable num_a_amount;\n"
+    )
+
+    def test_types_follow_the_declarations(self):
+        assert smv_declarations(self.TEXT) == [
+            "\tp_called_a : boolean;\n",
+            "\tv_count_a : 0..4;\n",
+            "\tnum_a_amount : integer;\n",
+        ]
+
+    def test_unbounded_integers_take_the_given_range(self):
+        assert "\tnum_a_amount : 0..100;\n" in smv_declarations(self.TEXT, int_range=(0, 100))
+
+    def test_every_declaration_of_an_export_is_typed(self):
+        text = export_library(bundled_libraries_root() / "benchmark" / "tau2_bench.yaml")
+        n_decl = len(re.findall(r"^(?:proposition|integer)", text, flags=re.M))
+        assert len(smv_declarations(text)) == n_decl
 
 
 def test_all_shipped_libraries_export():

@@ -35,7 +35,7 @@ default) the export applies the standard LTL\\ :sub:`f`-to-LTL translation
 with a fresh proposition ``alive`` (De Giacomo and Vardi, 2013):
 ``X`` becomes the weak ``X(alive -> .)`` used by the runtime, ``U``
 becomes ``. U (alive /\\ .)``, ``F`` becomes ``F(alive /\\ .)``, ``G``
-becomes ``G(alive -> .)``, and a contract ``finite_trace`` asserts
+becomes ``G(alive -> .)``, and a contract ``finite`` asserts
 ``alive /\\ (alive U G(!alive))``. With ``semantics="infinite"`` the
 formulas are exported unchanged.
 
@@ -53,7 +53,7 @@ Usage
     # with CHASE's Python bindings (pychase, pychase_logicsLang) installed:
     from contragent.analysis.chase import ChaseSession
     s = ChaseSession("bank.logics")
-    s.run("verify c1_identity_before_transfer bank_c1.smv")
+    s.verify("c1", "bank_c1.smv")   # NuSMV model with its VAR block filled in
 
 or ``contragent export-chase --config LIB -o LIB.logics``.
 """
@@ -103,6 +103,13 @@ class ChaseExportError(ValueError):
 
 class ChaseUnavailable(RuntimeError):
     """CHASE's Python bindings (``pychase_logicsLang``) are not installed."""
+
+
+# CHASE's console (verify, refinement, synthesize) crashes on contract names
+# longer than eight characters, so exported contracts are numbered and the
+# description travels in the comment above each block.
+MAX_CONTRACT_IDENT = 8
+FINITE_TRACE_CONTRACT = "finite"
 
 
 def _comment(text: str) -> str:
@@ -278,7 +285,8 @@ def export_logics(
     exported: list[ExportedContract] = []
     for i, c in enumerate(contracts, start=1):
         desc = getattr(c, "desc", None) or f"contract {i}"
-        ident = _ident(f"c{i}", desc)[:64]
+        ident = f"c{i}"
+        assert len(ident) <= MAX_CONTRACT_IDENT
         a = [_formula(_raw(x), sym, finite) for x in _as_list(getattr(c, "assumptions", []))]
         g = [_formula(_raw(x), sym, finite) for x in _as_list(getattr(c, "guarantees", []))]
         exported.append(ExportedContract(ident, desc, a, g))
@@ -307,7 +315,7 @@ def export_logics(
     out.append("")
     if finite:
         out.append("# Finite-trace axiom: a non-empty prefix, then alive is false forever.")
-        out.append("CONTRACT finite_trace:")
+        out.append(f"CONTRACT {FINITE_TRACE_CONTRACT}:")
         out.append("  Assumptions:")
         out.append("    true;")
         out.append("  Guarantees:")
@@ -382,28 +390,58 @@ class ChaseSession:
         import pychase  # type: ignore[import-not-found]  # noqa: F401
         import pychase_logicsLang as _cl  # type: ignore[import-not-found]
 
+        self.logics_path = Path(logics_path)
+        self.workdir = Path(workdir) if workdir is not None else self.logics_path.parent
         self._builder = _cl.LogicsSpecsBuilder()
-        self._builder.parseSpecificationFile(str(logics_path))
+        self._builder.parseSpecificationFile(str(self.logics_path))
         self.system = self._builder.getSystem()
-        self._console = _cl.Console(self.system, str(workdir or Path(logics_path).parent))
+        # The console joins its output directory and file names by concatenation.
+        self._console = _cl.Console(self.system, str(self.workdir) + "/")
 
     def run(self, command: str) -> int:
         """Run one console command; returns the console's status code.
 
-        CHASE's console requires a terminating semicolon; one is added when
-        missing.
+        The semicolon that terminates commands in a ``logics_tool`` command
+        file is stripped by that tool before the console sees the command;
+        the console API takes the bare command, so a trailing one is removed.
         """
-        command = command.strip()
-        if not command.endswith(";"):
-            command += ";"
-        return self._console.run(command)
+        return self._console.run(command.strip().rstrip(";").strip())
 
-    def verify(self, contract: str, out_file: str) -> int:
-        """Emit the NuSMV model of ``contract`` (CHASE ``verify``)."""
-        return self.run(f"verify {contract} {out_file}")
+    def verify(
+        self,
+        contract: str,
+        out_file: str,
+        *,
+        declare: bool = True,
+        int_range: tuple[int, int] | None = None,
+    ) -> int:
+        """Emit the NuSMV model of ``contract`` (CHASE ``verify``).
+
+        The model negates the assumption and the guarantee as two ``LTLSPEC``
+        properties, so a property reported false by nuXmv (with a
+        counterexample) means the formula is satisfiable. With ``declare``
+        the ``VAR`` block, which CHASE leaves empty for specifications read
+        from a logics file, is filled from the declarations of the export;
+        see :func:`smv_declarations` for ``int_range``.
+        """
+        if "smv" not in out_file:  # mirrors the console's naming rule
+            out_file += ".smv"
+        rc = self.run(f"verify {contract} {out_file}")
+        smv = self.workdir / out_file
+        if declare and smv.exists():
+            lines = smv_declarations(self.logics_path.read_text(), int_range=int_range)
+            text = smv.read_text()
+            if lines and "\nVAR\n" in text:
+                smv.write_text(text.replace("\nVAR\n", "\nVAR\n" + "".join(lines), 1))
+        return rc
 
     def refinement(self, refined: str, abstract: str, out_file: str) -> int:
-        """Emit the refinement-check model for ``refined`` <= ``abstract``."""
+        """Emit the refinement-check model for ``refined`` <= ``abstract``.
+
+        CHASE's console crashes here on specifications read from a logics
+        file (the parser leaves the declarations on the system rather than on
+        the contracts); :meth:`PychaseTranslator.refines` is the working path.
+        """
         return self.run(f"refinement {refined} {abstract} {out_file}")
 
 
@@ -412,13 +450,47 @@ def contract_identifiers(text: str) -> list[str]:
     return re.findall(r"^CONTRACT\s+([A-Za-z][A-Za-z0-9_]*):", text, flags=re.M)
 
 
+_DECL_RE = re.compile(
+    r"^(?P<kind>proposition|integer(?: \((?P<lo>\d+):(?P<hi>\d+)\))? variable) (?P<name>[A-Za-z]\w*);",
+    flags=re.M,
+)
+
+
+def smv_declarations(text: str, *, int_range: tuple[int, int] | None = None) -> list[str]:
+    """NuSMV ``VAR`` lines for the declarations of an exported specification.
+
+    CHASE's NuSMV printer writes only the variables attached to the contract,
+    and its logics parser attaches declarations to the system, so the model
+    that ``verify`` emits has an empty ``VAR`` block. Propositions become
+    booleans and ranged integers keep their range. An unbounded integer gets
+    ``int_range`` when one is given (nuXmv's BDD algorithms need finite
+    domains) and the ``integer`` type otherwise (for its SMT-based
+    algorithms, e.g. ``msat_check_ltlspec_bmc``).
+    """
+    lines: list[str] = []
+    for m in _DECL_RE.finditer(text):
+        if m["kind"] == "proposition":
+            typ = "boolean"
+        elif m["lo"] is not None:
+            typ = f"{m['lo']}..{m['hi']}"
+        elif int_range is not None:
+            typ = f"{int_range[0]}..{int_range[1]}"
+        else:
+            typ = "integer"
+        lines.append(f"\t{m['name']} : {typ};\n")
+    return lines
+
+
 __all__ = [
+    "FINITE_TRACE_CONTRACT",
+    "MAX_CONTRACT_IDENT",
     "ChaseExportError",
     "ChaseUnavailable",
     "ChaseSession",
     "export_logics",
     "export_library",
     "contract_identifiers",
+    "smv_declarations",
     "is_available",
     "unavailable_reason",
 ]
@@ -549,6 +621,20 @@ class PychaseTranslator:
     def compose(self, contracts: Sequence[Any], name: str = "library") -> Any:
         """Saturate every contract and fold CHASE ``composition`` over the library."""
         return self._fold("composition", contracts, name)
+
+    def refines(self, refined: Any, abstract: Any, *, name: str = "refinement") -> Any:
+        """Build CHASE's refinement-check contract for ``refined`` <= ``abstract``.
+
+        ``Contract.refinementCheck`` returns a contract whose assumption is
+        ``A_abstract -> A_refined`` and whose guarantee is
+        ``G_refined -> G_abstract`` over the variables the two share; the
+        refinement holds when both are valid, which CHASE's back ends decide.
+        Use this path rather than the console's ``refinement`` command,
+        which crashes on specifications read from a logics file.
+        """
+        a = self.contract(refined, "refined")
+        b = self.contract(abstract, "abstract")
+        return self._rep.Contract.refinementCheck(a, b, self.shared_variables(a, b), name)
 
 
 __all__ += ["PychaseTranslator"]
