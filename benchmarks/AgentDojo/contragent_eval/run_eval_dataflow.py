@@ -199,7 +199,26 @@ def _iter_side_calls(messages):
                 yield name, (tc.get("args") or {})
 
 
-def _injection_text(d):
+_TAINT_FILE = os.environ.get("CG_TAINT", "")
+_TAINT = json.load(open(_TAINT_FILE))["traces"] if _TAINT_FILE else None
+
+
+def _injection_text(d, path=None):
+    """Untrusted span for this trace.
+
+    With ``CG_TAINT=<flags.json>`` (written by ``pi_detector_taint.py``) the
+    span is the tool outputs a prompt-injection classifier flagged, keyed by
+    the trace path relative to the runs directory; without it, the benchmark's
+    recorded ``injections`` are used (an ideal detector).
+    """
+    if _TAINT is not None:
+        key = os.path.relpath(path, os.path.join(_AD, "runs")) if path else None
+        rec = _TAINT.get(key) if key else None
+        return " ".join(rec["flagged"]).lower() if rec else ""
+    return _injection_text_recorded(d)
+
+
+def _injection_text_recorded(d):
     """Concatenated untrusted-injected content for this trace.
 
     AgentDojo records the planted third-party strings in `injections`. This is
@@ -267,7 +286,7 @@ def eval_model(model_dir):
         utid = d.get("user_task_id") or f.split(os.sep)[-3]
         s = suites.setdefault(suite, {"atk": 0, "sec": 0, "broke": 0, "none_util": 0, "fp": 0})
         msgs = d.get("messages") or []
-        inj = _injection_text(d)
+        inj = _injection_text(d, f)
         if attack == "none":
             if d.get("utility"):
                 s["none_util"] += 1
