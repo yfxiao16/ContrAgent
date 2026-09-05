@@ -18,8 +18,12 @@ construction enter through the injected tool output -- still satisfy both and ar
 blocked, so ASR is preserved.
 
 CG_MODE env var selects the provenance rule:
-  strict (default): untrusted = in tool-output AND not in user-text
-  toolout         : untrusted = in tool-output (ignore user-text)
+  strict (default): untrusted = named in a tool output AND not in the user text
+  notuser         : untrusted = not named in the user text (tool-output test dropped)
+  taint           : untrusted = named in the injected span only; the user prompt and
+                    benign tool data are trusted (shorter anchors allowed)
+  taintlib        : taint, plus the full contract library enforced whenever an
+                    injected span is present (the configuration reported in the paper)
 
 Usage:
   PYTHONPATH=<repo> python contragent_eval/run_eval_dataflow.py [model ...]
