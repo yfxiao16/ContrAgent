@@ -52,5 +52,12 @@ Place AgentDojo's recorded runs under `benchmarks/AgentDojo/runs/<model>/`
 
 ```bash
 cd benchmarks/AgentDojo && PYTHONPATH=../.. python contragent_eval/run_eval.py gpt-4o
-PYTHONPATH=../.. python contragent_eval/run_eval_dataflow.py gpt-4o      # trace-learned allowlists
+CG_MODE=taintlib PYTHONPATH=../.. python contragent_eval/run_eval_dataflow.py gpt-4o   # trace-learned
 ```
+
+`CG_MODE` selects the provenance rule of the data-flow gate in
+`run_eval_dataflow.py` (`strict`, `notuser`, `taint`, `taintlib`; the
+module docstring defines them). The trace-learned row uses `taintlib`,
+which adds the full library, gated on the presence of untrusted content,
+to the taint rule. The default `strict` mode gives a different, stricter
+gate and is not the reported configuration.
