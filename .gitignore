@@ -1,0 +1,24 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+build/
+dist/
+.pytest_cache/
+.ruff_cache/
+.venv/
+venv/
+
+# Benchmark data and run outputs (third-party datasets are downloaded, not shipped)
+benchmarks/**/traces/
+benchmarks/**/results/
+benchmarks/**/results*.json
+benchmarks/**/*_results.json
+benchmarks/**/judge_cache.json
+benchmarks/**/raw/
+
+# Local configuration
+.env
+.DS_Store
+benchmarks/**/data/
+benchmarks/**/runs/

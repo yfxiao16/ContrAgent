@@ -1,0 +1,9 @@
+[01:15:14] IMPORT telecom/main
+[01:30:05] artifact: artifacts/telecom_main-c0b4471c-1782288914
+[01:30:05] EVAL telecom/main (parallel=5)
+[93m⚠ WARNING: output_spec_eval returned 'No reasoning provided' (score=0.0). This indicates the LLM returned an incomplete response.[0m
+[92m✓ Run-level summary saved to /private/tmp/agentpex/artifacts/imported/bold-forest/run_eval_summary_20260624_013527_406.json[0m
+[92m✓ All traces evaluated and saved successfully in /private/tmp/agentpex/artifacts/imported/bold-forest[0m
+[92m✓ Evaluation complete. 100 traces evaluated.[0m
+[92m✓ CLI execution completed successfully![0m
+[01:35:27] DONE telecom/main -> artifacts/telecom_main-c0b4471c-1782288914

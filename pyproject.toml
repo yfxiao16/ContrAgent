@@ -1,0 +1,65 @@
+[build-system]
+requires = ["setuptools>=77.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "contragent"
+version = "1.0.0"
+description = "Contract-based deterministic trajectory supervision of LLM agents"
+readme = "README.md"
+requires-python = ">=3.10"
+license = "BSD-3-Clause"
+license-files = ["LICENSE"]
+authors = [{ name = "Yifeng Xiao" }]
+keywords = [
+    "llm-agents",
+    "runtime-verification",
+    "assume-guarantee-contracts",
+    "ltlf",
+    "trajectory-supervision",
+]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Science/Research",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Scientific/Engineering :: Artificial Intelligence",
+]
+dependencies = ["pyyaml>=6.0", "click>=8.0"]
+
+[project.scripts]
+contragent = "contragent.cli:main"
+
+[project.urls]
+Homepage = "https://github.com/yfxiao16/ContrAgent"
+Repository = "https://github.com/yfxiao16/ContrAgent"
+
+[project.optional-dependencies]
+# Exact numeric consistency filter for the conflict check (pure-Python interval
+# checker is used when z3 is absent).
+smt = ["z3-solver>=4.12"]
+# Model providers for the contract formulation pipeline (natural language to ALTLf).
+llm = ["openai>=1.0", "anthropic", "google-genai"]
+# PDF policy documents as formulation input.
+pdf = ["pypdf>=3.0"]
+dev = ["pytest>=8.0", "pytest-timeout", "ruff==0.11.2", "z3-solver>=4.12"]
+
+[tool.setuptools.packages.find]
+include = ["contragent*"]
+
+[tool.setuptools.package-data]
+contragent = ["py.typed", "contracts/**/*.yaml"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-q"
+
+[tool.ruff]
+line-length = 100
+target-version = "py310"
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I", "B", "UP"]
+ignore = ["E501"]
