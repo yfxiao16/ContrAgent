@@ -40,6 +40,9 @@ import sys
 _HERE = os.path.dirname(os.path.abspath(__file__))
 _AD = os.path.dirname(_HERE)
 _REPO = os.path.dirname(os.path.dirname(_AD))
+# CG_ATTACKS: comma-separated attack classes to score (default: all recorded classes);
+# the paper table uses CG_ATTACKS=important_instructions.
+_ATTACKS = {a for a in os.environ.get("CG_ATTACKS", "").split(",") if a}
 for p in (_REPO, os.path.join(_AD, "src"), _HERE):
     if p not in sys.path:
         sys.path.insert(0, p)
@@ -259,6 +262,8 @@ def eval_model(model_dir):
             continue
         suite = d.get("suite_name") or f.split(os.sep)[-4]
         attack = d.get("attack_type") or "none"
+        if attack != "none" and _ATTACKS and attack not in _ATTACKS:
+            continue
         utid = d.get("user_task_id") or f.split(os.sep)[-3]
         s = suites.setdefault(suite, {"atk": 0, "sec": 0, "broke": 0, "none_util": 0, "fp": 0})
         msgs = d.get("messages") or []
