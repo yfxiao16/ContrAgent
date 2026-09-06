@@ -36,7 +36,10 @@ pip install -e ".[llm]"       # plus model providers for contract formulation
 ## Contracts
 
 A library is a YAML file. Each contract has a guarantee `G` and an optional
-assumption `A`, written as formulas over the interaction predicates:
+assumption `A`, both formulas over the interaction predicates. `A` describes the
+environment and may use only the environment predicates (tool results, user
+input, context, time); a condition on the agent's own actions is written as the
+premise of `G`:
 
 ```yaml
 version: "1"
@@ -44,7 +47,6 @@ agents:
   "*":
     contracts:
       - desc: "identity must be verified before funds move"
-        A: {ltl: "F(called('transfer_funds'))"}
         G: {ltl: "(!(called('transfer_funds')) U called('verify_identity')) | G(!(called('transfer_funds')))"}
       - desc: "at most three bill payments per session"
         G: {ltl: "G((Var('count', 'pay_bill') <= 3))"}
@@ -61,29 +63,31 @@ an `extractor:` section names a model. Another library is pulled in with
 
 ### Interaction predicates
 
-| Paper | Formula spelling | Meaning |
-|---|---|---|
-| Call(T) | `called(T)`, `called_with(T, p)` | tool T is invoked (with arguments matching p) |
-| ArgHas(T,f,p) | `arg_field_has(T, f, p)` | argument f of T matches pattern p |
-| Path(T,P) | `arg_paths_within(T, P, ...)` | T's file paths lie within P |
-| Subset(f,S) | `Subset(ArgValue(T, f), S)` | values in field f lie within set S |
-| OutHas(T,p) | `output_has(T, p)` | result of T matches pattern p |
-| Said(p), In(p) | `llm_said(p)`, `prompt_contains(p)` | model output / input matches p |
-| Match(f,k) | `Eq(ArgValue(T, f), CtxValue(k))` | argument field f equals context value k |
-| Ctx(k,v) | `ctx(k, v)` | context key k holds value v |
-| Flow(s,d) | `flow(s, d)` | data from source s reaches sink d |
-| Has(f) | `contains(f)` | a produced value contains field f |
-| Perm(P) | `perm(P)` | caller holds permission P |
-| Cnt(T) | `Var('count', T)` | number of T calls so far |
-| Run(T) | `Var('consecutive_count', T)` | length of the current run of T |
-| Num(T,f) | `Var('arg_numeric', T, f)` | numeric value of argument field f |
-| Len(T,f) | `ArgLength(T, f)` | character length of argument field f |
-| InLen, Chars | `Var('context_length')`, `Var('char_count')` | length of the model input / response |
-| Tok | `Var('token_count')` | cumulative tokens consumed |
-| Depth | `Var('delegation_depth')` | agent-delegation depth |
-| Since(e) | `Var('time_since', e)` | time elapsed since predicate e held |
+| Paper | Formula spelling | Meaning | Source |
+|---|---|---|---|
+| Call(T) | `called(T)`, `called_with(T, p)` | tool T is invoked (with arguments matching p) | agent |
+| ArgHas(T,f,p) | `arg_field_has(T, f, p)` | argument f of T matches pattern p | agent |
+| Path(T,P) | `arg_paths_within(T, P, ...)` | T's file paths lie within P | agent |
+| Subset(f,S) | `Subset(ArgValue(T, f), S)` | values in field f lie within set S | agent |
+| OutHas(T,p) | `output_has(T, p)` | result of T matches pattern p | environment |
+| Said(p), In(p) | `llm_said(p)`, `prompt_contains(p)` | model output / input matches p | agent / environment |
+| Match(f,k) | `Eq(ArgValue(T, f), CtxValue(k))` | argument field f equals context value k | agent |
+| Ctx(k,v) | `ctx(k, v)` | context key k holds value v | environment |
+| Flow(s,d) | `flow(s, d)` | data from source s reaches sink d | agent |
+| Has(f) | `contains(f)` | a produced value contains field f | agent |
+| Perm(P) | `perm(P)` | caller holds permission P | environment |
+| Cnt(T) | `Var('count', T)` | number of T calls so far | agent |
+| Run(T) | `Var('consecutive_count', T)` | length of the current run of T | agent |
+| Num(T,f) | `Var('arg_numeric', T, f)` | numeric value of argument field f | agent |
+| Len(T,f) | `ArgLength(T, f)` | character length of argument field f | agent |
+| InLen, Chars | `Var('context_length')`, `Var('char_count')` | length of the model input / response | environment / agent |
+| Tok | `Var('token_count')` | cumulative tokens consumed | agent |
+| Depth | `Var('delegation_depth')` | agent-delegation depth | agent |
+| Since(e) | `Var('time_since', e)` | time elapsed since predicate e held | environment |
 
-Numeric quantities are compared with `<=`, `<`, `>=`, `>`, and `==`.
+Numeric quantities are compared with `<=`, `<`, `>=`, `>`, and `==`. The
+Source column says who decides a predicate's value; assumptions may use only the
+environment predicates.
 
 ## Online supervision
 
