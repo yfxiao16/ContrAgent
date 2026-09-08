@@ -1,7 +1,7 @@
 """``contragent eval`` — batch trace replay with confusion-matrix metrics.
 
 The point of this command is to answer the only question that
-matters before flipping ``CONTRAGENT_MODE=enforce``:
+matters before flipping ``CONTRAGENT_MODE=gate``:
 
     "If I turn enforcement on tomorrow, how many *real* incidents do
     my contracts catch, and how much *legit* traffic do they kill?"

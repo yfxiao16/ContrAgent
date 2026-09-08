@@ -24,7 +24,9 @@ from contragent.runtime.strategies import EnforcementResult, EnforcementStrategy
 from contragent.runtime.supervisor import SupervisionEvent, Supervisor
 from contragent.runtime.verifier import Verdict
 
-_VALID_MODES = ("enforce", "observe")
+_VALID_MODES = ("gate", "flag")
+# Pre-rename spellings, accepted so existing scripts and configs keep working.
+_MODE_ALIASES = {"enforce": "gate", "observe": "flag"}
 
 
 @dataclass
@@ -51,6 +53,16 @@ class CheckResult:
         return any(r.action == "escalated" for r in self.violations)
 
     @property
+    def suppressed(self) -> bool:
+        """True when an environment event was withheld from the agent.
+
+        Set when the event would have falsified an assumption the
+        contract declares ``enforced``. The tool output is not attached
+        to the trace, so the session state does not advance on it.
+        """
+        return any(r.action == "suppressed" for r in self.violations)
+
+    @property
     def redirected(self) -> bool:
         return self.redirected_to is not None
 
@@ -67,7 +79,8 @@ class CheckResult:
 
 
 def _resolve_mode(mode: str | None) -> str:
-    resolved = mode or os.environ.get("CONTRAGENT_MODE") or "enforce"
+    resolved = mode or os.environ.get("CONTRAGENT_MODE") or "gate"
+    resolved = _MODE_ALIASES.get(resolved, resolved)
     if resolved not in _VALID_MODES:
         raise ValueError(f"mode must be one of {_VALID_MODES}, got {resolved!r}")
     return resolved
@@ -87,8 +100,9 @@ class ContrAgent:
         system: A pre-built :class:`System`, alternative to both.
         policy: Mapping from a contract description to the enforcement
             strategy applied when it fails.
-        mode: ``"enforce"`` or ``"observe"``; defaults to the
-            ``CONTRAGENT_MODE`` environment variable, then ``"enforce"``.
+        mode: ``"gate"`` acts on every decision; ``"flag"`` records
+            the same decisions without gating the agent. Defaults to
+            the ``CONTRAGENT_MODE`` environment variable, then ``"gate"``.
         conflict_check: Run the library conflict check at load time and
             raise if the library is not conflict-free.
     """
@@ -189,6 +203,7 @@ class ContrAgent:
                         ),
                         desc=entry.get("desc"),
                         activate_at=entry.get("activate_at"),
+                        assumption_mode=entry.get("assumption_mode") or "monitored",
                     )
                 )
                 continue
@@ -215,16 +230,43 @@ class ContrAgent:
             return self._finish_check(tool_name, results)
 
     def guard_after(self, tool_name: str, output: Any) -> CheckResult:
-        """Attach the tool result to its call and re-check output guarantees."""
+        """Attach the tool result to its call and re-check the contracts.
+
+        When the result would falsify an assumption the contract declares
+        ``enforced``, it is suppressed: the attachment is undone, so the
+        result never reaches the agent and the session state does not
+        advance on it.
+        """
         with self._lock:
+            before = self._output_content(tool_name)
             self.observe_tool_output(tool_name, output)
             results = self._supervisor.recheck(self.agent_id, tool_name)
             result = CheckResult(
                 allowed=not any(r.action == "blocked" for r in results),
                 violations=[r for r in results if r.action != "allowed"],
             )
+            if result.suppressed and self._mode != "flag":
+                self._restore_output_content(tool_name, before)
+                result.allowed = False
             self._record(tool_name, result.violations)
             return result
+
+    def _output_content(self, tool_name: str) -> tuple[Any, str | None] | None:
+        """The event carrying ``tool_name``'s output and its current content."""
+        for ev in reversed(self._supervisor.trace.events):
+            if ev.event_type == "tool_call" and ev.tool == tool_name and ev.agent == self.agent_id:
+                return (ev, ev.content)
+        return None
+
+    def _restore_output_content(
+        self, tool_name: str, before: tuple[Any, str | None] | None
+    ) -> None:
+        """Undo the attachment made by :meth:`observe_tool_output`."""
+        if before is None:
+            return
+        event, content = before
+        event.content = content
+        self._supervisor.verifier.reset()
 
     def _finish_check(self, tool_name: str, results: list[EnforcementResult]) -> CheckResult:
         redirected = [r for r in results if r.action == "redirected"]
@@ -233,7 +275,7 @@ class ContrAgent:
             violations=[r for r in results if r.action != "allowed"],
             redirected_to=redirected[0].fallback_action if redirected else None,
         )
-        if self._mode != "observe" and (result.blocked or result.redirected):
+        if self._mode != "flag" and (result.blocked or result.redirected):
             if self._supervisor.rollback_last_event():
                 result.rollback_performed = True
         self._record(tool_name, result.violations)

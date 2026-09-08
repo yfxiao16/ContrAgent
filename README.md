@@ -110,7 +110,43 @@ Data-flow and context predicates are fed through `observe_data_write`,
 `observe_data_read`, `observe_delegation`, `observe_context`, and
 `observe_llm_call`. The enforcement action of a contract is set with
 `policy={"<contract desc>": Redirect("safe_tool")}`; the default is `Block`.
-A failed assumption is reported through `Escalate` and does not gate the call.
+
+`ContrAgent(mode=...)` selects what the supervisor does with a decision:
+`gate` (default) acts on it, `flag` records the same decision without
+gating the agent.
+
+### Monitored and enforced assumptions
+
+A contract declares its assumption `monitored` or `enforced`, the
+distinction between observing a property and intervening to maintain it.
+
+* **monitored** (default) is only evaluated. An environment event that
+  falsifies it leaves the contract idle, so the rule does not apply and
+  the call is not gated; the failure is reported through `Escalate`.
+* **enforced** additionally restricts the environment. A tool result
+  that would falsify the assumption is suppressed: `guard_after` returns
+  `result.suppressed`, the result is not attached to the trace, and the
+  session state does not advance on it. The agent is told why, so it can
+  choose another route.
+
+```yaml
+- desc: file reads carry no credential
+  A: {ltl: "G(!(output_has('read_file', 'BEGIN PRIVATE KEY')))"}
+  assumption_mode: enforced
+  G: {ltl: "G((called('send_email') -> called('read_file')))"}
+```
+
+```python
+contract("file reads carry no credential")
+    .assume(parse_repr("G(!(output_has('read_file', 'BEGIN PRIVATE KEY')))"))
+    .enforce_assumption()
+    .guarantees(parse_repr("G((called('send_email') -> called('read_file')))"))
+```
+
+An enforced assumption must be written over environment predicates. The
+supervisor maintains it by suppressing an environment event, so a
+condition on the agent's own calls (`called`, `arg_field_has`, `count`,
+...) is rejected at load time and belongs in the guarantee instead.
 
 ## Offline evaluation
 

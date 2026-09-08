@@ -68,6 +68,7 @@ class ContractEntry:
     assumption: ConstraintEntry | list[ConstraintEntry] | None = None
     desc: str | None = None
     activate_at: str | None = None
+    assumption_mode: str | None = None
     library_source: str | None = None
 
 
@@ -181,11 +182,23 @@ def _parse_contract_entry(item: Any, agent_id: str) -> ContractEntry:
             f"Agent '{agent_id}': unknown activate_at value {activate_at!r}; "
             f"the only supported value is 'first_match'."
         )
+    assumption_mode = item.get("assumption_mode")
+    if assumption_mode is not None and assumption_mode not in ("monitored", "enforced"):
+        raise ConfigError(
+            f"Agent '{agent_id}': unknown assumption_mode value {assumption_mode!r}; "
+            f"supported values are 'monitored' and 'enforced'."
+        )
+    if assumption_mode == "enforced" and a_raw is None:
+        raise ConfigError(
+            f"Agent '{agent_id}': assumption_mode='enforced' requires an "
+            f"'A' / 'assumption' to enforce: {item!r}"
+        )
     return ContractEntry(
         guarantee=_parse_constraint_field(g_raw),  # type: ignore[arg-type]
         assumption=_parse_constraint_field(a_raw),
         desc=item.get("desc"),
         activate_at=activate_at,
+        assumption_mode=assumption_mode,
     )
 
 
@@ -499,6 +512,7 @@ def config_to_system(
                     assumption=a,
                     desc=ce.desc,
                     activate_at=ce.activate_at,
+                    assumption_mode=ce.assumption_mode or "monitored",
                 )
             )
     system = System(name="config")
@@ -516,8 +530,9 @@ def config_to_guard_kwargs(config: ContrAgentConfig, agent_id: str) -> dict[str,
 
     Returns ``{"agent_id": ..., "contracts": [...]}`` where each contract is a
     mapping with the compiled ``guarantee``, the compiled ``assumption`` (when
-    present), ``desc``, and ``activate_at`` (when set), ready to pass as
-    ``ContrAgent(**kwargs)``. A ``"*"`` block applies to any agent.
+    present), ``desc``, and ``activate_at`` / ``assumption_mode`` (when set),
+    ready to pass as ``ContrAgent(**kwargs)``. A ``"*"`` block applies to any
+    agent.
     """
     block = config.agents.get(agent_id) or config.agents.get("*")
     if block is None:
@@ -537,6 +552,8 @@ def config_to_guard_kwargs(config: ContrAgentConfig, agent_id: str) -> dict[str,
             entry["assumption"] = assumption
         if ce.activate_at is not None:
             entry["activate_at"] = ce.activate_at
+        if ce.assumption_mode is not None:
+            entry["assumption_mode"] = ce.assumption_mode
         contracts.append(entry)
     return {"agent_id": agent_id, "contracts": contracts}
 

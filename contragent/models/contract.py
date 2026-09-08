@@ -150,14 +150,39 @@ class Contract:
             evaluates G from the first position where the assumption's
             trigger (``F(p)`` or an atom) becomes true, so events before
             the trigger are not subject to G.
+        assumption_mode: How the supervisor treats the assumption.
+            ``"monitored"`` (default) only evaluates it, so an
+            environment event that falsifies it leaves the contract
+            IDLE. ``"enforced"`` additionally restricts the environment:
+            a return or input event that would falsify the assumption is
+            suppressed before it reaches the agent.
     """
     agent: Agent
     guarantee: Constraint = None
     assumption: Constraint | None = None
     desc: str | None = None
     activate_at: str | None = None
+    assumption_mode: str = "monitored"
 
     _VALID_ACTIVATE_AT = (None, "first_match")
+    _VALID_ASSUMPTION_MODE = ("monitored", "enforced")
+
+    #: Predicates decided by the agent's own actions (V_ag in the paper).
+    #: An enforced assumption may not rest on these: the supervisor can
+    #: suppress an environment event, but an agent action is gated by the
+    #: guarantee side instead.
+    _AGENT_CONTROLLED = frozenset(
+        {
+            "called",
+            "called_with",
+            "arg_field_has",
+            "arg_paths_within",
+            "llm_said",
+            "count",
+            "consecutive_count",
+            "arg_numeric",
+        }
+    )
 
     def __post_init__(self) -> None:
         if self.guarantee is None or (
@@ -172,6 +197,18 @@ class Contract:
                 f"Contract(agent={self.agent.id!r}): activate_at must be one of "
                 f"{self._VALID_ACTIVATE_AT!r}, got {self.activate_at!r}"
             )
+        if self.assumption_mode not in self._VALID_ASSUMPTION_MODE:
+            raise ValueError(
+                f"Contract(agent={self.agent.id!r}): assumption_mode must be one of "
+                f"{self._VALID_ASSUMPTION_MODE!r}, got {self.assumption_mode!r}"
+            )
+        if self.assumption_mode == "enforced":
+            if self.assumption is None:
+                raise ValueError(
+                    f"Contract(agent={self.agent.id!r}): assumption_mode='enforced' "
+                    f"requires a non-None assumption (there is nothing to enforce)."
+                )
+            self._validate_enforced_assumption_scope()
         if self.activate_at == "first_match":
             if self.assumption is None:
                 raise ValueError(
@@ -179,6 +216,35 @@ class Contract:
                     f"requires a non-None assumption (there is nothing to activate)."
                 )
             self._validate_first_match_assumption_shape()
+
+    def _validate_enforced_assumption_scope(self) -> None:
+        """Reject an enforced assumption that rests on the agent's own actions.
+
+        The supervisor enforces an assumption by suppressing the
+        environment event that would falsify it. A condition on the
+        agent's own calls cannot be maintained that way; it belongs to
+        the guarantee, which is enforced by blocking the call.
+        """
+        from contragent.formulas.formula import collect_atoms
+
+        offenders: set[str] = set()
+        for constraint in self.assumptions:
+            formula = getattr(constraint, "formula", constraint)
+            try:
+                atoms = collect_atoms(formula)
+            except Exception:  # pragma: no cover - non-formula constraint
+                continue
+            for atom in atoms:
+                name = getattr(atom, "predicate", None) or getattr(atom, "name", None)
+                if name in self._AGENT_CONTROLLED:
+                    offenders.add(name)
+        if offenders:
+            raise ValueError(
+                f"Contract(agent={self.agent.id!r}): assumption_mode='enforced' "
+                f"requires an assumption over environment predicates, but it uses "
+                f"{sorted(offenders)!r}, which the agent controls. Put the condition "
+                f"in the guarantee, or use assumption_mode='monitored'."
+            )
 
     def _validate_first_match_assumption_shape(self) -> None:
         """Reject assumptions whose ``first_match`` semantics are unclear.

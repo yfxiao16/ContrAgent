@@ -8,6 +8,12 @@ system verdict is the meet of the per-contract valuations: a contract
 whose assumption has not fired contributes IDLE and never blocks, a
 contract whose guarantee fails contributes FAIL and routes the action
 to its enforcement strategy.
+
+A contract that declares its assumption ``enforced`` is also maintained
+from the environment side: an event that would falsify the assumption is
+suppressed rather than left to turn the contract IDLE. ``mode`` selects
+what the supervisor does with a decision, ``"gate"`` acting on it and
+``"flag"`` recording it without gating the agent.
 """
 
 from __future__ import annotations
@@ -19,6 +25,7 @@ from collections.abc import Callable
 from dataclasses import dataclass
 from typing import Any
 
+from contragent.models.contract import Contract
 from contragent.models.result import Violation
 from contragent.models.spans import AgentTurnSpan, SpanCollector
 from contragent.models.system import System
@@ -56,9 +63,9 @@ class Supervisor:
             fails. Unlisted guarantees fall back to the strategy carried
             by the formula, then to :class:`Block`; failed assumptions
             report through :class:`Escalate` without gating the call.
-        mode: ``"enforce"`` returns the enforcement decision;
-            ``"observe"`` evaluates identically but downgrades every
-            decision to ``observed`` so the agent is never gated.
+        mode: ``"gate"`` returns the enforcement decision; ``"flag"``
+            evaluates identically but downgrades every decision to
+            ``observed`` so the agent is never gated.
 
     Thread safety: the append-evaluate-decide pipeline runs under one
     re-entrant lock, so concurrent callers see a consistent trace.
@@ -68,10 +75,11 @@ class Supervisor:
         self,
         system: System,
         policy: dict[str, EnforcementStrategy] | None = None,
-        mode: str = "enforce",
+        mode: str = "gate",
     ) -> None:
-        if mode not in ("enforce", "observe"):
-            raise ValueError(f"mode must be 'enforce' or 'observe', got {mode!r}")
+        mode = {"enforce": "gate", "observe": "flag"}.get(mode, mode)
+        if mode not in ("gate", "flag"):
+            raise ValueError(f"mode must be 'gate' or 'flag', got {mode!r}")
         self._system = system
         self._policy = policy or {}
         self._mode = mode
@@ -283,7 +291,9 @@ class Supervisor:
                 pre_span.result = False
                 collector.finish_span("violated")
                 results.append(
-                    self._handle_assumption_failure(agent_id, context, collector, a_verdict)
+                    self._handle_assumption_failure(
+                        agent_id, context, collector, a_verdict, contract
+                    )
                 )
                 assumption_violated = True
                 break
@@ -314,7 +324,7 @@ class Supervisor:
     # ------------------------------------------------------------------
 
     def _maybe_downgrade(self, result: EnforcementResult) -> EnforcementResult:
-        if self._dry_run_depth > 0 or self._mode != "observe":
+        if self._dry_run_depth > 0 or self._mode != "flag":
             return result
         return EnforcementResult(
             action="observed",
@@ -350,21 +360,44 @@ class Supervisor:
         context: ActionContext,
         collector: SpanCollector,
         a_verdict: Verdict,
+        contract: Contract | None = None,
     ) -> EnforcementResult:
+        enforced = getattr(contract, "assumption_mode", "monitored") == "enforced"
+        details = (
+            f"Assumption violated: {a_verdict.desc}. "
+            + (
+                "The event that falsified it is withheld from the agent."
+                if enforced
+                else "The upstream agent flow may have a problem."
+            )
+        )
         violation = Violation(
             agent_id=agent_id,
             formula=a_verdict.formula,
             kind="assumption",
             desc=a_verdict.desc,
-            details=(
-                f"Assumption violated: {a_verdict.desc}. "
-                "The upstream agent flow may have a problem."
-            ),
+            details=details,
         )
-        strategy = self._policy.get(a_verdict.lookup_key) or Escalate()
         collector.add_violation(kind="assumption", severity="HIGH", evidence=violation.details)
-        collector.add_enforcement(strategy=type(strategy).__name__, result_action="escalated")
-        result = self._maybe_downgrade(strategy.enforce(violation, context))
+        if enforced:
+            collector.add_enforcement(strategy="Suppress", result_action="suppressed")
+            result = self._maybe_downgrade(
+                EnforcementResult(
+                    action="suppressed",
+                    message=details,
+                    rule_id=a_verdict.desc or "",
+                    agent_msg=(
+                        f"The result of {context.action} was withheld: it violates "
+                        f"the assumption {a_verdict.desc!r}."
+                    ),
+                )
+            )
+        else:
+            strategy = self._policy.get(a_verdict.lookup_key) or Escalate()
+            collector.add_enforcement(
+                strategy=type(strategy).__name__, result_action="escalated"
+            )
+            result = self._maybe_downgrade(strategy.enforce(violation, context))
         self._emit(
             SupervisionEvent(
                 agent_id=agent_id,

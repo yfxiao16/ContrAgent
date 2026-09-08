@@ -40,6 +40,7 @@ class ContractBuilder:
     assumption: Any | None = None
     guarantee: Any | None = None
     activate_at: str | None = None
+    assumption_mode: str | None = None
 
     def assume(self, value: Any) -> ContractBuilder:
         """Add an assumption, the A side of the contract."""
@@ -53,6 +54,15 @@ class ContractBuilder:
         """Check the guarantee only from the event that fires the assumption."""
         return replace(self, activate_at="first_match")
 
+    def enforce_assumption(self) -> ContractBuilder:
+        """Restrict the environment to satisfy the assumption.
+
+        The supervisor suppresses a return or input event that would
+        falsify the assumption instead of only evaluating it. Without
+        this call the assumption is monitored.
+        """
+        return replace(self, assumption_mode="enforced")
+
     def to_dict(self) -> dict[str, Any]:
         """The contract as the mapping accepted by :class:`~contragent.core.ContrAgent`."""
         if self.guarantee is None:
@@ -64,6 +74,8 @@ class ContractBuilder:
             out["assumption"] = self.assumption
         if self.activate_at is not None:
             out["activate_at"] = self.activate_at
+        if self.assumption_mode is not None:
+            out["assumption_mode"] = self.assumption_mode
         return out
 
 

@@ -8,8 +8,11 @@ A violated guarantee is routed to the strategy attached to the contract
 * ``Escalate`` pauses the call for a human decision and fires the
   configured notifiers.
 
-A failed *assumption* is never blocked: the contract does not apply, so
-the supervisor reports it through ``Escalate`` without gating the call.
+A failed *assumption* is handled according to the contract's
+``assumption_mode``. A ``monitored`` assumption is reported through
+``Escalate`` without gating the call, since the contract simply does not
+apply. An ``enforced`` assumption instead makes the supervisor suppress
+the offending environment event, so that it never reaches the agent.
 """
 
 from __future__ import annotations
@@ -38,12 +41,16 @@ class EnforcementResult:
     ``action`` is the decision the integration must honour:
     ``blocked`` (do not run the tool, show ``agent_msg``),
     ``redirected`` (run ``fallback_action`` instead), ``escalated``
-    (hold for a human; the call is not gated by default), ``allowed``
-    (no violation), or ``observed`` (a would-be decision downgraded to a
-    log entry because the supervisor runs in observe mode).
+    (hold for a human; the call is not gated by default), ``suppressed``
+    (an environment event that would falsify an enforced assumption; it
+    is withheld from the agent), ``allowed`` (no violation), or
+    ``observed`` (a would-be decision downgraded to a log entry because
+    the supervisor runs in flag mode).
     """
 
-    action: Literal["blocked", "escalated", "redirected", "allowed", "observed"]
+    action: Literal[
+        "blocked", "escalated", "redirected", "suppressed", "allowed", "observed"
+    ]
     message: str
     fallback_action: Any | None = None
     rule_id: str = ""

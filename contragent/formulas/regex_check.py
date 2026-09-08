@@ -4,7 +4,7 @@ ContrAgent's grounding layer matches several atom predicates with
 :func:`re.search`.  When a pattern uses a feature the Python ``re``
 engine doesn't accept (variable-width lookbehind, malformed character
 classes, unbalanced groups, ...), today's failure mode is a runtime
-``re.error`` deep inside the verifier — silent in observe mode, hard to
+``re.error`` deep inside the verifier — silent in flag mode, hard to
 attribute, and only triggered the first time the relevant tool fires.
 
 This module walks a finished AST, finds every atom whose argument
