@@ -5,7 +5,7 @@ assumptions and guarantees are ALTLf formulas over interaction
 predicates evaluated on the tool-call trace. Each contract compiles to a
 DFA monitor; the same monitors gate tool calls online (``ContrAgent``)
 and grade recorded traces offline (``evaluate_trace``, ``contragent eval``).
-A contract may also declare its assumption ``enforced``, in which case an
+A contract's assumption is maintained from the environment side: an
 environment event that would falsify it is suppressed before it reaches
 the agent.
 """

@@ -1,8 +1,8 @@
-"""Tests for the contract-library conflict check (analysis/conflicts.py).
+"""Tests for the contract-library checks (analysis/conflicts.py).
 
-Covers the paper's two-step algorithm: minimal-unsatisfiable-core
-extraction over ⋀ᵢ(Aᵢ ∧ Gᵢ), then joint satisfiability of the core's
-assumptions to separate genuine conflicts from never-co-firing cores.
+Covers the paper's library check: joint satisfiability of ⋀ᵢ(Aᵢ ∧ Gᵢ)
+and minimal-unsatisfiable-core extraction to name the contracts that
+cannot hold together.
 """
 
 import pytest
@@ -24,6 +24,11 @@ def _called(tool: str) -> Atom:
     return Atom("called", tool)
 
 
+def _leaks(tool: str) -> Atom:
+    """An environment predicate: ``tool`` returned a secret."""
+    return Atom("output_has", tool, "SECRET")
+
+
 AGENT = Agent(id="bot")
 
 
@@ -32,7 +37,7 @@ def _contract(guarantee, assumption=None, desc=None) -> Contract:
 
 
 # ---------------------------------------------------------------------------
-# End-to-end: the two-step check
+# End-to-end: compatibility, then conflict-freedom
 # ---------------------------------------------------------------------------
 
 
@@ -49,47 +54,42 @@ class TestCheckConflicts:
         assert report.conflicts == []
         assert report.checked == 2
 
-    def test_genuine_conflict_when_assumptions_cofire(self):
-        # Both fire on deploy; guarantees are jointly unsatisfiable.
+    def test_conflict_under_assumptions_that_hold_together(self):
+        # Both assume a clean environment; their guarantees clash.
         c1 = _contract(
             G(Not(_called("db_write"))),
-            assumption=F(_called("deploy")),
-            desc="no db writes during deploy",
+            assumption=G(Not(_leaks("fetch"))),
+            desc="no db writes",
         )
         c2 = _contract(
             F(_called("db_write")),
-            assumption=F(_called("deploy")),
-            desc="deploy must write db",
+            assumption=G(Not(_leaks("fetch"))),
+            desc="must write db",
         )
         report = check_conflicts([c1, c2], backend="native")
         assert not report.ok
         assert len(report.conflicts) == 1
-        core = report.conflicts[0]
-        assert core.assumptions_satisfiable is True
-        assert set(core.labels) == {
-            "no db writes during deploy",
-            "deploy must write db",
-        }
+        assert set(report.conflicts[0].labels) == {"no db writes", "must write db"}
 
-    def test_never_cofiring_core_is_discarded(self):
-        # Same guarantee clash, but the assumptions are mutually
-        # exclusive — the contracts can never be active together.
-        c1 = _contract(F(_called("y")), assumption=F(_called("x")), desc="wants y")
+    def test_assumptions_that_clash_are_caught_by_the_same_query(self):
+        # One contract requires the environment to always leak, the
+        # other requires it never to. No session satisfies both, so the
+        # joint query catches it without a separate assumption check.
+        c1 = _contract(
+            F(_called("y")), assumption=G(_leaks("fetch")), desc="wants a leak"
+        )
         c2 = _contract(
-            G(Not(_called("y"))), assumption=G(Not(_called("x"))), desc="bans y"
+            F(_called("y")), assumption=G(Not(_leaks("fetch"))), desc="bans a leak"
         )
         report = check_conflicts([c1, c2], backend="native")
-        assert report.ok
-        assert report.conflicts == []
-        assert len(report.discarded) == 1
-        assert report.discarded[0].assumptions_satisfiable is False
+        assert not report.ok
+        assert set(report.conflicts[0].labels) == {"wants a leak", "bans a leak"}
 
-    def test_unconditional_contracts_always_cofire(self):
+    def test_unconditional_contracts_are_checked_together(self):
         c1 = _contract(G(Not(_called("w"))), desc="never w")
         c2 = _contract(F(_called("w")), desc="eventually w")
         report = check_conflicts([c1, c2], backend="native")
         assert len(report.conflicts) == 1
-        assert report.conflicts[0].assumptions_satisfiable is True
 
     def test_core_is_minimal_third_contract_excluded(self):
         c1 = _contract(G(Not(_called("w"))), desc="never w")
@@ -320,7 +320,11 @@ class TestMus2mucBackend:
     def test_serializer_output_shape(self):
         contracts = [
             _contract(G(Not(_called("a"))), desc="never a"),
-            _contract(F(_called("a")), assumption=F(_called("b")), desc="wants a"),
+            _contract(
+                And(F(_called("a")), F(_called("b"))),
+                assumption=G(Not(_leaks("fetch"))),
+                desc="wants a",
+            ),
         ]
         units, _ = _units_of(contracts)
         text, mapping = units_to_ltlfconj(

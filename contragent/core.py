@@ -56,9 +56,9 @@ class CheckResult:
     def suppressed(self) -> bool:
         """True when an environment event was withheld from the agent.
 
-        Set when the event would have falsified an assumption the
-        contract declares ``enforced``. The tool output is not attached
-        to the trace, so the session state does not advance on it.
+        Set when the event would have falsified a contract's assumption.
+        The tool output is discarded instead of being kept on the trace,
+        so the session state does not advance on it.
         """
         return any(r.action == "suppressed" for r in self.violations)
 
@@ -93,8 +93,8 @@ class ContrAgent:
         agent_id: Identifier of the supervised agent (matches the agent
             block in a library file).
         contracts: Inline contracts: :class:`Contract` objects, contract
-            mappings (``guarantee`` required, ``assumption``/``desc``/
-            ``activate_at`` optional), :class:`ContractBuilder` values,
+            mappings (``guarantee`` required, ``assumption`` and
+            ``desc`` optional), :class:`ContractBuilder` values,
             formulas, or formula strings (each string is a guarantee).
         config: Path to a library file, alternative to ``contracts``.
         system: A pre-built :class:`System`, alternative to both.
@@ -202,8 +202,6 @@ class ContrAgent:
                             else cls._as_constraint(entry["assumption"])
                         ),
                         desc=entry.get("desc"),
-                        activate_at=entry.get("activate_at"),
-                        assumption_mode=entry.get("assumption_mode") or "monitored",
                     )
                 )
                 continue
@@ -232,10 +230,11 @@ class ContrAgent:
     def guard_after(self, tool_name: str, output: Any) -> CheckResult:
         """Attach the tool result to its call and re-check the contracts.
 
-        When the result would falsify an assumption the contract declares
-        ``enforced``, it is suppressed: the attachment is undone, so the
-        result never reaches the agent and the session state does not
-        advance on it.
+        The result has to be attached before the contracts are checked,
+        since predicates such as ``output_has`` read it off the event.
+        When it falsifies an assumption it is then discarded, restoring
+        the event's previous content, so the result never reaches the
+        agent and the session state does not advance on it.
         """
         with self._lock:
             before = self._output_content(tool_name)

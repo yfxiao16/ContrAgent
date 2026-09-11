@@ -94,6 +94,7 @@ from contragent.formulas.formula import (
     U,
     Var,
     X,
+    agent_controlled_atoms,
 )
 
 logger = logging.getLogger(__name__)
@@ -756,6 +757,21 @@ def compile_ir(ir: ConstraintIR) -> IRCompilationResult:
         result.error = f"LTL synthesis failed for '{relation}': {e}"
         return result
 
+    # --- Conditional scope: place the guard on the side that can hold it ---
+    # An assumption states what the environment is required to keep, so a
+    # guard over the agent's own calls is folded into the guarantee as
+    # G(guard -> body) instead of becoming the assumption.
+    env_guard = None
+    if ir.scope == "conditional" and ir.guard:
+        guard = _compile_guard(ir.guard, ir)
+        guard_ast = getattr(guard, "formula", None) if guard is not None else None
+        if guard_ast is not None:
+            if agent_controlled_atoms(guard_ast):
+                formula_ast = G(Implies(guard_ast, formula_ast))
+                desc = f"{desc}, when {ir.guard}"
+            else:
+                env_guard = guard
+
     det = DetFormula(
         formula=formula_ast,
         desc=ir.nl or desc,
@@ -781,22 +797,24 @@ def compile_ir(ir: ConstraintIR) -> IRCompilationResult:
     except Exception:
         result.paraphrase = ir.nl or desc
 
-    # --- Compile assumption (if conditional scope) ---
-    if ir.scope == "conditional" and ir.guard:
-        result.compiled_assumption = _compile_guard(ir.guard, ir)
+    result.compiled_assumption = env_guard
 
     return result
 
 
 def _compile_guard(guard_text: str, ir: ConstraintIR) -> Any | None:
-    """Compile a guard/assumption from its text description.
+    """Compile a guard from its text description.
 
     For simple guards like "called(X)", we can parse directly.
     For complex NL guards, we generate a called() atom from the
     object tool name (the common case: "only if X is called").
 
+    The caller decides where the result lands. A guard over environment
+    predicates becomes the contract's assumption, and a guard over the
+    agent's own calls is folded into the guarantee by ``compile_ir``.
+
     Returns:
-        A ``DetFormula`` for the assumption, or None.
+        A ``DetFormula`` for the guard, or None.
     """
     from contragent.formulas.det import DetFormula
     from contragent.formulas.formula import Atom
@@ -1076,6 +1094,12 @@ For DETERMINISTIC constraints (enforceable on tool-call traces):
     "relation": "<one of the relation types below>",
     "scope": "global" or "conditional",
     "guard": "<when conditional: what triggers this rule, e.g. 'cancel is called'>" or null,
+    # A guard names a trigger, not a promise you expect from the world.
+    # Guards on the agent's own behaviour (a tool it calls, an argument it
+    # passes, a count it reaches) are folded into the rule itself. Guards on
+    # what reaches the agent (a tool result, user input, a permission) are
+    # kept as the contract's assumption. Write the guard either way; the
+    # compiler routes it.
     "quantifier": <number, for rate limits/cooldowns> or null,
     "params": {{<extra params, see relation-specific notes>}} or {{}},
     "nl": "<natural language description>",
@@ -1144,6 +1168,12 @@ SCOPE GUIDANCE:
   specific tool is about to be called (ordering constraints)
   Example: scope="conditional", guard="issue_refund is called"
   → this ordering rule only matters if refund is actually requested
+- A guard states a trigger, not a promise you expect from the world. Guards
+  on the agent's own behaviour (a tool it calls, an argument it passes, a
+  count it reaches) are folded into the rule itself. Guards on what reaches
+  the agent (a tool result, user input, a granted permission) are kept as
+  the contract's assumption. Write the guard either way; the compiler
+  routes it to the right side.
 
 IMPORTANT RULES:
 - Use exact tool names from the tool inventory

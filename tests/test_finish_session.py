@@ -133,17 +133,19 @@ class TestFinishSessionAssumptionGating:
             agent_id="bot",
             contracts=[
                 {
-                    # Assumption: some precondition never met
-                    "assumption": "(!(called('handle_request')) U called('session_start')) | G(!(called('handle_request')))",
+                    # Assumption: the environment returns no secret
+                    "assumption": "G(!(output_has('handle_request', 'SECRET')))",
                     "guarantee": "G((called('handle_request') -> F(called('cleanup'))))",
                 }
             ],
+            mode="flag",
         )
-        # Call handle_request without session_start; assumption fails.
+        # The result leaks a secret, so the environment breaks the assumption.
         guard.guard_before("handle_request")
+        guard.guard_after("handle_request", "a SECRET slipped out")
 
         pending = guard.finish_session()
-        # Because assumption never held, the liveness obligation shouldn't
+        # Because the assumption never held, the liveness obligation shouldn't
         # be reported as violated.
         assert pending == []
 

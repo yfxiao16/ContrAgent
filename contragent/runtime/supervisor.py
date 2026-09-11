@@ -4,14 +4,16 @@ The :class:`Supervisor` holds the compiled contract library and the
 trace of the running session. Every proposed action is appended to the
 trace, every interaction predicate is evaluated at the new event, and
 each contract's monitor is advanced on the resulting valuation. The
-system verdict is the meet of the per-contract valuations: a contract
-whose assumption has not fired contributes IDLE and never blocks, a
-contract whose guarantee fails contributes FAIL and routes the action
-to its enforcement strategy.
+system verdict reads the per-contract valuations twice: their meet
+gives the agent's side, so a contract whose guarantee fails contributes
+FAIL and routes the action to its enforcement strategy, and their join
+gives the environment's side, so a contract whose assumption fails
+contributes IDLE and suppresses the offending event without blocking
+the agent.
 
-A contract that declares its assumption ``enforced`` is also maintained
-from the environment side: an event that would falsify the assumption is
-suppressed rather than left to turn the contract IDLE. ``mode`` selects
+A contract's assumption is maintained from the environment side: an
+event that would falsify it is suppressed rather than left to turn the
+contract IDLE. ``mode`` selects
 what the supervisor does with a decision, ``"gate"`` acting on it and
 ``"flag"`` recording it without gating the agent.
 """
@@ -362,14 +364,9 @@ class Supervisor:
         a_verdict: Verdict,
         contract: Contract | None = None,
     ) -> EnforcementResult:
-        enforced = getattr(contract, "assumption_mode", "monitored") == "enforced"
         details = (
             f"Assumption violated: {a_verdict.desc}. "
-            + (
-                "The event that falsified it is withheld from the agent."
-                if enforced
-                else "The upstream agent flow may have a problem."
-            )
+            "The event that falsified it is withheld from the agent."
         )
         violation = Violation(
             agent_id=agent_id,
@@ -379,25 +376,18 @@ class Supervisor:
             details=details,
         )
         collector.add_violation(kind="assumption", severity="HIGH", evidence=violation.details)
-        if enforced:
-            collector.add_enforcement(strategy="Suppress", result_action="suppressed")
-            result = self._maybe_downgrade(
-                EnforcementResult(
-                    action="suppressed",
-                    message=details,
-                    rule_id=a_verdict.desc or "",
-                    agent_msg=(
-                        f"The result of {context.action} was withheld: it violates "
-                        f"the assumption {a_verdict.desc!r}."
-                    ),
-                )
+        collector.add_enforcement(strategy="Suppress", result_action="suppressed")
+        result = self._maybe_downgrade(
+            EnforcementResult(
+                action="suppressed",
+                message=details,
+                rule_id=a_verdict.desc or "",
+                agent_msg=(
+                    f"The result of {context.action} was withheld: it violates "
+                    f"the assumption {a_verdict.desc!r}."
+                ),
             )
-        else:
-            strategy = self._policy.get(a_verdict.lookup_key) or Escalate()
-            collector.add_enforcement(
-                strategy=type(strategy).__name__, result_action="escalated"
-            )
-            result = self._maybe_downgrade(strategy.enforce(violation, context))
+        )
         self._emit(
             SupervisionEvent(
                 agent_id=agent_id,

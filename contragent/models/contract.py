@@ -1,8 +1,10 @@
 """Contract dataclass — one Assume-Guarantee pair for an agent.
 
-A ``Contract`` binds a single ``assumption`` (precondition over the trace)
-to a single ``guarantee`` (what the agent must satisfy when the
-assumption holds). An agent with multiple independent rules has multiple
+A ``Contract`` binds a single ``assumption`` (a condition on the
+environment that the contract requires it to keep) to a single
+``guarantee`` (what the agent must satisfy while the assumption holds).
+An event that would falsify the assumption is suppressed before it
+reaches the agent; a call that would falsify the guarantee is blocked. An agent with multiple independent rules has multiple
 ``Contract`` entries — ``System.contracts`` is already a flat list, so
 no new container type is needed.
 
@@ -144,45 +146,12 @@ class Contract:
             applies. ``None`` makes the contract unconditional. A single
             formula or a list (conjunction).
         desc: Human-readable label.
-        activate_at: Where the guarantee starts being checked once the
-            assumption holds. ``None`` (default) evaluates A and G as
-            standalone formulas over the whole trace; ``"first_match"``
-            evaluates G from the first position where the assumption's
-            trigger (``F(p)`` or an atom) becomes true, so events before
-            the trigger are not subject to G.
-        assumption_mode: How the supervisor treats the assumption.
-            ``"monitored"`` (default) only evaluates it, so an
-            environment event that falsifies it leaves the contract
-            IDLE. ``"enforced"`` additionally restricts the environment:
-            a return or input event that would falsify the assumption is
-            suppressed before it reaches the agent.
     """
     agent: Agent
     guarantee: Constraint = None
     assumption: Constraint | None = None
     desc: str | None = None
-    activate_at: str | None = None
-    assumption_mode: str = "monitored"
 
-    _VALID_ACTIVATE_AT = (None, "first_match")
-    _VALID_ASSUMPTION_MODE = ("monitored", "enforced")
-
-    #: Predicates decided by the agent's own actions (V_ag in the paper).
-    #: An enforced assumption may not rest on these: the supervisor can
-    #: suppress an environment event, but an agent action is gated by the
-    #: guarantee side instead.
-    _AGENT_CONTROLLED = frozenset(
-        {
-            "called",
-            "called_with",
-            "arg_field_has",
-            "arg_paths_within",
-            "llm_said",
-            "count",
-            "consecutive_count",
-            "arg_numeric",
-        }
-    )
 
     def __post_init__(self) -> None:
         if self.guarantee is None or (
@@ -192,91 +161,61 @@ class Contract:
                 f"Contract(agent={self.agent.id!r}) requires a non-empty guarantee. "
                 f"Use Contract(..., guarantee=<constraint>) or provide a list."
             )
-        if self.activate_at not in self._VALID_ACTIVATE_AT:
-            raise ValueError(
-                f"Contract(agent={self.agent.id!r}): activate_at must be one of "
-                f"{self._VALID_ACTIVATE_AT!r}, got {self.activate_at!r}"
-            )
-        if self.assumption_mode not in self._VALID_ASSUMPTION_MODE:
-            raise ValueError(
-                f"Contract(agent={self.agent.id!r}): assumption_mode must be one of "
-                f"{self._VALID_ASSUMPTION_MODE!r}, got {self.assumption_mode!r}"
-            )
-        if self.assumption_mode == "enforced":
-            if self.assumption is None:
-                raise ValueError(
-                    f"Contract(agent={self.agent.id!r}): assumption_mode='enforced' "
-                    f"requires a non-None assumption (there is nothing to enforce)."
-                )
-            self._validate_enforced_assumption_scope()
-        if self.activate_at == "first_match":
-            if self.assumption is None:
-                raise ValueError(
-                    f"Contract(agent={self.agent.id!r}): activate_at='first_match' "
-                    f"requires a non-None assumption (there is nothing to activate)."
-                )
-            self._validate_first_match_assumption_shape()
+        if self.assumption is not None:
+            self._validate_assumption_scope()
+            self._validate_assumption_enforceable()
 
-    def _validate_enforced_assumption_scope(self) -> None:
-        """Reject an enforced assumption that rests on the agent's own actions.
+    def _validate_assumption_scope(self) -> None:
+        """Reject an assumption that rests on the agent's own actions.
 
-        The supervisor enforces an assumption by suppressing the
-        environment event that would falsify it. A condition on the
-        agent's own calls cannot be maintained that way; it belongs to
-        the guarantee, which is enforced by blocking the call.
+        An assumption states what the environment is required to keep,
+        and the supervisor maintains it by suppressing the environment
+        event that would falsify it. A condition on the agent's own
+        calls cannot be maintained that way; it belongs to the
+        guarantee, which is enforced by blocking the call.
         """
-        from contragent.formulas.formula import collect_atoms
+        from contragent.formulas.formula import agent_controlled_atoms
 
         offenders: set[str] = set()
         for constraint in self.assumptions:
             formula = getattr(constraint, "formula", constraint)
-            try:
-                atoms = collect_atoms(formula)
-            except Exception:  # pragma: no cover - non-formula constraint
-                continue
-            for atom in atoms:
-                name = getattr(atom, "predicate", None) or getattr(atom, "name", None)
-                if name in self._AGENT_CONTROLLED:
-                    offenders.add(name)
+            offenders |= agent_controlled_atoms(formula)
         if offenders:
             raise ValueError(
-                f"Contract(agent={self.agent.id!r}): assumption_mode='enforced' "
-                f"requires an assumption over environment predicates, but it uses "
-                f"{sorted(offenders)!r}, which the agent controls. Put the condition "
-                f"in the guarantee, or use assumption_mode='monitored'."
+                f"Contract(agent={self.agent.id!r}): the assumption must be written "
+                f"over environment predicates, but it uses {sorted(offenders)!r}, "
+                f"which the agent controls. Put the condition in the guarantee, as "
+                f"G(trigger -> ...)."
             )
 
-    def _validate_first_match_assumption_shape(self) -> None:
-        """Reject assumptions whose ``first_match`` semantics are unclear.
+    def _validate_assumption_enforceable(self) -> None:
+        """Reject an assumption that demands an unbounded eventuality.
 
-        ``first_match`` is well-defined for ``F(φ)`` (activation = first
-        position where φ holds) and for atomic predicates (same).  It
-        is *not* well-defined for ``G(φ)`` (which can only become true
-        at end-of-trace) or arithmetic comparisons over counters.  We
-        reject the unsupported shapes at construction time rather than
-        silently treating them as a per-position re-evaluation.
+        The supervisor maintains an assumption by suppressing the
+        environment event that would falsify it. Suppression can keep an
+        event from reaching the agent, but it cannot bring one about, so
+        an assumption of the form ``F phi`` or ``phi U psi`` is not
+        enforceable. Such an obligation belongs to the guarantee, where
+        a still-pending eventuality is surfaced at the end of the
+        session. Weak until, written ``(phi U psi) | G phi``, is a
+        safety property and is accepted.
         """
-        from contragent.formulas.det import DetFormula
-        from contragent.formulas.formula import Atom, F
+        from contragent.formulas.formula import demands_eventuality
 
-        def _check(constraint: Any, idx: int) -> None:
-            if not hasattr(constraint, "formula"):
-                # Not a DetFormula: nothing to validate here.
-                return
-            raw = (
-                constraint.formula if isinstance(constraint, DetFormula) else constraint
-            )
-            if isinstance(raw, (F, Atom)):
-                return
-            raise ValueError(
-                f"Contract(agent={self.agent.id!r}): activate_at='first_match' "
-                f"only supports F(φ) or atomic assumptions; assumption[{idx}] "
-                f"has shape {type(raw).__name__}. Use the default global "
-                f"semantics (omit activate_at) or rewrite the assumption."
-            )
-
-        for i, a in enumerate(self.assumptions):
-            _check(a, i)
+        for i, constraint in enumerate(self.assumptions):
+            formula = getattr(constraint, "formula", constraint)
+            try:
+                offends = demands_eventuality(formula)
+            except Exception:  # pragma: no cover - non-formula constraint
+                continue
+            if offends:
+                raise ValueError(
+                    f"Contract(agent={self.agent.id!r}): assumption[{i}] demands an "
+                    f"unbounded eventuality, which the supervisor cannot maintain by "
+                    f"suppressing an environment event. Put the obligation in the "
+                    f"guarantee, or weaken it to a safety property such as weak "
+                    f"until, '(phi U psi) | G phi'."
+                )
 
     # -----------------------------------------------------------------
     # Atom-type introspection (for runtime dispatch)

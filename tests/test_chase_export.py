@@ -143,11 +143,18 @@ class TestGrounding:
 
 class TestSemantics:
     def test_finite_adds_alive_axiom_and_guards(self):
-        text = export_logics(_contracts(("F(called('a'))", "G((called('a') -> F(called('b'))))")))
+        text = export_logics(
+            _contracts(
+                (
+                    "G(!(output_has('a', 'SECRET')))",
+                    "G((called('a') -> F(called('b'))))",
+                )
+            )
+        )
         assert f"CONTRACT {FINITE_TRACE_CONTRACT}:" in text
         assert "(alive /\\ (alive U (G (! alive))))" in text
         assert "(G (alive -> (p_called_a -> (F (alive /\\ p_called_b)))))" in text
-        assert "  Assumptions:\n    (F (alive /\\ p_called_a));" in text
+        assert "  Assumptions:\n    (G (alive -> (! p_output_has_a_SECRET)));" in text
 
     def test_infinite_exports_formulas_verbatim(self):
         text = export_logics(

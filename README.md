@@ -115,38 +115,34 @@ Data-flow and context predicates are fed through `observe_data_write`,
 `gate` (default) acts on it, `flag` records the same decision without
 gating the agent.
 
-### Monitored and enforced assumptions
+### Assumptions
 
-A contract declares its assumption `monitored` or `enforced`, the
-distinction between observing a property and intervening to maintain it.
-
-* **monitored** (default) is only evaluated. An environment event that
-  falsifies it leaves the contract idle, so the rule does not apply and
-  the call is not gated; the failure is reported through `Escalate`.
-* **enforced** additionally restricts the environment. A tool result
-  that would falsify the assumption is suppressed: `guard_after` returns
-  `result.suppressed`, the result is not attached to the trace, and the
-  session state does not advance on it. The agent is told why, so it can
-  choose another route.
+A contract's assumption states what the environment is required to keep,
+and the supervisor maintains it rather than only observing it. A tool
+result that would falsify the assumption is suppressed: `guard_after`
+returns `result.suppressed`, the result is not attached to the trace,
+and the session state does not advance on it. The agent is told why, so
+it can choose another route. Blocking a call keeps the agent a valid
+implementation of the contract; suppressing an event keeps its
+environment a valid environment.
 
 ```yaml
 - desc: file reads carry no credential
   A: {ltl: "G(!(output_has('read_file', 'BEGIN PRIVATE KEY')))"}
-  assumption_mode: enforced
   G: {ltl: "G((called('send_email') -> called('read_file')))"}
 ```
 
 ```python
 contract("file reads carry no credential")
     .assume(parse_repr("G(!(output_has('read_file', 'BEGIN PRIVATE KEY')))"))
-    .enforce_assumption()
     .guarantees(parse_repr("G((called('send_email') -> called('read_file')))"))
 ```
 
-An enforced assumption must be written over environment predicates. The
+An assumption must be written over environment predicates. The
 supervisor maintains it by suppressing an environment event, so a
 condition on the agent's own calls (`called`, `arg_field_has`, `count`,
-...) is rejected at load time and belongs in the guarantee instead.
+...) belongs in the guarantee instead, as `G(trigger -> ...)`; writing
+one in the assumption raises a `DeprecationWarning` at load time.
 
 ## Offline evaluation
 

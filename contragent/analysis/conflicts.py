@@ -1,21 +1,20 @@
 """Contract-library conflict checking.
 
-Implements the conflict-freedom check from the ContrAgent paper
-(§ Contract library): a loaded library is *conflict-free* when no
-contracts that can be active at once impose guarantees that cannot be
-jointly satisfied. The check has two steps, both reducing to LTLf
-satisfiability, and runs once at library load — off the hot path:
+Implements the library check from the ContrAgent paper (§ Contract
+library). An assumption states what the environment is required to
+keep, so every assumption holds on every legal run. Contracts that are
+consistent and compatible one at a time can still be unsatisfiable
+together, so the library is checked as a whole, once at load time and
+off the hot path:
 
-1. Treat the library as the conjunction :math:`\\bigwedge_i (A_i \\wedge
-   G_i)` of LTLf formulas and extract a **minimal unsatisfiable core**
-   (Roveri et al. 2024; Ielo et al. 2026, ``mus2muc``) to isolate the
-   contracts that actually clash rather than the whole unsatisfiable
-   set.
-2. Test whether the **assumptions** of that core are jointly
-   satisfiable. If so, those contracts can co-fire yet cannot meet
-   their guarantees together — a genuine conflict to repair. If not,
-   their assumptions are mutually exclusive, so they never co-fire and
-   the core is discarded.
+Is :math:`\\bigwedge_i (A_i \\wedge G_i)` satisfiable? A model is one
+session that keeps every assumption and meets every guarantee, which
+settles the library in a single query. When it is not, a **minimal
+unsatisfiable core** (Roveri et al. 2024; Ielo et al. 2026,
+``mus2muc``) names the contracts that clash rather than the whole
+unsatisfiable set. Assumptions that cannot hold together are caught by
+the same query, since they make every extension of them unsatisfiable
+too.
 
 Backends
 --------
@@ -649,24 +648,12 @@ class ConflictCore:
 
     Attributes:
         units: The contracts in the core.
-        assumptions_satisfiable: Step-2 verdict. ``True`` — the
-            contracts can co-fire but their guarantees cannot jointly
-            hold (**genuine conflict**). ``False`` — assumptions are
-            mutually exclusive; the core never co-fires and is
-            discarded. ``None`` — the assumption check hit a budget;
-            treated as a potential conflict.
         minimal: False when core shrinking hit an unknown oracle call
             (the core is unsatisfiable but possibly non-minimal).
     """
 
     units: tuple[ContractUnit, ...]
-    assumptions_satisfiable: bool | None
     minimal: bool = True
-
-    @property
-    def is_conflict(self) -> bool:
-        """True unless the core provably never co-fires."""
-        return self.assumptions_satisfiable is not False
 
     @property
     def labels(self) -> tuple[str, ...]:
@@ -689,7 +676,6 @@ class ConflictReport:
     """
 
     conflicts: list[ConflictCore] = field(default_factory=list)
-    discarded: list[ConflictCore] = field(default_factory=list)
     skipped: list[str] = field(default_factory=list)
     checked: int = 0
     unknown: bool = False
@@ -720,19 +706,10 @@ class ConflictReport:
                 f"contract(s) ({self.backend} backend)"
             )
         for n, core in enumerate(self.conflicts, 1):
-            sat = core.assumptions_satisfiable
             note = "" if core.minimal else " [core may not be minimal]"
-            verdict = (
-                "assumptions can co-fire" if sat else "assumption check inconclusive"
-            )
-            lines.append(f"  conflict {n}: {verdict}{note}")
+            lines.append(f"  conflict {n}{note}:")
             for label in core.labels:
                 lines.append(f"    - {label}")
-        for core in self.discarded:
-            lines.append(
-                "  discarded core (assumptions mutually exclusive, never "
-                "co-fires): " + ", ".join(core.labels)
-            )
         if self.skipped:
             lines.append(
                 f"  skipped {len(self.skipped)} non-det contract(s): "
@@ -792,8 +769,8 @@ def check_conflicts(
             backend only).
 
     Returns:
-        A :class:`ConflictReport`; genuine conflicts (cores whose
-        assumptions can co-fire) are in ``report.conflicts``.
+        A :class:`ConflictReport`; the contracts that cannot hold
+        together are in ``report.conflicts``.
 
     On the native backend the check first tries the witness-trace fast
     path (see module docstring): a cheap concrete trace satisfying
@@ -836,20 +813,6 @@ def check_conflicts(
             exact_counters=exact_counters,
         )
 
-    def assumptions_sat(core: Sequence[ContractUnit]) -> bool | None:
-        assumptions = [u.assumption for u in core if u.assumption is not None]
-        if not assumptions:
-            # Unconditional contracts are always active together.
-            return True
-        return is_satisfiable(
-            assumptions + axioms,
-            mutex_groups=mutex_groups,
-            implications=implications,
-            max_states=max_states,
-            max_alphabet=max_alphabet,
-            theory_checker=theory_checker,
-            exact_counters=exact_counters,
-        )
 
     if backend in ("auto", "mus2muc"):
         from contragent.analysis import mus2muc_backend
@@ -872,14 +835,7 @@ def check_conflicts(
             report.backend = "mus2muc"
             report.exhaustive = True
             for core_units in cores:
-                core = ConflictCore(
-                    units=tuple(core_units),
-                    assumptions_satisfiable=assumptions_sat(core_units),
-                )
-                if core.is_conflict:
-                    report.conflicts.append(core)
-                else:
-                    report.discarded.append(core)
+                report.conflicts.append(ConflictCore(units=tuple(core_units)))
             return report
         if backend == "mus2muc":
             raise mus2muc_backend.Mus2mucUnavailable(
@@ -908,15 +864,9 @@ def check_conflicts(
             report.unknown = True
             break
         core_units, minimal = extract_muc(working, sat_of)
-        core = ConflictCore(
-            units=tuple(core_units),
-            assumptions_satisfiable=assumptions_sat(core_units),
-            minimal=minimal,
+        report.conflicts.append(
+            ConflictCore(units=tuple(core_units), minimal=minimal)
         )
-        if core.is_conflict:
-            report.conflicts.append(core)
-        else:
-            report.discarded.append(core)
         # Remove the classified core and keep scanning for disjoint
         # cores. Overlapping cores are missed by design (see module
         # docstring); ``mus2muc`` enumerates them all.

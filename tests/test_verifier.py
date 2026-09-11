@@ -12,6 +12,7 @@ Exercises:
 
 from __future__ import annotations
 
+from contragent.formulas.parser import parse_repr
 from contragent.models.agent import Agent
 from contragent.models.contract import Contract
 from contragent.models.trace import Event, Trace
@@ -32,6 +33,28 @@ def _trace(*tool_calls: str) -> Trace:
             for i, t in enumerate(tool_calls)
         ]
     )
+
+
+def _trace_with_output(*pairs: tuple[str, str]) -> Trace:
+    """Build a trace of tool calls carrying the given result content."""
+    return Trace(
+        events=[
+            Event(ts=i, agent="bot", event_type="tool_call", tool=t, content=c)
+            for i, (t, c) in enumerate(pairs)
+        ]
+    )
+
+
+def _clean_output(tool: str):
+    """An assumption on the environment: no result of ``tool`` leaks a secret."""
+    return parse_repr(f"G(!(output_has('{tool}', 'SECRET')))")
+
+
+def _verdict(contract: Contract, trace: Trace):
+    """Verify ``contract`` against ``trace`` with grounding wired to it."""
+    v = TraceVerifier()
+    v.sync_from_contracts(trace, [contract])
+    return v
 
 
 class TestVerdict:
@@ -117,11 +140,11 @@ class TestCheckContract:
     def test_assumption_failure_skips_enforcements(self):
         contract = Contract(
             agent=Agent(id="bot"),
-            assumption=must_precede("auth", "act"),
+            assumption=_clean_output("act"),
             guarantee=rate_limit("act", 3),
         )
-        v = TraceVerifier()
-        v.sync(_trace("act"))  # auth never called → assumption fails
+        # the result leaks a secret → the environment breaks the assumption
+        v = _verdict(contract, _trace_with_output(("act", "a SECRET slipped out")))
         cv = v.check_contract(contract)
         assert cv.assumption_holds is False
         assert cv.first_assumption_failure is not None
@@ -130,11 +153,12 @@ class TestCheckContract:
     def test_assumption_and_enforcement_both_evaluated_when_a_holds(self):
         contract = Contract(
             agent=Agent(id="bot"),
-            assumption=must_precede("auth", "act"),
+            assumption=_clean_output("act"),
             guarantee=rate_limit("act", 1),  # will be violated
         )
-        v = TraceVerifier()
-        v.sync(_trace("auth", "act", "act"))
+        v = _verdict(
+            contract, _trace_with_output(("act", "clean"), ("act", "clean"))
+        )
         cv = v.check_contract(contract)
         assert cv.assumption_holds is True
         assert cv.holds is False
@@ -279,16 +303,15 @@ class TestCheckAssumption:
         contract = Contract(
             agent=Agent(id="bot"),
             assumption=[
-                must_precede("a", "b"),
-                must_precede("c", "d"),  # should not reach here
+                _clean_output("a"),
+                _clean_output("c"),  # should not reach here
             ],
             guarantee=rate_limit("X", 3),
         )
-        v = TraceVerifier()
-        v.sync(_trace("b"))  # first assumption fails
+        v = _verdict(contract, _trace_with_output(("a", "a SECRET slipped out")))
         result = v.check_assumption(contract)
         assert result.holds is False
-        assert "a must precede b" in result.desc.lower()
+        assert "output_has('a', 'SECRET')" in result.desc
 
 
 class TestAgainstMonitor:

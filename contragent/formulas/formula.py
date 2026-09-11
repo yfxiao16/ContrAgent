@@ -614,3 +614,91 @@ def collect_atoms(formula: Formula) -> set[Atom]:
         return collect_atoms(formula.child)
     # Arithmetic nodes don't contain Atoms
     return set()
+
+
+#: Predicates decided by the agent's own actions, the set $V_{ag}$ of the
+#: paper. A contract's assumption states what the environment is required
+#: to keep, so it rests on the complementary set; a condition on these
+#: predicates belongs to the guarantee, as ``G(trigger -> ...)``.
+AGENT_CONTROLLED_PREDICATES = frozenset(
+    {
+        "called",
+        "called_with",
+        "arg_field_has",
+        "arg_paths_within",
+        "llm_said",
+        "count",
+        "consecutive_count",
+        "arg_numeric",
+    }
+)
+
+
+def agent_controlled_atoms(formula: Formula) -> set[str]:
+    """Names of the agent-controlled predicates a formula rests on.
+
+    Returns an empty set for a formula written entirely over predicates
+    the environment decides, which is the shape an assumption must have.
+    """
+    try:
+        atoms = collect_atoms(formula)
+    except Exception:  # pragma: no cover - non-formula constraint
+        return set()
+    found: set[str] = set()
+    for atom in atoms:
+        name = getattr(atom, "predicate", None) or getattr(atom, "name", None)
+        if name in AGENT_CONTROLLED_PREDICATES:
+            found.add(name)
+    return found
+
+
+def _is_weak_until(node: Formula) -> bool:
+    """Recognize ``(phi U psi) \\/ G phi``, the weak-until idiom.
+
+    Weak until asks for ``phi`` to hold until ``psi`` does, without
+    requiring ``psi`` ever to arrive, so it is a safety property even
+    though its left disjunct is not. The codebase writes it in this
+    expanded form because the grammar has no ``W`` operator.
+    """
+    if not isinstance(node, Or):
+        return False
+    for u, g in ((node.left, node.right), (node.right, node.left)):
+        if isinstance(u, U) and isinstance(g, G) and g.child == u.left:
+            return True
+    return False
+
+
+def demands_eventuality(formula: Formula, positive: bool = True) -> bool:
+    """True when satisfying ``formula`` requires something to happen.
+
+    A conservative syntactic test for the unbounded eventualities that a
+    suppressing monitor cannot maintain. Suppression removes an event
+    before it reaches the agent, so it can keep a bad event from
+    occurring but cannot bring a good one about. An assumption that
+    demands an eventuality is therefore not enforceable, and the
+    obligation belongs to the guarantee instead.
+
+    ``F`` and ``U`` are rejected wherever they carry a commitment, with
+    the weak-until idiom recognized as the safety property it is. The
+    test errs towards rejection, so a formula it accepts is enforceable
+    but not every formula it rejects is unenforceable.
+    """
+    rec = demands_eventuality
+    if positive and _is_weak_until(formula):
+        return False
+    if isinstance(formula, Not):
+        return rec(formula.child, not positive)
+    if isinstance(formula, F):
+        return positive or rec(formula.child, positive)
+    if isinstance(formula, G):
+        # ~G phi is F ~phi, an eventuality
+        return (not positive) or rec(formula.child, positive)
+    if isinstance(formula, U):
+        return positive or rec(formula.left, positive) or rec(formula.right, positive)
+    if isinstance(formula, X):
+        return rec(formula.child, positive)
+    if isinstance(formula, Implies):
+        return rec(formula.left, not positive) or rec(formula.right, positive)
+    if isinstance(formula, (And, Or)):
+        return rec(formula.left, positive) or rec(formula.right, positive)
+    return False

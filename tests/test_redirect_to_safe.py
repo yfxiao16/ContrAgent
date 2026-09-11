@@ -161,27 +161,25 @@ class TestRedirectStrategyOutcome:
 
 
 class TestConditionalRedirect:
-    def test_redirect_only_fires_when_assumption_holds(self) -> None:
-        """Combining the pattern with an assumption produces a guarded
-        redirect: only fires when the precondition activates. This is
-        the canonical shape for a context-sensitive redirect."""
+    def test_redirect_only_fires_when_the_trigger_has_fired(self) -> None:
+        """Scoping the pattern to a trigger produces a guarded redirect:
+        it only fires once the trigger has been reached. This is the
+        canonical shape for a context-sensitive redirect."""
         guard = ContrAgent(
             agent_id="bot",
             contracts=[
                 contract("redirect large refunds")
-                .assume("F(called('issue_refund'))")
                 .guarantees(redirect_to_safe("issue_refund", "log_refund_request"))
             ],
             mode="enforce",
         )
-        # Before issue_refund is called, the assumption hasn't fired
-        # . read_file passes through cleanly.
+        # A tool the rule does not name passes through cleanly.
         r1 = guard.guard_before("read_file", {})
         assert r1.allowed is True
         assert r1.redirected is False
 
-        # First call to issue_refund fires the assumption AND triggers
-        # the redirect on the same step.
+        # The first call to issue_refund reaches the trigger and is
+        # redirected on the same step.
         r2 = guard.guard_before("issue_refund", {"amount": 50000})
         assert r2.redirected is True
         assert r2.redirected_to == "log_refund_request"

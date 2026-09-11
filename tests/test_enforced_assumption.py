@@ -1,15 +1,13 @@
-"""Tests for ``assumption_mode`` and the suppression path.
+"""Tests for the assumption side of a contract and the suppression path.
 
 The contract these pin down:
 
-* A contract declares its assumption ``monitored`` (default) or
-  ``enforced``; anything else is rejected at construction.
-* ``enforced`` requires an assumption, and one written over environment
-  predicates only: a condition on the agent's own calls belongs to the
-  guarantee and is rejected.
-* A monitored assumption keeps the pre-existing behaviour, i.e. the
-  failure is reported and the call is not gated.
-* An enforced assumption suppresses the offending tool result: the
+* An assumption states what the environment is required to keep, so
+  every assumption is maintained the same way; there is no per-contract
+  mode to choose between evaluating and enforcing it.
+* An assumption written over predicates the agent controls is a
+  guarantee in disguise and is rejected at construction.
+* A failing assumption suppresses the offending tool result: the
   outcome is ``suppressed``, the agent sees feedback, and the output is
   not attached to the trace, so the session state does not advance.
 * In ``flag`` mode the same decision is downgraded to ``observed`` and
@@ -39,7 +37,6 @@ def _guard(mode: str = "gate") -> ContrAgent:
         contracts=[
             contract("file reads carry no secret")
             .assume(_no_secret_in_output())
-            .enforce_assumption()
             .guarantees(parse_repr("G((called('send_email') -> called('read_file')))")),
         ],
         mode=mode,
@@ -47,54 +44,28 @@ def _guard(mode: str = "gate") -> ContrAgent:
 
 
 class TestDeclaration:
-    def test_default_is_monitored(self) -> None:
+    def test_no_assumption_mode_is_carried(self) -> None:
         c = contract("c").assume(_no_secret_in_output()).guarantees(
             parse_repr("G(called('a'))")
         )
         assert "assumption_mode" not in c.to_dict()
+        assert not hasattr(Contract(agent=Agent(id="a"), guarantee=parse_repr("G(called('a'))")), "assumption_mode")
 
-    def test_builder_sets_enforced(self) -> None:
-        c = (
-            contract("c")
-            .assume(_no_secret_in_output())
-            .enforce_assumption()
-            .guarantees(parse_repr("G(called('a'))"))
+    def test_environment_assumption_is_accepted(self) -> None:
+        contract = Contract(
+            agent=Agent(id="a"),
+            guarantee=parse_repr("G(called('b'))"),
+            assumption=_no_secret_in_output(),
         )
-        assert c.to_dict()["assumption_mode"] == "enforced"
+        assert contract.assumption is not None
 
-    def test_unknown_mode_rejected(self) -> None:
-        with pytest.raises(ValueError, match="assumption_mode"):
-            Contract(
-                agent=Agent(id="a"),
-                guarantee=parse_repr("G(called('a'))"),
-                assumption=_no_secret_in_output(),
-                assumption_mode="sometimes",
-            )
-
-    def test_enforced_needs_an_assumption(self) -> None:
-        with pytest.raises(ValueError, match="nothing to enforce"):
-            Contract(
-                agent=Agent(id="a"),
-                guarantee=parse_repr("G(called('a'))"),
-                assumption_mode="enforced",
-            )
-
-    def test_enforced_rejects_agent_controlled_predicate(self) -> None:
+    def test_agent_controlled_assumption_is_rejected(self) -> None:
         with pytest.raises(ValueError, match="which the agent controls"):
             Contract(
                 agent=Agent(id="a"),
                 guarantee=parse_repr("G(called('b'))"),
                 assumption=parse_repr("F(called('transfer'))"),
-                assumption_mode="enforced",
             )
-
-    def test_monitored_may_use_agent_predicates(self) -> None:
-        c = Contract(
-            agent=Agent(id="a"),
-            guarantee=parse_repr("G(called('b'))"),
-            assumption=parse_repr("F(called('transfer'))"),
-        )
-        assert c.assumption_mode == "monitored"
 
 
 class TestSuppression:
@@ -122,19 +93,6 @@ class TestSuppression:
         result = guard.guard_after("read_file", "here is a SECRET token")
         assert not result.suppressed
         assert any(r.action == "observed" for r in result.violations)
-        assert "SECRET" in (guard.trace.events[-1].content or "")
-
-    def test_monitored_assumption_does_not_suppress(self) -> None:
-        guard = ContrAgent(
-            contracts=[
-                contract("file reads carry no secret")
-                .assume(_no_secret_in_output())
-                .guarantees(parse_repr("G((called('send_email') -> called('read_file')))")),
-            ],
-        )
-        guard.guard_before("read_file", {"path": "/tmp/x"})
-        result = guard.guard_after("read_file", "here is a SECRET token")
-        assert not result.suppressed
         assert "SECRET" in (guard.trace.events[-1].content or "")
 
 
