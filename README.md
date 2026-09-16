@@ -1,11 +1,18 @@
-# ContrAgent: Symbolic Temporal Supervision of LLM Agents Using Contracts
+# ContrAgent
 
-**ContrAgent** is the reference implementation of the paper of the same
-name. It supervises a tool-using LLM agent with assume-guarantee contracts:
-each contract is a pair of ALTL<sub>f</sub> formulas (linear temporal logic on
-finite traces with linear arithmetic) over a fixed vocabulary of interaction
-predicates evaluated on the agent's tool-call trace. Every contract compiles
-to a deterministic finite automaton, and the same automata serve two roles:
+**Symbolic temporal supervision of LLM agents using assume-guarantee contracts.**
+
+[![License: BSD-3-Clause](https://img.shields.io/badge/License-BSD_3--Clause-blue.svg)](LICENSE)
+[![Python 3.10+](https://img.shields.io/badge/python-3.10+-blue.svg)](https://www.python.org/downloads/)
+[![arXiv](https://img.shields.io/badge/arXiv-2609.XXXXX-b31b1b.svg)](https://arxiv.org/abs/2609.XXXXX)
+
+ContrAgent is the reference implementation of *Symbolic Temporal Supervision
+of LLM Agents Using Contracts*. It supervises a tool-using agent with
+assume-guarantee contracts, each a pair of ALTL<sub>f</sub> formulas (linear
+temporal logic on finite traces with linear arithmetic) over a fixed
+vocabulary of interaction predicates evaluated on the agent's tool-call
+trace. Every contract compiles to a deterministic finite automaton, and the
+same automata serve two roles:
 
 * **Online**, they gate each tool call before it executes and block,
   redirect, or escalate a violating call. No model is called on this path.
@@ -33,13 +40,10 @@ pip install -e ".[dev]"       # plus pytest, ruff, and z3
 pip install -e ".[llm]"       # plus model providers for contract formulation
 ```
 
-## Contracts
+## Quickstart
 
-A library is a YAML file. Each contract has a guarantee `G` and an optional
-assumption `A`, both formulas over the interaction predicates. `A` describes the
-environment and may use only the environment predicates (tool results, user
-input, context, time); a condition on the agent's own actions is written as the
-premise of `G`:
+Put one contract in `bank.yaml`. It says that funds may not move until
+identity has been verified:
 
 ```yaml
 version: "1"
@@ -48,83 +52,74 @@ agents:
     contracts:
       - desc: "identity must be verified before funds move"
         G: {ltl: "(!(called('transfer_funds')) U called('verify_identity')) | G(!(called('transfer_funds')))"}
-      - desc: "at most three bill payments per session"
-        G: {ltl: "G((Var('count', 'pay_bill') <= 3))"}
-      - desc: "no recursive deletion from the shell"
-        G: {ltl: "G((called('bash') -> !(arg_field_has('bash', 'command', 'rm -rf'))))"}
 ```
 
-Temporal operators are `G` (always), `F` (eventually), `X` (next), and `U`
-(until); connectives are `&`, `|`, `!`, and `->`. The prefix spelling
-`G(Implies(called(a), F(called(b))))` is accepted as well. A natural-language
-requirement (`nl:`) is lifted to a formula by the formulation pipeline when
-an `extractor:` section names a model. Another library is pulled in with
-`include: [contragent:sopbench/bank]`.
-
-### Interaction predicates
-
-| Paper | Formula spelling | Meaning |
-|---|---|---|
-| Call(T) | `called(T)`, `called_with(T, p)` | tool T is invoked (with arguments matching p) |
-| ArgHas(T,f,p) | `arg_field_has(T, f, p)` | argument f of T matches pattern p |
-| Path(T,P) | `arg_paths_within(T, P, ...)` | T's file paths lie within P |
-| Subset(f,S) | `Subset(ArgValue(T, f), S)` | values in field f lie within set S |
-| OutHas(T,p) | `output_has(T, p)` | result of T matches pattern p |
-| Said(p), In(p) | `llm_said(p)`, `prompt_contains(p)` | model output / input matches p |
-| Match(f,k) | `Eq(ArgValue(T, f), CtxValue(k))` | argument field f equals context value k |
-| Ctx(k,v) | `ctx(k, v)` | context key k holds value v |
-| Flow(s,d) | `flow(s, d)` | data from source s reaches sink d |
-| Has(f) | `contains(f)` | a produced value contains field f |
-| Perm(P) | `perm(P)` | caller holds permission P |
-| Cnt(T) | `Var('count', T)` | number of T calls so far |
-| Run(T) | `Var('consecutive_count', T)` | length of the current run of T |
-| Num(T,f) | `Var('arg_numeric', T, f)` | numeric value of argument field f |
-| Len(T,f) | `ArgLength(T, f)` | character length of argument field f |
-| InLen, Chars | `Var('context_length')`, `Var('char_count')` | length of the model input / response |
-| Tok | `Var('token_count')` | cumulative tokens consumed |
-| Depth | `Var('delegation_depth')` | agent-delegation depth |
-| Since(e) | `Var('time_since', e)` | time elapsed since predicate e held |
-
-Numeric quantities are compared with `<=`, `<`, `>=`, `>`, and `==`.
-
-## Online supervision
+Load it and gate the agent's calls:
 
 ```python
 from contragent import ContrAgent
 
-guard = ContrAgent(agent_id="bank_agent", config="contragent/contracts/sopbench/bank.yaml")
+guard = ContrAgent(agent_id="bank_agent", config="bank.yaml")
 
 result = guard.guard_before("transfer_funds", {"amount": 500})
-if result.blocked:
-    reply = result.feedback                 # returned to the model instead of a tool result
-elif result.redirected:
-    call(result.redirected_to)
-else:
-    out = call("transfer_funds", amount=500)
-    guard.guard_after("transfer_funds", out)  # guarantees over tool results
+print(result.blocked)     # True, and result.feedback names the contract
 
-guard.finish_session()                      # decides the pending eventualities
+guard.guard_before("verify_identity", {})
+guard.guard_after("verify_identity", {"ok": True})
+
+result = guard.guard_before("transfer_funds", {"amount": 500})
+print(result.blocked)     # False
+
+guard.finish_session()    # decides the pending eventualities
 ```
 
-Data-flow and context predicates are fed through `observe_data_write`,
-`observe_data_read`, `observe_delegation`, `observe_context`, and
-`observe_llm_call`. The enforcement action of a contract is set with
-`policy={"<contract desc>": Redirect("safe_tool")}`; the default is `Block`.
+A blocked call never reaches the tool. `result.feedback` is what goes back to
+the model in place of a tool result, so the agent can choose another route.
 
-`ContrAgent(mode=...)` selects what the supervisor does with a decision:
-`gate` (default) acts on it, `flag` records the same decision without
-gating the agent.
+The same contracts check a recorded trace from the command line:
+
+```bash
+contragent replay trace.json --config bank.yaml
+```
+
+## Writing contracts
+
+A library is a YAML file. Each contract has a guarantee `G` and an optional
+assumption `A`, both formulas over the interaction predicates. Ordering is
+only one of the things a guarantee can say; it can also bound a count or
+constrain an argument:
+
+```yaml
+version: "1"
+agents:
+  "*":
+    contracts:
+      - desc: "at most three bill payments per session"
+        G: {ltl: "G((Var('count', 'pay_bill') <= 3))"}
+      - desc: "no recursive deletion from the shell"
+        G: {ltl: "G((called('bash') -> !(arg_field_has('bash', 'command', 'rm -rf'))))"}
+      - desc: "every escalation is eventually resolved"
+        G: {ltl: "G((called('escalate') -> F(called('resolve'))))"}
+```
+
+`G` (always), `F` (eventually), `X` (next), and `U` (until) are the temporal
+operators; `&`, `|`, `!`, and `->` the connectives. A natural-language
+requirement (`nl:`) is lifted to a formula by the formulation pipeline when
+an `extractor:` section names a model. Another library is pulled in with
+`include: [contragent:sopbench/bank]`.
+
+The full predicate vocabulary is in
+[`docs/predicates.md`](docs/predicates.md).
 
 ### Assumptions
 
-A contract's assumption states what the environment is required to keep,
-and the supervisor maintains it rather than only observing it. A tool
-result that would falsify the assumption is suppressed: `guard_after`
-returns `result.suppressed`, the result is not attached to the trace,
-and the session state does not advance on it. The agent is told why, so
-it can choose another route. Blocking a call keeps the agent a valid
-implementation of the contract; suppressing an event keeps its
-environment a valid environment.
+A contract's assumption states what the environment is required to keep, and
+the supervisor maintains it rather than only observing it. A tool result that
+would falsify the assumption is suppressed: `guard_after` returns
+`result.suppressed`, the result is not attached to the trace, and the session
+state does not advance on it. The agent is told why, so it can choose another
+route. Blocking a call keeps the agent a valid implementation of the
+contract; suppressing an event keeps its environment a valid environment.
 
 ```yaml
 - desc: file reads carry no credential
@@ -132,17 +127,28 @@ environment a valid environment.
   G: {ltl: "G((called('send_email') -> called('read_file')))"}
 ```
 
+An assumption must be written over environment predicates. A condition on the
+agent's own actions belongs in the guarantee instead, as `G(trigger -> ...)`;
+see [`docs/predicates.md`](docs/predicates.md#which-side-a-predicate-belongs-on).
+
+## Online supervision
+
+Data-flow and context predicates are fed through `observe_data_write`,
+`observe_data_read`, `observe_delegation`, `observe_context`, and
+`observe_llm_call`. The enforcement action of a contract is set with
+`policy={"<contract desc>": Redirect("safe_tool")}`; the default is `Block`.
+
+`ContrAgent(mode=...)` selects what the supervisor does with a decision:
+`gate` (default) acts on it, `flag` records the same decision without gating
+the agent.
+
+The fluent Python helper writes the same contract in code:
+
 ```python
 contract("file reads carry no credential")
     .assume(parse_repr("G(!(output_has('read_file', 'BEGIN PRIVATE KEY')))"))
     .guarantees(parse_repr("G((called('send_email') -> called('read_file')))"))
 ```
-
-An assumption must be written over environment predicates. The
-supervisor maintains it by suppressing an environment event, so a
-condition on the agent's own calls (`called`, `arg_field_has`, `count`,
-...) belongs in the guarantee instead, as `G(trigger -> ...)`; writing
-one in the assumption raises a `DeprecationWarning` at load time.
 
 ## Offline evaluation
 
@@ -155,12 +161,14 @@ contragent conflicts --config contragent/contracts/sopbench/hotel.yaml
 `eval` replays a directory of `safe_*.json` / `unsafe_*.json` traces and
 reports precision, recall, and false-positive rate per contract. `replay`
 prints the verdict, the first violating event, and the violated contracts of
-one trace. `conflicts` runs the library conflict check. A trace is a JSON
-object with an `events` list; each event carries `ts`, `agent`, `type`
-(`tool_call`, `data_read`, `data_write`, `message`, `context_update`,
-`llm_request`, `llm_response`), `tool`, `args`, and `content`.
+one trace. `conflicts` runs the library conflict check.
 
-## Conflict check and optional solvers
+A trace is a JSON object with an `events` list; each event carries `ts`,
+`agent`, `type` (`tool_call`, `data_read`, `data_write`, `message`,
+`context_update`, `llm_request`, `llm_response`), `tool`, `args`, and
+`content`.
+
+## Conflict check
 
 The conflict check treats the library as the conjunction of its contracts,
 extracts a minimal unsatisfiable core, and tests whether the assumptions of
@@ -174,62 +182,31 @@ optional tools refine it.
   `pip install git+https://github.com/ainnoot/mus2muc`, build its patched
   `wasp` solver and an LTL<sub>f</sub> solver (`aaltaf` or `black`) as
   described in its README, and point `CONTRAGENT_MUS2MUC_BIN` at the folder
-  holding the binaries. `contragent conflicts --backend mus2muc` then uses it;
-  the default `--backend auto` uses it whenever it is available.
+  holding the binaries. `contragent conflicts --backend mus2muc` then uses
+  it; the default `--backend auto` uses it whenever it is available.
 
-## Design-time analysis with CHASE
+## Design-time analysis
 
-[CHASE](https://chase-cps.github.io) is a contract-based requirement-engineering
-framework with a contract algebra (composition, conjunction, refinement) and
-model-checking and synthesis back ends. A ContrAgent library exports to CHASE's
-*logics* specification language:
+A library exports to the *logics* specification language of
+[CHASE](https://chase-cps.github.io), which brings a contract algebra
+(composition, conjunction, refinement) and model-checking and synthesis back
+ends:
 
 ```bash
 contragent export-chase --config contragent/contracts/sopbench/bank.yaml -o bank.logics
 ```
 
-The export grounds the library: every instantiated interaction predicate
-becomes a proposition, every quantity an integer variable (saturating counters
-with an explicit range), and each contract a `CONTRACT` block with its
-`Assumptions` and `Guarantees`. Because CHASE reasons over infinite words, the
-default `--semantics finite` applies the LTL<sub>f</sub>-to-LTL translation
-with an `alive` proposition; `--semantics infinite` exports the formulas as
-written. Contract blocks are numbered (`c1`, `c2`, ...) and carry their
-description in the comment above them, since CHASE's console crashes on
-contract names longer than eight characters.
-
-With CHASE's Python bindings on `PYTHONPATH` (`pychase` from
-`chase-cps/core-library`, `pychase_logicsLang` from `chase-cps/logics_tool`,
-both built with pybind11), two more paths open up:
-
-* `contragent.analysis.chase.PychaseTranslator` builds CHASE `Contract`
-  objects directly and applies the contract algebra to a library
-  (`conjoin` for several contracts on one agent, `compose` for contracts on
-  different components, `refines` for the refinement check between two
-  contracts), identifying the variables that contracts share;
-* `contragent.analysis.chase.ChaseSession` loads an exported `.logics` file
-  into the CHASE console and runs `verify` (NuSMV model of a contract) or
-  `synthesize`, whose outputs go to nuXmv, slugs, or gr1c.
-  For a specification read from a logics file CHASE emits the NuSMV model
-  with an empty `VAR` block; `ChaseSession.verify` fills it from the
-  declarations of the export (`smv_declarations` does the same for a model
-  written by the standalone `logics_tool`), so the model runs in nuXmv as is.
-
-Building the bindings: `chase-cps/logics_tool` ships a parser generated by
-ANTLR 4.9.2, so link it against the ANTLR 4.9.2 C++ runtime (the runtime
-bundled with `chase-cps/third_party` is 4.5.4 and the mismatch crashes the
-parser); with that runtime, replace `ANTLRFileStream input(infile)` in
-`LogicsSpecsBuilder.cc` by `ANTLRFileStream input; input.loadFromFile(infile)`.
-A `logics_tool` command file terminates each command with a semicolon;
-the console API takes the bare command.
+See [`docs/chase.md`](docs/chase.md) for the export semantics, the Python
+bindings, and how to build them.
 
 ## Experiments
 
 The paper evaluates both roles on four benchmarks. Libraries ship under
 `contragent/contracts/`, the harnesses that convert each benchmark's data and
 score the results under `benchmarks/`, and the experiment records under
-`experiments/`. Third-party datasets are not redistributed; each harness says
-where to obtain them.
+`experiments/`. Third-party datasets are not redistributed;
+[`benchmarks/README.md`](benchmarks/README.md) says where to obtain each and
+how to rerun it.
 
 | Benchmark | Role | Library | Harness |
 |---|---|---|---|
@@ -266,6 +243,17 @@ contragent/
 pytest
 ```
 
+## Citation
+
+```bibtex
+@article{xiao2026contragent,
+  title   = {Symbolic Temporal Supervision of {LLM} Agents Using Contracts},
+  author  = {Xiao, Yifeng and Nuzzo, Pierluigi},
+  journal = {arXiv preprint arXiv:2609.XXXXX},
+  year    = {2026}
+}
+```
+
 ## License
 
-BSD 3-Clause. See `LICENSE`.
+BSD 3-Clause. See [`LICENSE`](LICENSE).
