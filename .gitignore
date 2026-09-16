@@ -24,3 +24,9 @@ benchmarks/**/data/
 benchmarks/**/runs/
 benchmarks/AgentDojo/runs/
 benchmarks/**/pi_flags*.json
+.gstack/
+
+# Upstream benchmark checkouts (cloned or symlinked by the reader, not redistributed)
+benchmarks/*/upstream
+benchmarks/tau2/data
+benchmarks/tau2/src

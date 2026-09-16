@@ -16,8 +16,10 @@ graph, numeric thresholds, an initial database, and a label saying whether
 the procedure permits the goal. The environment does not self-enforce, so
 compliance must come from the agent or from the supervisor.
 
-Four conditions share one base model (`gemini-2.5-flash`, 40 tasks per
-domain, three seeded trials):
+Four conditions share one base model (`gemini-2.5-flash`, a balanced
+40-task slice per domain, three repeated trials). `university` holds only 6
+permitted tasks, so its cell is computed over its full pool of 42 rather
+than a 40-task slice:
 
 * **base**: no procedure given;
 * **prompt**: the procedure rendered into the system prompt;
@@ -73,6 +75,10 @@ bash benchmarks/SOPBench/contragent_eval/run.sh bank dmv healthcare hotel librar
 
 # online: the four-condition live experiment (needs a model API key in .env)
 cd benchmarks/SOPBench && PYTHONPATH=contragent_eval:.:../.. python contragent_eval/live/run.py \
-    --domain bank --condition base prompt enforce llm_guard --seed 0
+    --domain bank --condition base prompt enforce llm_guard \
+    --limit 40 --max-steps 12 --workers 6
+# all seven domains at once:
+bash benchmarks/SOPBench/contragent_eval/live/sweep_final.sh
+# pool repeated sweeps:
 python benchmarks/SOPBench/contragent_eval/live/aggregate_seeds.py
 ```
