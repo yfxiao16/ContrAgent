@@ -10,7 +10,10 @@ internal-state writes that don't trip ``flow``, segment-scoped checks).
 from contragent.formulas.evaluator import evaluate
 from contragent.models.trace import Event, Trace
 from contragent.tracer.grounding import collect_content_atoms, ground
-from tests._builders import approval_active, time_since
+from tests._helpers import ltl
+
+APPROVAL_WITHIN_100S = "G((called('issue_refund') -> ((ctx_matches('approval.role', 'senior_eng') & ctx_matches('approval.decision', 'allow')) & (Var('time_since', 'ctx(approval.role, senior_eng)') <= 100))))"
+APPROVAL_WITHIN_10S = "G((called('issue_refund') -> ((ctx_matches('approval.role', 'senior_eng') & ctx_matches('approval.decision', 'allow')) & (Var('time_since', 'ctx(approval.role, senior_eng)') <= 10))))"
 
 # ---------------------------------------------------------------------------
 # now atom
@@ -37,7 +40,7 @@ def test_now_advances_with_event_ts():
 
 
 def test_time_since_called_measures_since_last_call():
-    pat = time_since("called(refund)", 5)
+    pat = ltl("G((Var('time_since', 'called(refund)') <= 5))")
     content_atoms = collect_content_atoms([pat])
     trace = Trace(
         events=[
@@ -56,7 +59,7 @@ def test_time_since_called_measures_since_last_call():
 
 
 def test_time_since_never_seen_returns_sentinel():
-    pat = time_since("called(refund)", 5)
+    pat = ltl("G((Var('time_since', 'called(refund)') <= 5))")
     content_atoms = collect_content_atoms([pat])
     trace = Trace(
         events=[
@@ -73,7 +76,7 @@ def test_time_since_never_seen_returns_sentinel():
 
 
 def test_time_since_passes_when_within_window():
-    pat = time_since("called(refund)", 5)
+    pat = ltl("G((Var('time_since', 'called(refund)') <= 5))")
     content_atoms = collect_content_atoms([pat])
     trace = Trace(
         events=[
@@ -86,7 +89,7 @@ def test_time_since_passes_when_within_window():
 
 
 def test_time_since_violates_when_outside_window():
-    pat = time_since("called(refund)", 5)
+    pat = ltl("G((Var('time_since', 'called(refund)') <= 5))")
     content_atoms = collect_content_atoms([pat])
     trace = Trace(
         events=[
@@ -108,7 +111,7 @@ def test_time_since_ctx_does_not_refresh_while_sustained():
     push, but ``last_ts`` should stay at the push event — otherwise
     "time since approval was granted" collapses to a useless 0.
     """
-    pat = time_since("ctx(approval.role, alice)", 100)
+    pat = ltl("G((Var('time_since', 'ctx(approval.role, alice)') <= 100))")
     content_atoms = collect_content_atoms([pat])
     trace = Trace(
         events=[
@@ -136,7 +139,7 @@ def test_time_since_flow_does_not_refresh_under_propagation():
     """A flow predicate, once true, is forward-propagated forever. Its
     time_since should measure since first appearance, not 0.
     """
-    pat = time_since("flow(writer, reader)", 100)
+    pat = ltl("G((Var('time_since', 'flow(writer, reader)') <= 100))")
     content_atoms = collect_content_atoms([pat])
     trace = Trace(
         events=[
@@ -274,12 +277,12 @@ def test_llm_response_without_segment_emits_nothing():
 
 
 # ---------------------------------------------------------------------------
-# approval_active end-to-end
+# recent-approval gate end-to-end
 # ---------------------------------------------------------------------------
 
 
-def test_approval_active_passes_inside_window():
-    pat = approval_active("issue_refund", "senior_eng", max_seconds=100)
+def test_approval_window_passes_inside_window():
+    pat = ltl(APPROVAL_WITHIN_100S)
     content_atoms = collect_content_atoms([pat])
     trace = Trace(
         events=[
@@ -296,8 +299,8 @@ def test_approval_active_passes_inside_window():
     assert evaluate(pat.formula, vals) is True
 
 
-def test_approval_active_violates_outside_window():
-    pat = approval_active("issue_refund", "senior_eng", max_seconds=10)
+def test_approval_window_violates_outside_window():
+    pat = ltl(APPROVAL_WITHIN_10S)
     content_atoms = collect_content_atoms([pat])
     trace = Trace(
         events=[
@@ -314,8 +317,8 @@ def test_approval_active_violates_outside_window():
     assert evaluate(pat.formula, vals) is False
 
 
-def test_approval_active_violates_when_no_approval():
-    pat = approval_active("issue_refund", "senior_eng", max_seconds=100)
+def test_approval_window_violates_when_no_approval():
+    pat = ltl(APPROVAL_WITHIN_100S)
     content_atoms = collect_content_atoms([pat])
     trace = Trace(
         events=[
@@ -326,8 +329,8 @@ def test_approval_active_violates_when_no_approval():
     assert evaluate(pat.formula, vals) is False
 
 
-def test_approval_active_violates_on_deny_decision():
-    pat = approval_active("issue_refund", "senior_eng", max_seconds=100)
+def test_approval_window_violates_on_deny_decision():
+    pat = ltl(APPROVAL_WITHIN_100S)
     content_atoms = collect_content_atoms([pat])
     trace = Trace(
         events=[

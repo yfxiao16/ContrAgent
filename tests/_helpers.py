@@ -3,6 +3,33 @@
 from __future__ import annotations
 
 import contragent
+from contragent.formulas.det import DetFormula
+from contragent.formulas.parser import parse_repr
+
+
+def ltl(
+    text: str,
+    desc: str = "",
+    *,
+    liveness: bool = False,
+    enforcement_strategy=None,
+) -> DetFormula:
+    """Build a ``DetFormula`` from an ALTL_f string.
+
+    This is the path every shipped contract takes (see
+    ``contragent.config._compile_ltl``): the ``ltl:`` string of a YAML
+    entry is parsed with ``parse_repr`` and wrapped as ``kind="ltl"``.
+    Tests write their formulas the same way so that the suite exercises
+    the parser and, where a shipped contract has the right shape, the
+    published string itself.
+    """
+    return DetFormula(
+        formula=parse_repr(text),
+        desc=desc or text,
+        kind="ltl",
+        liveness=liveness,
+        enforcement_strategy=enforcement_strategy,
+    )
 
 
 def make_guard(*contracts) -> contragent.ContrAgent:

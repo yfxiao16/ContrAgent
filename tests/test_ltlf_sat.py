@@ -18,6 +18,7 @@ from contragent.formulas.formula import (
     X,
 )
 from contragent.formulas.sat import is_satisfiable
+from tests._helpers import ltl
 
 
 def _called(tool: str) -> Atom:
@@ -191,7 +192,7 @@ class TestCounterGadget:
     CALLED_X = _called("x")
 
     def test_cross_vocabulary_conflict_caught(self):
-        # rate_limit-style bound on the counter vs. four *call events*:
+        # A count bound on the counter vs. four *call events*:
         # only the increment-by-one semantics links the two vocabularies.
         formulas = [G(Le(self.X_VAR, Const(3))), _at_least_calls(self.CALLED_X, 4)]
         assert is_satisfiable(formulas) is False
@@ -290,21 +291,21 @@ class TestBudgetsAndWrappers:
         assert verdict in (False, None)
 
     def test_detformula_unwrapped(self):
-        from tests._builders import must_precede, rate_limit
+        assert is_satisfiable(ltl("G((Var('count', 'x') <= 2))")) is True
+        assert (
+            is_satisfiable(ltl("((!(called('pay')) U called('approve')) | G(!(called('pay'))))"))
+            is True
+        )
 
-        assert is_satisfiable(rate_limit("x", 2)) is True
-        assert is_satisfiable(must_precede("approve", "pay")) is True
-
-    def test_pattern_conflict(self):
-        from tests._builders import must_precede
-
-        # "approve before pay" + "approve never called" + "pay happens"
+    def test_precedence_conflict(self):
+        # "lookup before cancel" + "lookup never called" + "cancel happens"
+        # Shipped string: contragent/contracts/benchmark/tau2_bench.yaml (retail)
         assert (
             is_satisfiable(
                 [
-                    must_precede("approve", "pay"),
-                    G(Not(_called("approve"))),
-                    F(_called("pay")),
+                    ltl("((!(called('cancel_pending_order')) U called('get_order_details')) | G(!(called('cancel_pending_order'))))"),
+                    G(Not(_called("get_order_details"))),
+                    F(_called("cancel_pending_order")),
                 ]
             )
             is False

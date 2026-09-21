@@ -1,17 +1,15 @@
-"""Tests for the ``redirect_to_safe`` pattern + ``Redirect``
+"""Tests for a ``G(!called(unsafe))`` rule carrying a ``Redirect``
 strategy.
 
 The contract this pins down:
 
-* The pattern factory validates arguments at compile time (non-empty,
-  distinct unsafe/safe).
-* The pattern attaches a ``Redirect`` strategy to the DetFormula
-  so a violation surfaces as a ``redirected`` outcome with
+* A ``DetFormula`` can carry a ``Redirect`` strategy so a violation
+  surfaces as a ``redirected`` outcome with
   ``fallback_action=safe_name``, not as a plain ``blocked``.
 * The default-policy auto-population in ``ContrAgent.__init__`` honours
   the attached strategy (regression check. earlier the loop
   unconditionally assigned ``Block`` and silently overrode the
-  pattern's intent).
+  rule's intent).
 * The trace is rolled back on redirect, same as on a block, so
   downstream rules don't double-count the substituted call.
 * ``CheckResult`` surfaces ``redirected`` + ``redirected_to`` so
@@ -31,50 +29,18 @@ import pytest
 
 from contragent import contract
 from contragent.core import ContrAgent
+from contragent.formulas.formula import Atom, G, Not
 from contragent.runtime.strategies import Redirect
-from tests._builders import redirect_to_safe
+from tests._helpers import ltl
 
 
-class TestRedirectPattern:
-    def test_pattern_attaches_strategy(self) -> None:
-        formula = redirect_to_safe("rm_rf", "trash")
-        assert formula.kind == "redirect_to_safe"
-        assert formula.args == ("rm_rf", "trash", "")
+class TestRedirectRule:
+    def test_rule_parses_and_carries_strategy(self) -> None:
+        formula = ltl("G(!(called('rm_rf')))", enforcement_strategy=Redirect(safe="trash"))
+        assert formula.formula == G(Not(Atom("called", "rm_rf")))
+        assert formula.kind == "ltl"
         assert isinstance(formula.enforcement_strategy, Redirect)
-
-    def test_pattern_desc_mentions_both_tools(self) -> None:
-        formula = redirect_to_safe("rm_rf", "trash")
-        assert "rm_rf" in formula.desc
-        assert "trash" in formula.desc
-
-    def test_pattern_desc_includes_message(self) -> None:
-        formula = redirect_to_safe("rm_rf", "trash", message="dev-only safety")
-        assert "dev-only safety" in formula.desc
-
-    def test_pattern_accepts_explicit_desc_override(self) -> None:
-        """``desc=`` kwarg lets the caller override the auto-generated
-        description. Parity with every other pattern factory; required
-        for the LLM extraction path (``llm_extraction.py:535``) which
-        always passes ``desc=nl`` when re-materialising a pattern."""
-        formula = redirect_to_safe("rm_rf", "trash", desc="custom: rm goes to trash")
-        assert formula.desc == "custom: rm goes to trash"
-        # message is still bound on the strategy even when desc is
-        # explicitly overridden.
-        assert formula.args == ("rm_rf", "trash", "")
-
-    def test_rejects_empty_unsafe(self) -> None:
-        with pytest.raises(ValueError, match="unsafe"):
-            redirect_to_safe("", "trash")
-
-    def test_rejects_empty_safe(self) -> None:
-        with pytest.raises(ValueError, match="safe"):
-            redirect_to_safe("rm_rf", "")
-
-    def test_rejects_identical_tools(self) -> None:
-        """Redirecting a tool to itself is a degenerate no-op that
-        almost certainly indicates a typo."""
-        with pytest.raises(ValueError):
-            redirect_to_safe("foo", "foo")
+        assert formula.enforcement_strategy._safe == "trash"
 
 
 class TestRedirectStrategyOutcome:
@@ -83,7 +49,7 @@ class TestRedirectStrategyOutcome:
             agent_id="bot",
             contracts=[
                 contract("redirect rm to trash").guarantees(
-                    redirect_to_safe("rm_rf", "trash")
+                    ltl("G(!(called('rm_rf')))", enforcement_strategy=Redirect(safe="trash"))
                 )
             ],
             mode="enforce",
@@ -101,7 +67,7 @@ class TestRedirectStrategyOutcome:
             agent_id="bot",
             contracts=[
                 contract("redirect rm to trash").guarantees(
-                    redirect_to_safe("rm_rf", "trash")
+                    ltl("G(!(called('rm_rf')))", enforcement_strategy=Redirect(safe="trash"))
                 )
             ],
             mode="enforce",
@@ -114,14 +80,14 @@ class TestRedirectStrategyOutcome:
 
     def test_rollback_on_redirect(self) -> None:
         """The attempted unsafe call must roll back so downstream rules
-        (count_at_most, rate_limit) don't tick on the redirect path.
+        (count bounds) don't tick on the redirect path.
         The adapter records the substitute via its own
         ``guard_before(safe, args)`` call."""
         guard = ContrAgent(
             agent_id="bot",
             contracts=[
                 contract("redirect rm to trash").guarantees(
-                    redirect_to_safe("rm_rf", "trash")
+                    ltl("G(!(called('rm_rf')))", enforcement_strategy=Redirect(safe="trash"))
                 )
             ],
             mode="enforce",
@@ -148,7 +114,7 @@ class TestRedirectStrategyOutcome:
             agent_id="bot",
             contracts=[
                 contract("redirect rm to trash").guarantees(
-                    redirect_to_safe("rm_rf", "trash")
+                    ltl("G(!(called('rm_rf')))", enforcement_strategy=Redirect(safe="trash"))
                 )
             ],
             mode="observe",
@@ -162,14 +128,18 @@ class TestRedirectStrategyOutcome:
 
 class TestConditionalRedirect:
     def test_redirect_only_fires_when_the_trigger_has_fired(self) -> None:
-        """Scoping the pattern to a trigger produces a guarded redirect:
+        """Scoping the rule to a trigger produces a guarded redirect:
         it only fires once the trigger has been reached. This is the
         canonical shape for a context-sensitive redirect."""
         guard = ContrAgent(
             agent_id="bot",
             contracts=[
-                contract("redirect large refunds")
-                .guarantees(redirect_to_safe("issue_refund", "log_refund_request"))
+                contract("redirect large refunds").guarantees(
+                    ltl(
+                        "G(!(called('issue_refund')))",
+                        enforcement_strategy=Redirect(safe="log_refund_request"),
+                    )
+                )
             ],
             mode="enforce",
         )
@@ -186,19 +156,21 @@ class TestConditionalRedirect:
 
 
 class TestRedirectInteractsWithOtherRules:
-    def test_count_at_most_does_not_tick_on_redirect(self) -> None:
+    def test_count_bound_does_not_tick_on_redirect(self) -> None:
         """Redirect rolls back the unsafe event. so a separate
-        ``count_at_most(unsafe, N)`` rule on the same tool should NOT
+        ``G(count(unsafe) <= N)`` rule on the same tool should NOT
         see the attempt as a real call."""
         guard = ContrAgent(
             agent_id="bot",
             contracts=[
-                contract("redirect").guarantees(redirect_to_safe("rm_rf", "trash")),
+                contract("redirect").guarantees(
+                    ltl("G(!(called('rm_rf')))", enforcement_strategy=Redirect(safe="trash"))
+                ),
                 contract("count").guarantees("G((Var('count', 'rm_rf') <= 2))"),
             ],
             mode="enforce",
         )
-        # Trigger the redirect three times. count_at_most(rm_rf, 2)
+        # Trigger the redirect three times. G(count(rm_rf) <= 2)
         # should not block because each rm_rf event is rolled back.
         for _ in range(3):
             r = guard.guard_before("rm_rf", {})

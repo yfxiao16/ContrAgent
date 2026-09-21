@@ -18,6 +18,7 @@ from contragent.analysis.mus2muc_backend import (
 from contragent.formulas.formula import And, Atom, F, G, Not
 from contragent.models.agent import Agent
 from contragent.models.contract import Contract
+from tests._helpers import ltl
 
 
 def _called(tool: str) -> Atom:
@@ -181,26 +182,24 @@ class TestDomainConstraints:
         assert ("called_with(x, rm)", "called(x)") in impl
 
     def test_count_ban_axiom_emitted(self):
-        from tests._builders import must_precede, rate_limit
-
         formulas = [
-            rate_limit("check", 0).formula,
-            must_precede("check", "pay").formula,
+            # Shipped string: contragent/contracts/benchmark/agentdojo.yaml
+            ltl("G((Var('count', 'update_password') <= 0))").formula,
+            ltl("((!(called('pay')) U called('update_password')) | G(!(called('pay'))))").formula,
         ]
         _, _, axioms = derive_domain_constraints(formulas)
-        # Ban axiom G(called(check) -> !(count <= 0)) plus the monotone
-        # persistence axiom G(!(count <= 0) -> G(!(count <= 0))).
+        # Ban axiom G(called(update_password) -> !(count <= 0)) plus the
+        # monotone persistence axiom G(!(count <= 0) -> G(!(count <= 0))).
         assert len(axioms) == 2
 
     def test_numeric_bound_conflict_detected(self):
-        # rate_limit(x, 3) vs "x must reach 10 calls": the pointwise
-        # theory checker relates count<=3 and count>=10 over one
-        # register — the pure boolean abstraction cannot see this.
+        # "x called at most 3 times" vs "x must reach 10 calls": the
+        # pointwise theory checker relates count<=3 and count>=10 over
+        # one register — the pure boolean abstraction cannot see this.
         from contragent.formulas.formula import Const, Ge, Var
-        from tests._builders import rate_limit
 
         contracts = [
-            _contract(rate_limit("x", 3), desc="at most 3"),
+            _contract(ltl("G((Var('count', 'x') <= 3))"), desc="at most 3"),
             _contract(F(Ge(Var("count", "x"), Const(10))), desc="needs 10"),
         ]
         report = check_conflicts(contracts, backend="native")
@@ -237,12 +236,11 @@ class TestDomainConstraints:
         # The former blind spot: the bound speaks `count`, the forcing
         # speaks `called`. The saturating-counter gadget links them.
         from contragent.formulas.formula import X
-        from tests._builders import rate_limit
 
         cx = _called("x")
         four_calls = F(And(cx, X(F(And(cx, X(F(And(cx, X(F(cx))))))))))
         contracts = [
-            _contract(rate_limit("x", 3), desc="at most 3"),
+            _contract(ltl("G((Var('count', 'x') <= 3))"), desc="at most 3"),
             _contract(four_calls, desc="four call events"),
         ]
         report = check_conflicts(contracts, backend="native")
@@ -280,17 +278,19 @@ class TestDomainConstraints:
         mutex, _, _ = derive_domain_constraints(formulas)
         assert mutex == [["called(x)", "called(y)"]]
 
-    def test_rate_limit_ban_conflict_detected(self):
+    def test_count_ban_conflict_detected(self):
         # The README-style clash: a refund requires a prior policy
-        # check, policy checks are banned via rate_limit(0), and a
+        # check, policy checks are banned via a zero count bound, and a
         # refund must eventually happen. Only the count-ban axiom
         # (called(t) => count(t) >= 1) links the pieces.
-        from tests._builders import must_precede, rate_limit
-
         report = check_conflicts(
             [
-                _contract(must_precede("check_policy", "issue_refund")),
-                _contract(rate_limit("check_policy", 0), desc="checks banned"),
+                _contract(
+                    ltl(
+                        "((!(called('issue_refund')) U called('check_policy')) | G(!(called('issue_refund'))))"
+                    )
+                ),
+                _contract(ltl("G((Var('count', 'check_policy') <= 0))"), desc="checks banned"),
                 _contract(F(_called("issue_refund")), desc="must refund"),
             ],
             backend="native",
@@ -488,12 +488,11 @@ class TestWitnessCertificate:
         # increments before emitting), so it must NOT certify a library
         # where x is both required and rate-limited to zero — the
         # conflict has to survive the fast path.
-        from tests._builders import rate_limit
-
         report = check_conflicts(
             [
-                _contract(rate_limit("x", 0), desc="x banned"),
-                _contract(F(_called("x")), desc="eventually x"),
+                # Shipped string: contragent/contracts/benchmark/agentdojo.yaml
+                _contract(ltl("G((Var('count', 'update_password') <= 0))"), desc="update_password banned"),
+                _contract(F(_called("update_password")), desc="eventually update_password"),
             ],
             backend="native",
         )
@@ -530,12 +529,15 @@ class TestWitnessCertificate:
 class TestGuardIntegration:
     def _guard(self, **kwargs):
         from contragent.core import ContrAgent
-        from tests._builders import must_precede
 
         return ContrAgent(
             agent_id="bot",
             contracts=[
-                {"guarantee": must_precede("check_policy", "issue_refund")},
+                {
+                    "guarantee": ltl(
+                        "((!(called('issue_refund')) U called('check_policy')) | G(!(called('issue_refund'))))"
+                    )
+                },
                 {"guarantee": G(Not(_called("check_policy"))), "desc": "no checks"},
                 {"guarantee": F(_called("issue_refund")), "desc": "must refund"},
             ],

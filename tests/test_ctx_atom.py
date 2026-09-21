@@ -14,10 +14,7 @@ from contragent.formulas.evaluator import evaluate
 from contragent.formulas.formula import Atom
 from contragent.models.trace import Event, Trace
 from contragent.tracer.grounding import GroundingState, collect_content_atoms, ground
-from tests._builders import (
-    ctx_matches_required,
-    ctx_required,
-)
+from tests._helpers import ltl
 
 
 def _trace(*events: Event) -> Trace:
@@ -188,59 +185,49 @@ def test_ctx_matches_false_when_key_absent():
 
 
 # ---------------------------------------------------------------------------
-# ctx_required pattern — end-to-end contract check
+# ctx(k, v) gate on a tool call — end-to-end contract check
 # ---------------------------------------------------------------------------
 
 
-def test_ctx_required_allows_when_ctx_matches_allowed_value():
-    det = ctx_required(
-        "wire_transfer",
-        "caller_id",
-        ["spiffe://prod/ap-agent", "spiffe://prod/finance-bot"],
-    )
+def test_ctx_gate_allows_when_ctx_holds_an_allowed_value():
+    # Shipped string: contragent/contracts/benchmark/tau2_bench.yaml (airline)
+    det = ltl("G(called(send_certificate) -> ((ctx(user_membership, silver) | ctx(user_membership, gold)) | ctx(user_membership, premium)))")
     trace = _trace(
-        _ctx_update(0, "bot", {"caller_id": "spiffe://prod/ap-agent"}),
-        _tool(1, "bot", "wire_transfer"),
+        _ctx_update(0, "bot", {"user_membership": "silver"}),
+        _tool(1, "bot", "send_certificate"),
     )
     valuations = ground(trace)
     assert evaluate(det.formula, valuations) is True
 
 
-def test_ctx_required_blocks_when_ctx_is_missing():
-    """Fail-closed: if the integration forgot to push caller_id at all,
+def test_ctx_gate_blocks_when_ctx_is_missing():
+    """Fail-closed: if the integration forgot to push the fact at all,
     the contract violates. Loud failure beats silent bypass."""
-    det = ctx_required("wire_transfer", "caller_id", ["spiffe://prod/ap-agent"])
-    trace = _trace(_tool(0, "bot", "wire_transfer"))
+    # Shipped string: contragent/contracts/benchmark/tau2_bench.yaml (retail)
+    det = ltl("G(called(cancel_pending_order) -> ctx(user_authenticated, yes))")
+    trace = _trace(_tool(0, "bot", "cancel_pending_order"))
     valuations = ground(trace)
     assert evaluate(det.formula, valuations) is False
 
 
-def test_ctx_required_blocks_when_ctx_is_not_in_allowed_set():
-    det = ctx_required("wire_transfer", "caller_id", ["spiffe://prod/ap-agent"])
+def test_ctx_gate_blocks_when_ctx_holds_another_value():
+    # Shipped string: contragent/contracts/benchmark/tau2_bench.yaml (retail)
+    det = ltl("G(called(cancel_pending_order) -> ctx(user_authenticated, yes))")
     trace = _trace(
-        _ctx_update(0, "bot", {"caller_id": "spiffe://dev/test"}),
-        _tool(1, "bot", "wire_transfer"),
+        _ctx_update(0, "bot", {"user_authenticated": "no"}),
+        _tool(1, "bot", "cancel_pending_order"),
     )
     valuations = ground(trace)
     assert evaluate(det.formula, valuations) is False
 
 
-def test_ctx_required_empty_allowed_values_rejected_at_factory_time():
-    """Empty allowlist would reject every call — almost always a bug.
-    Surface at construction so it's debuggable, not at the first call."""
-    import pytest
-
-    with pytest.raises(ValueError, match="allowed_values"):
-        ctx_required("tool", "key", [])
-
-
 # ---------------------------------------------------------------------------
-# ctx_matches_required pattern — end-to-end contract check
+# ctx_matches(k, pattern) gate on a tool call — end-to-end contract check
 # ---------------------------------------------------------------------------
 
 
-def test_ctx_matches_required_allows_pattern_match():
-    det = ctx_matches_required("wire_transfer", "caller_id", r"^spiffe://prod/.*")
+def test_ctx_regex_gate_allows_pattern_match():
+    det = ltl("G((called('wire_transfer') -> ctx_matches('caller_id', '^spiffe://prod/.*')))")
     # ``ctx_matches`` is a content atom — batch ``ground()`` needs the
     # pattern set via ``collect_content_atoms`` to know what to evaluate.
     # This mirrors how ``arg_has`` / ``llm_said`` / ``count_with`` are used.
@@ -253,8 +240,8 @@ def test_ctx_matches_required_allows_pattern_match():
     assert evaluate(det.formula, valuations) is True
 
 
-def test_ctx_matches_required_blocks_pattern_mismatch():
-    det = ctx_matches_required("wire_transfer", "caller_id", r"^spiffe://prod/.*")
+def test_ctx_regex_gate_blocks_pattern_mismatch():
+    det = ltl("G((called('wire_transfer') -> ctx_matches('caller_id', '^spiffe://prod/.*')))")
     content_atoms = collect_content_atoms([det.formula])
     trace = _trace(
         _ctx_update(0, "bot", {"caller_id": "spiffe://dev/test"}),
@@ -265,45 +252,45 @@ def test_ctx_matches_required_blocks_pattern_mismatch():
 
 
 # ---------------------------------------------------------------------------
-# Combination with other patterns — ctx composes cleanly with
-# must_precede / arg_value_range / etc. Proves ctx fits into the
-# existing contract DSL without special-casing.
+# Combination with other formulas — ctx composes cleanly with an
+# ordering rule (weak until) / argument bounds / etc. Proves ctx fits
+# into the contract language without special-casing.
 # ---------------------------------------------------------------------------
 
 
 def test_ctx_composes_with_ordering_contract():
-    """Combine ``must_precede(compliance_approve, wire_transfer)`` with
-    ``ctx_required(wire_transfer, msg_verified, ["true"])``: wire only
-    allowed AFTER compliance approval AND when the msg was verified."""
-    from tests._builders import must_precede
-
-    ordering = must_precede("compliance_approve", "wire_transfer")
-    identity = ctx_required("wire_transfer", "msg_verified", ["true"])
+    """Combine the shipped ordering rule (get_order_details before
+    cancel_pending_order) with the shipped identity gate
+    (cancel_pending_order only when user_authenticated): cancelling is
+    allowed only AFTER the lookup AND when the user is authenticated."""
+    # Both strings: contragent/contracts/benchmark/tau2_bench.yaml (retail)
+    ordering = ltl("((!(called('cancel_pending_order')) U called('get_order_details')) | G(!(called('cancel_pending_order'))))")
+    identity = ltl("G(called(cancel_pending_order) -> ctx(user_authenticated, yes))")
 
     # Happy path: both satisfied
     trace_ok = _trace(
-        _ctx_update(0, "bot", {"msg_verified": "true"}),
-        _tool(1, "bot", "compliance_approve"),
-        _tool(2, "bot", "wire_transfer"),
+        _ctx_update(0, "bot", {"user_authenticated": "yes"}),
+        _tool(1, "bot", "get_order_details"),
+        _tool(2, "bot", "cancel_pending_order"),
     )
     valuations_ok = ground(trace_ok)
     assert evaluate(ordering.formula, valuations_ok) is True
     assert evaluate(identity.formula, valuations_ok) is True
 
-    # Fails ordering (wire before approve), identity still holds
+    # Fails ordering (cancel before lookup), identity still holds
     trace_bad_order = _trace(
-        _ctx_update(0, "bot", {"msg_verified": "true"}),
-        _tool(1, "bot", "wire_transfer"),
+        _ctx_update(0, "bot", {"user_authenticated": "yes"}),
+        _tool(1, "bot", "cancel_pending_order"),
     )
     valuations_bo = ground(trace_bad_order)
     assert evaluate(ordering.formula, valuations_bo) is False
     assert evaluate(identity.formula, valuations_bo) is True
 
-    # Fails identity (msg_verified=false), ordering still holds
+    # Fails identity (user_authenticated=no), ordering still holds
     trace_bad_ctx = _trace(
-        _ctx_update(0, "bot", {"msg_verified": "false"}),
-        _tool(1, "bot", "compliance_approve"),
-        _tool(2, "bot", "wire_transfer"),
+        _ctx_update(0, "bot", {"user_authenticated": "no"}),
+        _tool(1, "bot", "get_order_details"),
+        _tool(2, "bot", "cancel_pending_order"),
     )
     valuations_bc = ground(trace_bad_ctx)
     assert evaluate(ordering.formula, valuations_bc) is True

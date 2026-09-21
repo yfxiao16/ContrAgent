@@ -17,12 +17,17 @@ from contragent.models.agent import Agent
 from contragent.models.contract import Contract
 from contragent.models.trace import Event, Trace
 from contragent.runtime.verifier import ContractVerdict, TraceVerifier, Verdict
-from tests._builders import (
-    arg_blacklist,
-    must_precede,
-    no_reversal,
-    rate_limit,
-)
+from tests._helpers import ltl
+
+# Shipped strings lifted verbatim from the contract library.
+# contragent/contracts/benchmark/tau2_bench.yaml (retail)
+PRECEDENCE = "((!(called('cancel_pending_order')) U called('get_order_details')) | G(!(called('cancel_pending_order'))))"
+# contragent/contracts/benchmark/tau2_bench.yaml (retail)
+COUNT_AT_MOST_2 = "G((Var('count', 'cancel_pending_order') <= 2))"
+# contragent/contracts/benchmark/tau2_bench.yaml (airline)
+COUNT_AT_MOST_1 = "G((Var('count', 'send_certificate') <= 1))"
+# contragent/contracts/benchmark/agentdojo.yaml
+FORBIDDEN_FILE_ID = "G((called('delete_file') -> !(arg_field_has('delete_file', 'file_id', '^13$'))))"
 
 
 def _trace(*tool_calls: str) -> Trace:
@@ -92,32 +97,32 @@ class TestVerdict:
 
 
 class TestCheck:
-    def test_must_precede_satisfied(self):
+    def test_precedence_satisfied(self):
         v = TraceVerifier()
-        v.sync(_trace("verify", "transfer"))
-        result = v.check(must_precede("verify", "transfer"))
+        v.sync(_trace("get_order_details", "cancel_pending_order"))
+        result = v.check(ltl(PRECEDENCE))
         assert result.holds is True
 
-    def test_must_precede_violated(self):
+    def test_precedence_violated(self):
         v = TraceVerifier()
-        v.sync(_trace("transfer"))
-        result = v.check(must_precede("verify", "transfer"))
+        v.sync(_trace("cancel_pending_order"))
+        result = v.check(ltl(PRECEDENCE))
         assert result.holds is False
 
-    def test_rate_limit_satisfied(self):
+    def test_count_bound_satisfied(self):
         v = TraceVerifier()
         v.sync(_trace("X", "X"))
-        assert v.check(rate_limit("X", 3)).holds is True
+        assert v.check(ltl("G((Var('count', 'X') <= 3))")).holds is True
 
-    def test_rate_limit_violated(self):
+    def test_count_bound_violated(self):
         v = TraceVerifier()
         v.sync(_trace("X", "X", "X", "X"))
-        assert v.check(rate_limit("X", 3)).holds is False
+        assert v.check(ltl("G((Var('count', 'X') <= 3))")).holds is False
 
     def test_verdict_carries_formula_and_desc(self):
         v = TraceVerifier()
         v.sync(_trace("A", "B"))
-        f = must_precede("A", "B")
+        f = ltl("((!(called('B')) U called('A')) | G(!(called('B'))))", desc="A must precede B")
         result = v.check(f)
         assert result.desc == "A must precede B"
         assert result.formula is f
@@ -127,7 +132,7 @@ class TestCheckContract:
     def test_unconditional_contract_passes(self):
         contract = Contract(
             agent=Agent(id="bot"),
-            guarantee=rate_limit("X", 3),
+            guarantee=ltl("G((Var('count', 'X') <= 3))"),
         )
         v = TraceVerifier()
         v.sync(_trace("X", "X"))
@@ -141,7 +146,7 @@ class TestCheckContract:
         contract = Contract(
             agent=Agent(id="bot"),
             assumption=_clean_output("act"),
-            guarantee=rate_limit("act", 3),
+            guarantee=ltl("G((Var('count', 'act') <= 3))"),
         )
         # the result leaks a secret → the environment breaks the assumption
         v = _verdict(contract, _trace_with_output(("act", "a SECRET slipped out")))
@@ -154,7 +159,7 @@ class TestCheckContract:
         contract = Contract(
             agent=Agent(id="bot"),
             assumption=_clean_output("act"),
-            guarantee=rate_limit("act", 1),  # will be violated
+            guarantee=ltl("G((Var('count', 'act') <= 1))"),  # will be violated
         )
         v = _verdict(
             contract, _trace_with_output(("act", "clean"), ("act", "clean"))
@@ -167,7 +172,10 @@ class TestCheckContract:
     def test_list_valued_enforcement_all_checked(self):
         contract = Contract(
             agent=Agent(id="bot"),
-            guarantee=[rate_limit("X", 3), rate_limit("Y", 3)],
+            guarantee=[
+                ltl("G((Var('count', 'X') <= 3))"),
+                ltl("G((Var('count', 'Y') <= 3))"),
+            ],
         )
         v = TraceVerifier()
         v.sync(_trace("X", "X", "Y", "Y"))
@@ -236,7 +244,7 @@ class TestIncrementalEval:
     def test_g_cache_hits_on_stable_true(self):
         """Re-evaluating the same G-rooted formula should use the cache."""
         v = TraceVerifier()
-        f = rate_limit("X", 1_000_000)
+        f = ltl("G((Var('count', 'X') <= 1000000))")
         v.sync(_trace("X"))
         assert v.check(f).holds is True
 
@@ -249,23 +257,23 @@ class TestIncrementalEval:
 
     def test_g_cache_transitions_to_false_and_sticks(self):
         v = TraceVerifier()
-        f = rate_limit("X", 2)
-        v.sync(_trace("X"))
+        f = ltl(COUNT_AT_MOST_2)
+        v.sync(_trace("cancel_pending_order"))
         assert v.check(f).holds is True
 
-        v.sync(_trace("X", "X"))
+        v.sync(_trace("cancel_pending_order", "cancel_pending_order"))
         assert v.check(f).holds is True
 
-        v.sync(_trace("X", "X", "X"))
+        v.sync(_trace("cancel_pending_order", "cancel_pending_order", "cancel_pending_order"))
         assert v.check(f).holds is False
 
         # Subsequent calls should still report False from the cache.
         assert v.check(f).holds is False
 
     def test_nested_temporal_falls_through_to_full_eval(self):
-        """no_reversal contains nested G and must not be cached prematurely."""
+        """``G(a -> G(!b))`` contains nested G and must not be cached prematurely."""
         v = TraceVerifier()
-        f = no_reversal("approve", "deny")
+        f = ltl("G((called('approve') -> G(!(called('deny')))))")
 
         v.sync(_trace("approve"))
         assert v.check(f).holds is True
@@ -278,12 +286,12 @@ class TestIncrementalEval:
 
     def test_reset_clears_g_cache(self):
         v = TraceVerifier()
-        f = rate_limit("X", 1)
-        v.sync(_trace("X", "X"))
+        f = ltl(COUNT_AT_MOST_1)
+        v.sync(_trace("send_certificate", "send_certificate"))
         assert v.check(f).holds is False  # violated
 
         v.reset()
-        v.sync(_trace("X"))
+        v.sync(_trace("send_certificate"))
         assert v.check(f).holds is True  # clean slate
 
 
@@ -291,7 +299,7 @@ class TestCheckAssumption:
     def test_check_assumption_unconditional(self):
         contract = Contract(
             agent=Agent(id="bot"),
-            guarantee=rate_limit("X", 3),
+            guarantee=ltl("G((Var('count', 'X') <= 3))"),
         )
         v = TraceVerifier()
         v.sync(_trace("X"))
@@ -306,7 +314,7 @@ class TestCheckAssumption:
                 _clean_output("a"),
                 _clean_output("c"),  # should not reach here
             ],
-            guarantee=rate_limit("X", 3),
+            guarantee=ltl("G((Var('count', 'X') <= 3))"),
         )
         v = _verdict(contract, _trace_with_output(("a", "a SECRET slipped out")))
         result = v.check_assumption(contract)
@@ -318,27 +326,27 @@ class TestAgainstMonitor:
     """Integration check: TraceVerifier used standalone on the same trace
     as the monitor should return the same verdict."""
 
-    def test_verifier_matches_monitor_on_rate_limit(self):
+    def test_verifier_matches_monitor_on_count_bound(self):
         import contragent
 
         guard = contragent.ContrAgent(
             agent_id="bot",
-            contracts=["G((Var('count', 'X') <= 2))"],
+            contracts=[COUNT_AT_MOST_2],
         )
-        guard.guard_before("X")
-        guard.guard_before("X")  # at limit
+        guard.guard_before("cancel_pending_order")
+        guard.guard_before("cancel_pending_order")  # at limit
         # Using verifier directly
         v = guard.supervisor.verifier
-        result = v.check(rate_limit("X", 2))
+        result = v.check(ltl(COUNT_AT_MOST_2))
         assert result.holds is True
 
         # One more — monitor would block; but verifier sees the trace
         # state and still reports "at limit". The blocked event is
         # popped by guard, so verifier should still see the old state.
-        blocked = guard.guard_before("X")
+        blocked = guard.guard_before("cancel_pending_order")
         assert blocked.blocked is True
         # TraceVerifier re-evaluated correctly after rollback reset.
-        assert v.check(rate_limit("X", 2)).holds is True
+        assert v.check(ltl(COUNT_AT_MOST_2)).holds is True
 
     def test_verifier_accessible_from_monitor_property(self):
         import contragent
@@ -358,12 +366,12 @@ class TestBackCompatAlias:
         assert Verifier is TraceVerifier
 
 
-class TestArgBlacklistCacheable:
-    """arg_blacklist = G(Not(arg_field_has(...))) — flat G, should cache."""
+class TestArgFieldGuardCacheable:
+    """G(called(t) -> !arg_field_has(...)) — flat G, should cache."""
 
-    def test_arg_blacklist_benefits_from_cache(self):
+    def test_arg_field_guard_benefits_from_cache(self):
         v = TraceVerifier()
-        f = arg_blacklist("bash", "cmd", ["rm -rf"])
+        f = ltl(FORBIDDEN_FILE_ID)
 
         trace = Trace(
             events=[
@@ -371,19 +379,19 @@ class TestArgBlacklistCacheable:
                     ts=0,
                     agent="bot",
                     event_type="tool_call",
-                    tool="bash",
-                    args={"cmd": "ls /tmp"},
+                    tool="delete_file",
+                    args={"file_id": "7"},
                 ),
                 Event(
                     ts=1,
                     agent="bot",
                     event_type="tool_call",
-                    tool="bash",
-                    args={"cmd": "cat foo.txt"},
+                    tool="delete_file",
+                    args={"file_id": "8"},
                 ),
             ]
         )
-        v.sync(trace, content_atoms={"arg_field_has": {("bash", "cmd", "rm -rf")}})
+        v.sync(trace, content_atoms={"arg_field_has": {("delete_file", "file_id", "^13$")}})
         assert v.check(f).holds is True
         # G-cache should have registered this formula
         raw = f.formula

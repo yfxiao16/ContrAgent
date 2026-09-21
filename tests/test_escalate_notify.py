@@ -37,7 +37,7 @@ from contragent.runtime.strategies import (
     ActionContext,
     Escalate,
 )
-from tests._builders import tool_allowlist
+from tests._helpers import ltl
 
 
 def _make_violation(desc: str = "test violation") -> Violation:
@@ -157,10 +157,10 @@ class TestEscalateEndToEndThroughGuard:
         # desc. Without this, the default-policy builder would assign
         # Block. same path users take in production when they
         # want a specific strategy for a specific rule.
-        formula = tool_allowlist(["search"])
+        formula = ltl("G((called_any() -> called('search')))", desc="only search may be called")
         # The ``policy`` dict is keyed by the formula desc. same
-        # lookup the monitor uses. tool_allowlist's auto-generated
-        # desc is what the policy must match.
+        # lookup the monitor uses. The formula's desc is what the
+        # policy must match.
         guard = ContrAgent(
             agent_id="bot",
             contracts=[contract("approved tools").guarantees(formula)],

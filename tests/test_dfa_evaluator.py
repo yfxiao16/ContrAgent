@@ -9,7 +9,8 @@ Two layers:
 
 2. **Differential tests** comparing the DFA backend to the stateless
    recursive evaluator via :class:`TraceVerifier(backend=...)`. For
-   every ContrAgent pattern on representative traces, both backends must
+   each recurring contract shape (several lifted verbatim from the
+   shipped YAML libraries) on representative traces, both backends must
    return the same boolean verdict. The recursive backend is ground
    truth.
 
@@ -40,14 +41,7 @@ from contragent.models.agent import Agent
 from contragent.models.contract import Contract
 from contragent.models.trace import Event, Trace
 from contragent.runtime.verifier import TraceVerifier
-from tests._builders import (
-    always_followed_by,
-    arg_allowlist,
-    arg_blacklist,
-    must_precede,
-    no_reversal,
-    rate_limit,
-)
+from tests._helpers import ltl
 
 
 def _trace(*tool_calls: str) -> Trace:
@@ -181,7 +175,7 @@ class TestProgressionX:
 
 
 class TestProgressionArithmetic:
-    def test_rate_limit_pattern(self):
+    def test_count_bound(self):
         """G(count(X) ≤ 3) violates on the 4th call."""
         f = G(Le(Var("count", "X"), Const(3)))
         dfa = DFAEvaluator(f)
@@ -240,14 +234,16 @@ class TestDifferentialPatterns:
     @pytest.mark.parametrize(
         "sequence,expected",
         [
-            (("verify", "transfer"), True),  # A before B → ok
-            (("transfer",), False),  # B without A → violated
-            (("verify",), True),  # Just A → ok (B never called)
-            (("verify", "transfer", "transfer"), True),  # Once A seen, stable ok
+            (("get_order_details", "cancel_pending_order"), True),  # A before B → ok
+            (("cancel_pending_order",), False),  # B without A → violated
+            (("get_order_details",), True),  # Just A → ok (B never called)
+            # Once A seen, stable ok
+            (("get_order_details", "cancel_pending_order", "cancel_pending_order"), True),
         ],
     )
-    def test_must_precede(self, sequence, expected):
-        f = must_precede("verify", "transfer")
+    def test_precedence(self, sequence, expected):
+        # Shipped string: contragent/contracts/benchmark/tau2_bench.yaml (retail)
+        f = ltl("((!(called('cancel_pending_order')) U called('get_order_details')) | G(!(called('cancel_pending_order'))))")
         rec, dfa = _verdict_both(f, _trace(*sequence))
         assert rec == dfa
         assert rec is expected
@@ -261,8 +257,8 @@ class TestDifferentialPatterns:
             (0, 1, True),  # empty trace
         ],
     )
-    def test_rate_limit(self, n, limit, expected):
-        f = rate_limit("X", limit)
+    def test_count_bound(self, n, limit, expected):
+        f = ltl(f"G((Var('count', 'X') <= {limit}))")
         trace = _trace(*(["X"] * n))
         rec, dfa = _verdict_both(f, trace)
         assert rec == dfa
@@ -277,24 +273,26 @@ class TestDifferentialPatterns:
             (("approve", "approve"), True),  # double approve ok
         ],
     )
-    def test_no_reversal_nested_g(self, sequence, expected):
-        """no_reversal has nested G — this is the pattern that 3a couldn't
-        cache. The DFA backend must match recursive."""
-        f = no_reversal("approve", "deny")
+    def test_nested_g_after_commitment(self, sequence, expected):
+        """``G(a -> G(!b))`` has a nested G — this is the shape that 3a
+        couldn't cache. The DFA backend must match recursive."""
+        f = ltl("G((called('approve') -> G(!(called('deny')))))")
         rec, dfa = _verdict_both(f, _trace(*sequence))
         assert rec == dfa
         assert rec is expected
 
-    def test_rate_limit_counter_cap(self):
-        f = rate_limit("retry", 2)
+    def test_count_bound_counter_cap(self):
+        # Shipped string: contragent/contracts/benchmark/tau2_bench.yaml (retail)
+        f = ltl("G((Var('count', 'cancel_pending_order') <= 2))")
         for n, expected in [(0, True), (1, True), (2, True), (3, False)]:
-            rec, dfa = _verdict_both(f, _trace(*(["retry"] * n)))
+            rec, dfa = _verdict_both(f, _trace(*(["cancel_pending_order"] * n)))
             assert rec == dfa, f"n={n}: rec={rec}, dfa={dfa}"
             assert rec is expected
 
-    def test_arg_blacklist(self):
+    def test_arg_field_forbidden(self):
         """Content-atom formula: arg_field_has(...) predicate lookup."""
-        f = arg_blacklist("bash", "cmd", ["rm -rf"])
+        # Shipped string: contragent/contracts/benchmark/agentdojo.yaml
+        f = ltl("G((called('delete_file') -> !(arg_field_has('delete_file', 'file_id', '^13$'))))")
         from contragent.tracer.grounding import collect_content_atoms
 
         # Safe case
@@ -304,8 +302,8 @@ class TestDifferentialPatterns:
                     ts=0,
                     agent="bot",
                     event_type="tool_call",
-                    tool="bash",
-                    args={"cmd": "ls /tmp"},
+                    tool="delete_file",
+                    args={"file_id": "7"},
                 ),
             ]
         )
@@ -323,8 +321,8 @@ class TestDifferentialPatterns:
                     ts=0,
                     agent="bot",
                     event_type="tool_call",
-                    tool="bash",
-                    args={"cmd": "rm -rf /"},
+                    tool="delete_file",
+                    args={"file_id": "13"},
                 ),
             ]
         )
@@ -335,11 +333,10 @@ class TestDifferentialPatterns:
         assert v_rec2.check(f).holds is False
         assert v_dfa2.check(f).holds is False
 
-    def test_arg_allowlist(self):
-        """Dual of arg_blacklist: arg must match one of the allowed patterns."""
-        f = arg_allowlist(
-            "send_money", "recipient", ["US-internal-001", "US-internal-002"]
-        )
+    def test_arg_field_allowed_values(self):
+        """Dual of the forbidden-value shape: arg must match one of the allowed patterns."""
+        # Shipped string: contragent/contracts/benchmark/tau2_bench.yaml (retail)
+        f = ltl("G((called('cancel_pending_order') -> (arg_field_has('cancel_pending_order', 'reason', '^no longer needed$') | arg_field_has('cancel_pending_order', 'reason', '^ordered by mistake$'))))")
         from contragent.tracer.grounding import collect_content_atoms
 
         # Allowed: matches one of the listed patterns
@@ -349,8 +346,8 @@ class TestDifferentialPatterns:
                     ts=0,
                     agent="bot",
                     event_type="tool_call",
-                    tool="send_money",
-                    args={"recipient": "US-internal-001", "amount": 100},
+                    tool="cancel_pending_order",
+                    args={"reason": "no longer needed", "order_id": "#W1"},
                 ),
             ]
         )
@@ -368,8 +365,8 @@ class TestDifferentialPatterns:
                     ts=0,
                     agent="bot",
                     event_type="tool_call",
-                    tool="send_money",
-                    args={"recipient": "ATTACKER-IBAN-999", "amount": 100},
+                    tool="cancel_pending_order",
+                    args={"reason": "changed my mind", "order_id": "#W1"},
                 ),
             ]
         )
@@ -380,36 +377,36 @@ class TestDifferentialPatterns:
         assert v_rec2.check(f).holds is False
         assert v_dfa2.check(f).holds is False
 
-    def test_arg_allowlist_empty_patterns_raises(self):
-        """An empty allowlist would block every call - reject at construction."""
-        import pytest
-
-        with pytest.raises(ValueError, match="non-empty"):
-            arg_allowlist("send_money", "recipient", [])
-
 
 class TestDifferentialIncremental:
     """Both backends must agree when the trace grows incrementally."""
 
-    def test_rate_limit_incremental(self):
-        f = rate_limit("X", 2)
+    def test_count_bound_incremental(self):
+        # Shipped string: contragent/contracts/benchmark/tau2_bench.yaml (retail)
+        f = ltl("G((Var('count', 'cancel_pending_order') <= 2))")
         v_rec = TraceVerifier(backend="recursive")
         v_dfa = TraceVerifier(backend="dfa")
 
         for n in range(1, 5):
-            trace = _trace(*(["X"] * n))
+            trace = _trace(*(["cancel_pending_order"] * n))
             v_rec.sync(trace)
             v_dfa.sync(trace)
             rec = v_rec.check(f).holds
             dfa = v_dfa.check(f).holds
             assert rec == dfa, f"n={n}: rec={rec}, dfa={dfa}"
 
-    def test_must_precede_incremental(self):
-        f = must_precede("A", "B")
+    def test_precedence_incremental(self):
+        # Shipped string: contragent/contracts/benchmark/tau2_bench.yaml (retail)
+        f = ltl("((!(called('cancel_pending_order')) U called('get_order_details')) | G(!(called('cancel_pending_order'))))")
         v_rec = TraceVerifier(backend="recursive")
         v_dfa = TraceVerifier(backend="dfa")
 
-        sequence = ["A", "B", "B", "A"]
+        sequence = [
+            "get_order_details",
+            "cancel_pending_order",
+            "cancel_pending_order",
+            "get_order_details",
+        ]
         for n in range(1, len(sequence) + 1):
             trace = _trace(*sequence[:n])
             v_rec.sync(trace)
@@ -435,25 +432,27 @@ class TestTraceVerifierBackendSwitch:
         """check_contract works under dfa backend."""
         contract = Contract(
             agent=Agent(id="bot"),
-            guarantee=rate_limit("X", 2),
+            # Shipped string: contragent/contracts/benchmark/tau2_bench.yaml (retail)
+            guarantee=ltl("G((Var('count', 'cancel_pending_order') <= 2))"),
         )
         v = TraceVerifier(backend="dfa")
-        v.sync(_trace("X", "X"))
+        v.sync(_trace("cancel_pending_order", "cancel_pending_order"))
         cv = v.check_contract(contract)
         assert cv.holds is True
 
-        v.sync(_trace("X", "X", "X"))
+        v.sync(_trace("cancel_pending_order", "cancel_pending_order", "cancel_pending_order"))
         cv2 = v.check_contract(contract)
         assert cv2.holds is False
 
     def test_reset_wipes_dfa_state(self):
         v = TraceVerifier(backend="dfa")
-        f = rate_limit("X", 1)
-        v.sync(_trace("X", "X"))
+        # Shipped string: contragent/contracts/benchmark/tau2_bench.yaml (airline)
+        f = ltl("G((Var('count', 'send_certificate') <= 1))")
+        v.sync(_trace("send_certificate", "send_certificate"))
         assert v.check(f).holds is False  # violated
 
         v.reset()
-        v.sync(_trace("X"))
+        v.sync(_trace("send_certificate"))
         assert v.check(f).holds is True  # clean slate
 
 
@@ -464,7 +463,7 @@ class TestLivenessFinalize:
         """Runtime semantics: ? is not a violation — don't block."""
         contract = Contract(
             agent=Agent(id="bot"),
-            guarantee=always_followed_by("A", "B"),
+            guarantee=ltl("G((called('A') -> F(called('B'))))", liveness=True),
         )
         v = TraceVerifier(backend="dfa")
         v.sync(_trace("A"))  # B never fired
@@ -479,7 +478,7 @@ class TestLivenessFinalize:
         """Session-end semantics: ? collapses to ⊥."""
         contract = Contract(
             agent=Agent(id="bot"),
-            guarantee=always_followed_by("A", "B"),
+            guarantee=ltl("G((called('A') -> F(called('B'))))", liveness=True),
         )
         v = TraceVerifier(backend="dfa")
         v.sync(_trace("A"))
@@ -493,7 +492,7 @@ class TestLivenessFinalize:
         """F(...) with a witness before session end → ⊤ on finalize."""
         contract = Contract(
             agent=Agent(id="bot"),
-            guarantee=always_followed_by("A", "B"),
+            guarantee=ltl("G((called('A') -> F(called('B'))))", liveness=True),
         )
         v = TraceVerifier(backend="dfa")
         v.sync(_trace("A", "B"))
