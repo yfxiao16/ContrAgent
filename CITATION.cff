@@ -1,0 +1,23 @@
+cff-version: 1.2.0
+message: "If you use ContrAgent, please cite the paper below."
+title: "ContrAgent: symbolic temporal supervision of LLM agents using contracts"
+type: software
+version: 1.0.0
+license: BSD-3-Clause
+repository-code: "https://github.com/yfxiao16/ContrAgent"
+authors:
+  - family-names: Xiao
+    given-names: Yifeng
+  - family-names: Nuzzo
+    given-names: Pierluigi
+preferred-citation:
+  type: article
+  title: "Symbolic Temporal Supervision of LLM Agents Using Contracts"
+  authors:
+    - family-names: Xiao
+      given-names: Yifeng
+    - family-names: Nuzzo
+      given-names: Pierluigi
+  journal: "arXiv preprint arXiv:2609.18128"
+  year: 2026
+  url: "https://arxiv.org/abs/2609.18128"

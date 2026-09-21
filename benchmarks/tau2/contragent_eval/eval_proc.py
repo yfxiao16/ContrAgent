@@ -10,7 +10,7 @@ violation fire-rates -- the "proc-clean vs pass" idea from
 Run (offline, no API/LLM):
 
     PYTHONPATH=<repo> \
-      /opt/homebrew/opt/python@3.13/bin/python3.13 \
+      python3 \
       benchmarks/tau2/contragent_eval/eval_proc.py
 
 Honest-evaluation policy

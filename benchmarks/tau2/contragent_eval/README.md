@@ -77,7 +77,7 @@ read back the resulting DB facts) — not infer them from text.
 
 ```sh
 PYTHONPATH=<repo> \
-  /opt/homebrew/opt/python@3.13/bin/python3.13 \
+  python3 \
   benchmarks/tau2/contragent_eval/eval_proc.py
 ```
 

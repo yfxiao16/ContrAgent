@@ -102,6 +102,7 @@ python tau2/contragent_eval/eval_proc.py
 ```bash
 python latency_bench.py            # hot-path latency
 python temporal_expressiveness.py  # needs no data
+python SOPBench/contragent_eval/appendix_profiles.py  # per-model violation profiles (needs SOPBench traces)
 ```
 
 ## What to expect

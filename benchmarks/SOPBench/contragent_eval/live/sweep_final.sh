@@ -10,7 +10,7 @@ export GEMINI_THINKING=0          # flash is a capable function-caller w/o think
 export GEMINI_CALL_DELAY=0
 MODEL=gemini-2.5-flash
 LIMIT=40                          # balanced 20 pos / 20 neg (small domains use all)
-PY=/opt/homebrew/opt/python@3.13/bin/python3.13
+PY=python3
 
 for d in bank dmv healthcare hotel library online_market university; do
   echo "=========== $d ($(date +%H:%M:%S)) ==========="

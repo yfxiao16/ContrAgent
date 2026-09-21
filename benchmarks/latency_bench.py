@@ -12,7 +12,7 @@ evaluate every loaded det contract.
 No LLM, no network. Run:
 
     PYTHONPATH=<repo> \
-      /opt/homebrew/opt/python@3.13/bin/python3.13 benchmarks/latency_bench.py
+      python3 benchmarks/latency_bench.py
 """
 
 from __future__ import annotations
