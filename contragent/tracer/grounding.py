@@ -69,6 +69,7 @@ from __future__ import annotations
 
 import re
 import warnings
+from collections import Counter
 from dataclasses import dataclass, field
 
 from contragent.formulas._pred_key import pred_key
@@ -165,6 +166,47 @@ class GroundingState:
 
 
 _NAMESPACED_TOOL_RE = re.compile(r"^[A-Za-z_][\w-]*:[A-Za-z_][\w-]*$")
+
+
+# ── Grounding misses ───────────────────────────────────────────────
+# A predicate over a call's arguments that some loaded contract reads
+# could not be evaluated on an event, because the value it needs was
+# absent (no arguments, or no such field) or could not be interpreted
+# (a numeric field that holds no number). The paper defines every
+# interaction predicate as a total function into {true, false}; these
+# are the inputs on which the implementation has no value to give.
+#
+# Each miss is counted under ``(predicate, tool, field, reason)`` and
+# reported once through ``warnings`` so that a harness can state how
+# many contract checks were inert on a run. See :func:`grounding_misses`.
+GROUNDING_MISSES: Counter[tuple[str, str, str, str]] = Counter()
+_MISS_WARNED: set[tuple[str, str, str, str]] = set()
+
+
+def record_grounding_miss(predicate: str, tool: str, field: str, reason: str) -> None:
+    """Count one failed extraction and warn the first time it is seen."""
+    key = (predicate, tool, field, reason)
+    GROUNDING_MISSES[key] += 1
+    if key in _MISS_WARNED:
+        return
+    _MISS_WARNED.add(key)
+    warnings.warn(
+        f"grounding: {predicate}({tool}, {field}) could not be evaluated ({reason}); "
+        "the contract reading it does not constrain this call.",
+        UserWarning,
+        stacklevel=3,
+    )
+
+
+def grounding_misses() -> Counter[tuple[str, str, str, str]]:
+    """A copy of the miss counter, keyed by ``(predicate, tool, field, reason)``."""
+    return Counter(GROUNDING_MISSES)
+
+
+def reset_grounding_misses() -> None:
+    """Clear the miss counter and the once-only warning memory."""
+    GROUNDING_MISSES.clear()
+    _MISS_WARNED.clear()
 
 
 def _tool_matches(target_tool: str, event_tool: str, args_str: str) -> bool:
@@ -368,38 +410,56 @@ def ground_event(
                             )
 
         # ── arg_has(tool, pattern) — regex on serialized args ───
-        if args_str and content_atoms and "arg_has" in content_atoms:
+        if content_atoms and "arg_has" in content_atoms:
             for args_tuple in content_atoms["arg_has"]:
                 if len(args_tuple) >= 2:
                     target_tool = args_tuple[0]
                     if _tool_matches(target_tool, event.tool, args_str):
+                        if not args_str:
+                            record_grounding_miss("arg_has", target_tool, "*", "no_args")
+                            continue
                         matched = bool(re.search(args_tuple[1], args_str))
                         v[pred_key("arg_has", *args_tuple)] = matched
 
         # ── arg_field_has(tool, field, pattern) — regex on specific arg field ─
-        if event.args and content_atoms and "arg_field_has" in content_atoms:
+        if content_atoms and "arg_field_has" in content_atoms:
             for args_tuple in content_atoms["arg_field_has"]:
                 if len(args_tuple) >= 3:
                     target_tool = args_tuple[0]
                     if _tool_matches(target_tool, event.tool, args_str):
                         field, pattern = args_tuple[1], args_tuple[2]
+                        if not event.args:
+                            record_grounding_miss("arg_field_has", target_tool, field, "no_args")
+                            continue
                         field_val = event.args.get(field)
                         if field_val is not None:
                             matched = bool(re.search(pattern, str(field_val)))
                         else:
+                            record_grounding_miss(
+                                "arg_field_has", target_tool, field, "field_missing"
+                            )
                             matched = False
                         v[pred_key("arg_field_has", *args_tuple)] = matched
 
         # ── arg_length_exceeds(tool, field, max_chars) — field too long ──
-        if event.args and content_atoms and "arg_length_exceeds" in content_atoms:
+        if content_atoms and "arg_length_exceeds" in content_atoms:
             for args_tuple in content_atoms["arg_length_exceeds"]:
                 if len(args_tuple) >= 3:
                     target_tool, field = args_tuple[0], args_tuple[1]
                     if _tool_matches(target_tool, event.tool, args_str):
+                        if not event.args:
+                            record_grounding_miss(
+                                "arg_length_exceeds", target_tool, field, "no_args"
+                            )
+                            continue
                         try:
                             max_chars = int(args_tuple[2])
                         except (ValueError, TypeError):
                             max_chars = 500
+                        if field not in event.args:
+                            record_grounding_miss(
+                                "arg_length_exceeds", target_tool, field, "field_missing"
+                            )
                         field_val = event.args.get(field, "")
                         exceeded = len(str(field_val)) > max_chars
                         v[pred_key("arg_length_exceeds", *args_tuple)] = exceeded
@@ -459,6 +519,12 @@ def ground_event(
                                         pass
                         if numeric_val is not None:
                             v[pred_key("arg_numeric", *args_tuple)] = numeric_val
+                        elif not event.args:
+                            record_grounding_miss("arg_numeric", target_tool, field, "no_args")
+                        elif field in event.args:
+                            record_grounding_miss("arg_numeric", target_tool, field, "not_numeric")
+                        else:
+                            record_grounding_miss("arg_numeric", target_tool, field, "field_missing")
 
         # ── arg_value(tool, field) — raw value for Term-based lookups ──
         # ``ArgValue(tool, field)`` Terms read ``state.get(pred_key(
@@ -480,11 +546,16 @@ def ground_event(
                 v[pred_key("arg_value", event.tool, _field)] = _val
 
         # ── arg_paths_within(tool, *prefixes) — all paths in allowed set ─
-        if args_str and content_atoms and "arg_paths_within" in content_atoms:
+        if content_atoms and "arg_paths_within" in content_atoms:
             for args_tuple in content_atoms["arg_paths_within"]:
                 if len(args_tuple) >= 2:
                     target_tool = args_tuple[0]
                     if _tool_matches(target_tool, event.tool, args_str):
+                        if not args_str:
+                            record_grounding_miss(
+                                "arg_paths_within", target_tool, "*", "no_args"
+                            )
+                            continue
                         prefixes = args_tuple[1:]
                         paths = re.findall(r'(/[^\s;|&>"\']+)', args_str)
                         if not paths:
