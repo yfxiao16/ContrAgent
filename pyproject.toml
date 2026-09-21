@@ -44,7 +44,7 @@ smt = ["z3-solver>=4.12"]
 llm = ["openai>=1.0", "anthropic", "google-genai"]
 # PDF policy documents as formulation input.
 pdf = ["pypdf>=3.0"]
-dev = ["pytest>=8.0", "pytest-timeout", "ruff==0.11.2", "z3-solver>=4.12"]
+dev = ["pytest>=8.0", "pytest-timeout", "ruff==0.15.16", "z3-solver>=4.12"]
 
 [tool.setuptools.packages.find]
 include = ["contragent*"]
