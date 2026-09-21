@@ -1,6 +1,6 @@
 # SOPBench contract library: recurring formula shapes
 
-The 346 per-domain SOP contracts ([CONTRACTS_LIBRARY.md](CONTRACTS_LIBRARY.md))
+The 355 per-domain SOP contracts ([CONTRACTS_LIBRARY.md](CONTRACTS_LIBRARY.md))
 are **instances of about twelve recurring formula shapes**. The shapes are domain-independent:
 each is an assume-guarantee (A/G) formula over an observable predicate; a new
 domain is covered by instantiating the relevant shapes with that domain's tool
