@@ -142,6 +142,15 @@ Data-flow and context predicates are fed through `observe_data_write`,
 `gate` (default) acts on it, `flag` records the same decision without gating
 the agent.
 
+A call the contracts cannot be evaluated on is refused rather than passed.
+When a loaded contract reads a tool's arguments and the call arrives with
+none, without a field the contract reads, or with a value a numeric
+predicate cannot read as a number, `guard_before` rejects the call and
+tells the agent why. `CONTRAGENT_ALLOW_MISSING_ARGS=1` restores the
+permissive behaviour. Tool names are compared in a canonical spelling, and
+an MCP wire name `mcp__server__tool` also answers to `tool`. See
+[docs/predicates.md](docs/predicates.md#when-a-predicate-has-no-value).
+
 The fluent Python helper writes the same contract in code:
 
 ```python

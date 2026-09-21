@@ -60,3 +60,51 @@ on the supervisor: `observe_data_write`, `observe_data_read`,
 `observe_delegation`, `observe_context`, and `observe_llm_call`. Predicates
 over tool calls and results need no extra wiring; `guard_before` and
 `guard_after` ground them.
+
+## When a predicate has no value
+
+The paper defines an interaction predicate as a total function of the
+session state, the event, and its parameter, with the values true and
+false. The implementation keeps that reading. This section states what it
+does with input from which no value can be read, since a contract that
+reads such a predicate as false is satisfied without having checked
+anything: every shipped guarantee has the shape `G(premise -> conclusion)`
+or `(!after U before) | G(!after)`, and both read as satisfied when a
+predicate in them never fires.
+
+**Tool names.** `called(T)` and every other predicate keyed by a tool
+compare names in a canonical spelling: surrounding whitespace is dropped
+and case is folded. A call that arrives under the MCP wire name
+`mcp__server__T` also answers to `T`. A contract written against `T`
+therefore applies to `T`, `T `, `t`, and `mcp__server__T`. A contract
+written against `mcp__server__T` applies to that server's tool only.
+
+**Numeric arguments.** `Var('arg_numeric', T, f)` and an ordered comparison
+on `ArgValue(T, f)` read a string argument as a number when it
+unambiguously denotes one: `"5000"`, `"$5,000"`, `"5,000"`, `"5000 USD"`.
+`"5,50"` is not read, since the comma may be a decimal separator. A value
+beyond the float range is infinity, so a cap on it fires. Both paths use
+the same reader, so they agree on every format.
+
+**A pattern predicate over an absent field.** `arg_field_has(T, f, p)` is
+false when the call has no field `f`, and `arg_length_exceeds(T, f, N)` is
+false. These are values, not gaps: no field `f` matches nothing.
+
+**Arguments the supervisor cannot value.** When some loaded contract
+reads a tool's arguments and a call to that tool arrives with no
+arguments at all, without a field a contract reads, or with a value a
+numeric predicate cannot read as a number, the predicates over that event
+have no value. The supervisor does not guess one. `guard_before` refuses
+the call and tells the agent why, as it would refuse a violating call, so
+the event never enters the trace. A tool no contract reads the arguments
+of is unaffected. Setting `CONTRAGENT_ALLOW_MISSING_ARGS=1` restores the
+earlier behaviour, under which the predicate read as false. Offline
+replay does not refuse; it counts these events
+(`contragent.tracer.grounding.grounding_misses`) and warns once per
+predicate.
+
+The formalism stays two-valued. A comparison whose operand has no value
+evaluates to false in both evaluators, and that value alone is not
+fail-closed for every formula shape: `G(c -> !(x > n))` is satisfied by
+it while `G(c -> x <= n)` is violated. The refusal is therefore placed
+before evaluation rather than inside it.
