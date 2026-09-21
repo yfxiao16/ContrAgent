@@ -164,9 +164,7 @@ class TestEscalateEndToEndThroughGuard:
         guard = ContrAgent(
             agent_id="bot",
             contracts=[contract("approved tools").guarantees(formula)],
-            policy={
-                formula.desc: Escalate(reason="oncall review", notify=notify)
-            },
+            policy={formula.desc: Escalate(reason="oncall review", notify=notify)},
             mode="enforce",
         )
         # Wrong tool → contract fires → Escalate runs → notify

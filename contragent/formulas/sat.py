@@ -273,9 +273,7 @@ class _LeafTable:
     def describe(self, pid: int) -> str:
         return self._desc.get(abs(pid), f"p{abs(pid)}")
 
-    def theory_literals(
-        self, val: frozenset[int], exclude: frozenset[int] = frozenset()
-    ) -> tuple:
+    def theory_literals(self, val: frozenset[int], exclude: frozenset[int] = frozenset()) -> tuple:
         """The comparison projection of a valuation, as TheoryLiterals.
 
         Propositions in ``exclude`` (e.g. gadget-determined counter
@@ -285,9 +283,7 @@ class _LeafTable:
         from contragent.formulas.theory import TheoryLiteral
 
         return tuple(
-            TheoryLiteral(
-                op=op, left=left, right=right, total=total, positive=pid in val
-            )
+            TheoryLiteral(op=op, left=left, right=right, total=total, positive=pid in val)
             for pid, (op, left, right, total) in sorted(self.cmp_info.items())
             if pid not in exclude
         )
@@ -462,9 +458,7 @@ def _abstract(formula: Any, table: _LeafTable, negated: bool = False) -> Node:
             _abstract(formula.right, table, False),
         )
     else:
-        raise TypeError(
-            f"is_satisfiable: unsupported formula node {type(formula).__name__}"
-        )
+        raise TypeError(f"is_satisfiable: unsupported formula node {type(formula).__name__}")
     return _mk_not(node) if negated else node
 
 
@@ -583,9 +577,7 @@ def _build_alphabet(
         return None
 
     # Choices per mutex group: nobody, or exactly one member.
-    group_choices: list[list[tuple[int, ...]]] = [
-        [()] + [(i,) for i in g] for g in groups
-    ]
+    group_choices: list[list[tuple[int, ...]]] = [[()] + [(i,) for i in g] for g in groups]
     free_choices: list[tuple[int, ...]] = [
         c for r in range(len(free) + 1) for c in combinations(free, r)
     ]

@@ -54,7 +54,7 @@ def render_sop(domain, task):
     goal = task.get("user_goal", "the requested action")
     if not out:
         return ""
-    bullets = "\n".join(f"  {i+1}. {s}" for i, s in enumerate(dict.fromkeys(out)))
+    bullets = "\n".join(f"  {i + 1}. {s}" for i, s in enumerate(dict.fromkeys(out)))
     return (
         f"Standard Operating Procedure for `{goal}`. Before completing "
         f"`{goal}`, ALL of the following conditions must hold. If any condition "

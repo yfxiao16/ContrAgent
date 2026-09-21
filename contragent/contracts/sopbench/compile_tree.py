@@ -12,6 +12,7 @@ predicates against DB-derived facts -- never the action_should_succeed label. An
 unobservable branch makes its enclosing OR conservatively "satisfiable" (we
 cannot prove a violation through it), so coverage is honest and FP-free.
 """
+
 from __future__ import annotations
 
 # predicate -> expression that is TRUE iff the predicate holds, over atoms the
@@ -21,27 +22,22 @@ FRAG = {
     "internal_valid_room_type": "arg_value({goal}, state_room_type_valid) >= 1",
     "valid_booking_date_pair": "arg_value({goal}, state_valid_date_pair) >= 1",
     "amount_positive_restr": "arg_value({goal}, state_amount_positive) >= 1",
-    "sufficient_amount_for_booking":
-        "arg_value({goal}, amount) >= arg_value({goal}, booking_total_fee)",
+    "sufficient_amount_for_booking": "arg_value({goal}, amount) >= arg_value({goal}, booking_total_fee)",
     # has_exceeded_maximum_stays is TRUE iff the stay exceeds the cap, i.e. NOT within.
     "has_exceeded_maximum_stays": "arg_value({goal}, state_within_max_stays) < 1",
     "internal_is_loyalty_member": "arg_value({goal}, state_is_loyalty_member) >= 1",
     "is_gold_or_higher_member": "arg_value({goal}, state_is_gold_plus) >= 1",
-    "is_booking_date_within_lead_time_range":
-        "(arg_value({goal}, now_epoch) >= arg_value({goal}, lead_lower_epoch) "
-        "& arg_value({goal}, now_epoch) <= arg_value({goal}, lead_upper_epoch))",
-    "has_overlapping_booking_for_booking":
-        "arg_value({goal}, state_has_overlapping) >= 1",
+    "is_booking_date_within_lead_time_range": "(arg_value({goal}, now_epoch) >= arg_value({goal}, lead_lower_epoch) "
+    "& arg_value({goal}, now_epoch) <= arg_value({goal}, lead_upper_epoch))",
+    "has_overlapping_booking_for_booking": "arg_value({goal}, state_has_overlapping) >= 1",
     # --- healthcare (atoms already grounded by convert.py) ---
     "provider_available": "arg_value({goal}, provider_available) >= 1",
     "provider_authorized": "arg_value({goal}, provider_authorized) >= 1",
     "provider_covers_policy": "arg_value({goal}, provider_covers) >= 1",
     "internal_check_provider_exists": "arg_value({goal}, state_provider_exists) >= 1",
     "policy_active": "arg_value({goal}, state_policy_active) >= 1",
-    "appointment_date_valid":
-        "arg_value({goal}, appt_epoch) >= arg_value({goal}, now_epoch)",
-    "provider_not_already_authorized":
-        "arg_value({goal}, provider_not_authorized) >= 1",
+    "appointment_date_valid": "arg_value({goal}, appt_epoch) >= arg_value({goal}, now_epoch)",
+    "provider_not_already_authorized": "arg_value({goal}, provider_not_authorized) >= 1",
     # --- library (atoms grounded by convert.py; see borrow_book grounder) ---
     "within_borrow_limit": "arg_value({goal}, state_within_borrow_limit) >= 1",
     "user_book_not_borrowed": "arg_value({goal}, state_user_book_not_borrowed) >= 1",

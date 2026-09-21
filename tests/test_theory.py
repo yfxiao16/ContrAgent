@@ -28,35 +28,20 @@ class TestIntervalChecker:
         assert self.chk.consistent([]) is True
 
     def test_disjoint_bounds_inconsistent(self):
-        assert (
-            self.chk.consistent([lit("le", X, 5), lit("lt", X, 10, positive=False)])
-            is False
-        )
+        assert self.chk.consistent([lit("le", X, 5), lit("lt", X, 10, positive=False)]) is False
         # x <= 5 and x >= 10  (Ge arrives as negated lt)
 
     def test_overlapping_bounds_consistent(self):
-        assert (
-            self.chk.consistent([lit("le", X, 10), lit("lt", X, 3, positive=False)])
-            is True
-        )
+        assert self.chk.consistent([lit("le", X, 10), lit("lt", X, 3, positive=False)]) is True
 
     def test_negated_le_is_strict_lower(self):
         # !(x <= 5) means x > 5; with x <= 6 still consistent (x = 6).
-        assert (
-            self.chk.consistent([lit("le", X, 5, positive=False), lit("le", X, 6)])
-            is True
-        )
-        assert (
-            self.chk.consistent([lit("le", X, 5, positive=False), lit("le", X, 5)])
-            is False
-        )
+        assert self.chk.consistent([lit("le", X, 5, positive=False), lit("le", X, 6)]) is True
+        assert self.chk.consistent([lit("le", X, 5, positive=False), lit("le", X, 5)]) is False
 
     def test_counter_integrality(self):
         # 0 < count < 1 has no integer solution.
-        assert (
-            self.chk.consistent([lit("le", X, 0, positive=False), lit("lt", X, 1)])
-            is False
-        )
+        assert self.chk.consistent([lit("le", X, 0, positive=False), lit("lt", X, 1)]) is False
 
     def test_counter_non_negative(self):
         assert self.chk.consistent([lit("lt", X, 0)]) is False
@@ -96,9 +81,7 @@ class TestIntervalChecker:
     def test_term_vs_term_skipped(self):
         # Interval checker cannot relate two runtime terms — must stay
         # conservative (consistent), never crash.
-        literal = TheoryLiteral(
-            op="le", left=AMOUNT, right=APPROVED, total=False, positive=True
-        )
+        literal = TheoryLiteral(op="le", left=AMOUNT, right=APPROVED, total=False, positive=True)
         assert self.chk.consistent([literal]) is True
 
 
@@ -111,28 +94,17 @@ class TestZ3Checker:
         self.chk = Z3Checker()
 
     def test_basic_bounds(self):
-        assert (
-            self.chk.consistent([lit("le", X, 5), lit("lt", X, 10, positive=False)])
-            is False
-        )
-        assert (
-            self.chk.consistent([lit("le", X, 10), lit("lt", X, 3, positive=False)])
-            is True
-        )
+        assert self.chk.consistent([lit("le", X, 5), lit("lt", X, 10, positive=False)]) is False
+        assert self.chk.consistent([lit("le", X, 10), lit("lt", X, 3, positive=False)]) is True
 
     def test_counter_integrality_and_sign(self):
-        assert (
-            self.chk.consistent([lit("le", X, 0, positive=False), lit("lt", X, 1)])
-            is False
-        )
+        assert self.chk.consistent([lit("le", X, 0, positive=False), lit("lt", X, 1)]) is False
         assert self.chk.consistent([lit("lt", X, 0)]) is False
 
     def test_term_vs_term_transitivity(self):
         # amount <= approved, approved <= 100, amount > 100 → inconsistent.
         lits = [
-            TheoryLiteral(
-                op="le", left=AMOUNT, right=APPROVED, total=False, positive=True
-            ),
+            TheoryLiteral(op="le", left=AMOUNT, right=APPROVED, total=False, positive=True),
             lit("le", APPROVED, 100, total=False),
             lit("gt", AMOUNT, 100, total=False),
         ]

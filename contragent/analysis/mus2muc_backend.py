@@ -81,9 +81,7 @@ def unavailable_reason(*, bin_folder: str | Path | None = None) -> str:
     """Explain what is missing, or return '' if everything is in place."""
     missing: list[str] = []
     if not _package_present():
-        missing.append(
-            "the mus2muc package (pip install git+https://github.com/ainnoot/mus2muc)"
-        )
+        missing.append("the mus2muc package (pip install git+https://github.com/ainnoot/mus2muc)")
     folder = _resolve_bin_folder(bin_folder)
     if not (folder / "wasp").is_file():
         missing.append(f"the patched wasp executable in {folder}")
@@ -162,9 +160,7 @@ def _theory_dom_bodies(table, checker) -> list[str]:
 
     def lit(pid: int, positive: bool) -> TheoryLiteral:
         op, left, right, total = table.cmp_info[pid]
-        return TheoryLiteral(
-            op=op, left=left, right=right, total=total, positive=positive
-        )
+        return TheoryLiteral(op=op, left=left, right=right, total=total, positive=positive)
 
     def ok(lits) -> bool:
         try:
@@ -326,8 +322,7 @@ def enumerate_mucs(
             raise Mus2mucUnavailable(f"mus2muc invocation failed: {exc}") from exc
         if proc.returncode not in _OK_EXIT_CODES:
             raise Mus2mucUnavailable(
-                f"mus2muc exited with code {proc.returncode}: "
-                f"{proc.stderr.strip()[:500]}"
+                f"mus2muc exited with code {proc.returncode}: {proc.stderr.strip()[:500]}"
             )
         raw = out_path.read_text() if out_path.exists() else proc.stdout
 

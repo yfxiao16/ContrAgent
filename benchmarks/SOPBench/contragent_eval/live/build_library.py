@@ -23,11 +23,20 @@ ATOM_GLOSSARY = [
     ("prior_logged_in / prior_authenticated_admin", "observable auth state before this call"),
     ("state_<field>", "the acting user's real DB field (credit_score, balance, owed_balance, ...)"),
     ("param_<name>", "an SOP threshold from constraint_parameters"),
-    ("state_user_exists / state_dest_user_exists", "the acting / destination user's row is present in the world state"),
+    (
+        "state_user_exists / state_dest_user_exists",
+        "the acting / destination user's row is present in the world state",
+    ),
     ("state_currency_available", "the requested currency is in the exchange table"),
     ("amount_dollars", "the call amount normalised to dollars (unit-aware)"),
-    ("gate_<g>_active / _present", "this task's SOP requires gate g (unconditionally / anywhere incl. OR branches)"),
-    ("gate_user_must_exist / _not_exist / dest_must_exist", "existence-gate polarity for this task"),
+    (
+        "gate_<g>_active / _present",
+        "this task's SOP requires gate g (unconditionally / anywhere incl. OR branches)",
+    ),
+    (
+        "gate_user_must_exist / _not_exist / dest_must_exist",
+        "existence-gate polarity for this task",
+    ),
     ("U (until), G (globally), -> (implies), | (or), & (and)", "finite-trace LTL operators"),
 ]
 
@@ -37,7 +46,7 @@ def _entries(ce):
     for section, part in (("A", ce.assumption), ("G", ce.guarantee)):
         if part is None:
             continue
-        for e in (part if isinstance(part, list) else [part]):
+        for e in part if isinstance(part, list) else [part]:
             ltl = getattr(e, "ltl", None)
             if ltl is None and getattr(e, "is_structured", False):
                 ltl = f"{e.pattern}({', '.join(map(str, e.args))})"
@@ -90,7 +99,10 @@ def render():
             lines.append(f"| {i} | {d} | {section} | `{f}` |")
         lines.append("")
 
-    lines.insert(6, f"**{total} contracts across {len([p for p in glob.glob(os.path.join(CONTRACTS_DIR,'*.yaml')) if not p.endswith('.live.yaml')])} domains.**\n")
+    lines.insert(
+        6,
+        f"**{total} contracts across {len([p for p in glob.glob(os.path.join(CONTRACTS_DIR, '*.yaml')) if not p.endswith('.live.yaml')])} domains.**\n",
+    )
     out = os.path.join(CONTRACTS_DIR, "CONTRACTS_LIBRARY.md")
     open(out, "w").write("\n".join(lines) + "\n")
     print("wrote", out, f"({total} contracts)")

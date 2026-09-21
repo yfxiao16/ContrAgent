@@ -167,8 +167,7 @@ def _load_pdf(path: Path) -> str:
         return "\n\n".join(pages)
     except ImportError:
         raise ImportError(
-            "PDF support requires pdfplumber or PyPDF2. "
-            "Install with: pip install pdfplumber"
+            "PDF support requires pdfplumber or PyPDF2. Install with: pip install pdfplumber"
         ) from None
 
 
@@ -303,9 +302,7 @@ def _load_jsonl(path: Path) -> list[Trace]:
         try:
             obj = json.loads(raw)
         except json.JSONDecodeError as e:
-            raise ValueError(
-                f"Invalid JSONL in {path} — line could not be parsed: {e.msg}"
-            ) from e
+            raise ValueError(f"Invalid JSONL in {path} — line could not be parsed: {e.msg}") from e
         if isinstance(obj, dict):
             lines.append(obj)
 
@@ -410,9 +407,7 @@ def _files_in_directory(path: Path) -> list[Path]:
     it explicitly with ``traces/**/*.jsonl``.
     """
     return sorted(
-        p
-        for p in path.iterdir()
-        if p.is_file() and p.suffix.lower() in _TRACE_FILE_SUFFIXES
+        p for p in path.iterdir() if p.is_file() and p.suffix.lower() in _TRACE_FILE_SUFFIXES
     )
 
 

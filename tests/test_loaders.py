@@ -90,18 +90,14 @@ class TestLoadTrace:
 
     def test_load_traces_glob(self, tmp_path):
         for i in range(3):
-            t = Trace(
-                events=[Event(ts=0, agent="bot", event_type="tool_call", tool=f"t{i}")]
-            )
+            t = Trace(events=[Event(ts=0, agent="bot", event_type="tool_call", tool=f"t{i}")])
             (tmp_path / f"trace_{i}.json").write_text(json.dumps(t.to_dict()))
         loaded = load_traces([str(tmp_path / "*.json")])
         assert len(loaded) == 3
 
     def test_load_traces_multiple_files(self, tmp_path):
         for name in ["a.json", "b.json"]:
-            t = Trace(
-                events=[Event(ts=0, agent="bot", event_type="tool_call", tool="X")]
-            )
+            t = Trace(events=[Event(ts=0, agent="bot", event_type="tool_call", tool="X")])
             (tmp_path / name).write_text(json.dumps(t.to_dict()))
         loaded = load_traces([tmp_path / "a.json", tmp_path / "b.json"])
         assert len(loaded) == 2

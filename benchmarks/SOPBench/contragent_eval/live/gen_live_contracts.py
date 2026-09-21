@@ -46,9 +46,7 @@ def gen(domain):
         "    contracts:",
     ]
     for g in goals_for(domain):
-        lines.append(
-            f'      - desc: "{g} requires the acting user to exist (live existence)"'
-        )
+        lines.append(f'      - desc: "{g} requires the acting user to exist (live existence)"')
         lines.append(
             f'        G: {{ltl: "G((called({g}) & arg_value({g}, succeeded) >= 1 '
             f"& arg_value({g}, gate_user_must_exist) >= 1) -> "

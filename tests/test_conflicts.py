@@ -76,12 +76,8 @@ class TestCheckConflicts:
         # One contract requires the environment to always leak, the
         # other requires it never to. No session satisfies both, so the
         # joint query catches it without a separate assumption check.
-        c1 = _contract(
-            F(_called("y")), assumption=G(_leaks("fetch")), desc="wants a leak"
-        )
-        c2 = _contract(
-            F(_called("y")), assumption=G(Not(_leaks("fetch"))), desc="bans a leak"
-        )
+        c1 = _contract(F(_called("y")), assumption=G(_leaks("fetch")), desc="wants a leak")
+        c2 = _contract(F(_called("y")), assumption=G(Not(_leaks("fetch"))), desc="bans a leak")
         report = check_conflicts([c1, c2], backend="native")
         assert not report.ok
         assert set(report.conflicts[0].labels) == {"wants a leak", "bans a leak"}
@@ -265,9 +261,7 @@ class TestDomainConstraints:
         ):
             gadget = is_satisfiable(formulas)
             axioms = counting_axioms(formulas)
-            assert (
-                is_satisfiable(list(formulas) + axioms, exact_counters=False) is gadget
-            )
+            assert is_satisfiable(list(formulas) + axioms, exact_counters=False) is gadget
 
     def test_virtual_driver_joins_mutex(self):
         # count(x) comparisons pull a virtual called(x) atom into the
@@ -327,9 +321,7 @@ class TestMus2mucBackend:
             ),
         ]
         units, _ = _units_of(contracts)
-        text, mapping = units_to_ltlfconj(
-            units, mutex_groups=[["called(a)", "called(b)"]]
-        )
+        text, mapping = units_to_ltlfconj(units, mutex_groups=[["called(a)", "called(b)"]])
         assert set(mapping) == {"c0", "c1"}
         lines = [ln for ln in text.splitlines() if ln]
         assert all(ln.endswith(";") for ln in lines)
@@ -491,7 +483,9 @@ class TestWitnessCertificate:
         report = check_conflicts(
             [
                 # Shipped string: contragent/contracts/benchmark/agentdojo.yaml
-                _contract(ltl("G((Var('count', 'update_password') <= 0))"), desc="update_password banned"),
+                _contract(
+                    ltl("G((Var('count', 'update_password') <= 0))"), desc="update_password banned"
+                ),
                 _contract(F(_called("update_password")), desc="eventually update_password"),
             ],
             backend="native",
@@ -507,9 +501,7 @@ class TestWitnessCertificate:
         assert report.certificate is None
         # Trivial libraries (fewer than two det units) carry no
         # certificate either — nothing was proved.
-        trivial = check_conflicts(
-            [_contract(G(Not(_called("a"))), desc="solo")], backend="native"
-        )
+        trivial = check_conflicts([_contract(G(Not(_called("a"))), desc="solo")], backend="native")
         assert trivial.ok
         assert trivial.certificate is None
 

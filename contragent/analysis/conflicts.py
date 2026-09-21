@@ -315,9 +315,7 @@ def _count_ban_axioms(formulas: list[Formula], keys: set[str]) -> list[Formula]:
             continue
         if not isinstance(right.value, (int, float)):
             continue
-        impossible_at_call = (op == "le" and right.value < 1) or (
-            op == "lt" and right.value <= 1
-        )
+        impossible_at_call = (op == "le" and right.value < 1) or (op == "lt" and right.value <= 1)
         if not impossible_at_call:
             continue
         call_atom = Atom(call_pred, *left.args)
@@ -524,9 +522,7 @@ def _witness_traces(
         ]
 
 
-def _witness_certifies_sat(
-    units: Sequence[ContractUnit], axioms: Sequence[Formula]
-) -> bool:
+def _witness_certifies_sat(units: Sequence[ContractUnit], axioms: Sequence[Formula]) -> bool:
     """Try short witness traces against the conjunction of all units.
 
     A trace that satisfies every unit's combined formula is a *model*
@@ -583,9 +579,7 @@ def _witness_certifies_sat(
             if state.get(key, False):
                 true_ids.add(pid)
         for pid, (op, left, right, _total) in table.cmp_info.items():
-            if _safe_compare(
-                op, _resolve_arith(left, state), _resolve_arith(right, state)
-            ):
+            if _safe_compare(op, _resolve_arith(left, state), _resolve_arith(right, state)):
                 true_ids.add(pid)
         return frozenset(true_ids)
 
@@ -691,11 +685,7 @@ class ConflictReport:
         """Human-readable multi-line summary."""
         lines: list[str] = []
         if self.ok:
-            cert = (
-                ", witness-trace certificate"
-                if self.certificate == "witness-trace"
-                else ""
-            )
+            cert = ", witness-trace certificate" if self.certificate == "witness-trace" else ""
             lines.append(
                 f"conflict-free: {self.checked} det contract(s) checked "
                 f"({self.backend} backend{cert})"
@@ -712,8 +702,7 @@ class ConflictReport:
                 lines.append(f"    - {label}")
         if self.skipped:
             lines.append(
-                f"  skipped {len(self.skipped)} non-det contract(s): "
-                + ", ".join(self.skipped)
+                f"  skipped {len(self.skipped)} non-det contract(s): " + ", ".join(self.skipped)
             )
         if self.unknown:
             lines.append(
@@ -795,9 +784,7 @@ def check_conflicts(
 
         theory_checker = default_theory_checker()
 
-    mutex_groups, implications, axioms = derive_domain_constraints(
-        [u.combined for u in units]
-    )
+    mutex_groups, implications, axioms = derive_domain_constraints([u.combined for u in units])
 
     def sat_of(subset: Sequence[ContractUnit]) -> bool | None:
         # Domain axioms hold on every real trace, so conjoining them
@@ -813,16 +800,13 @@ def check_conflicts(
             exact_counters=exact_counters,
         )
 
-
     if backend in ("auto", "mus2muc"):
         from contragent.analysis import mus2muc_backend
 
         if mus2muc_backend.is_available(bin_folder=mus2muc_bin_folder):
             # mus2muc is purely propositional: the native gadget's exact
             # counter semantics is shipped to it as LTLf counting axioms.
-            counter_axioms = (
-                counting_axioms([u.combined for u in units]) if exact_counters else []
-            )
+            counter_axioms = counting_axioms([u.combined for u in units]) if exact_counters else []
             cores = mus2muc_backend.enumerate_mucs(
                 units,
                 mutex_groups=mutex_groups,
@@ -864,9 +848,7 @@ def check_conflicts(
             report.unknown = True
             break
         core_units, minimal = extract_muc(working, sat_of)
-        report.conflicts.append(
-            ConflictCore(units=tuple(core_units), minimal=minimal)
-        )
+        report.conflicts.append(ConflictCore(units=tuple(core_units), minimal=minimal))
         # Remove the classified core and keep scanning for disjoint
         # cores. Overlapping cores are missed by design (see module
         # docstring); ``mus2muc`` enumerates them all.

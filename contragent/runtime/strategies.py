@@ -46,9 +46,7 @@ class EnforcementResult:
     the supervisor runs in flag mode).
     """
 
-    action: Literal[
-        "blocked", "escalated", "redirected", "suppressed", "allowed", "observed"
-    ]
+    action: Literal["blocked", "escalated", "redirected", "suppressed", "allowed", "observed"]
     message: str
     fallback_action: Any | None = None
     rule_id: str = ""
@@ -97,10 +95,7 @@ class OutcomeBuilder:
     ) -> EnforcementResult:
         rule = _rule_id_from_violation(violation)
         why = reason or violation.desc or "contract violation"
-        message = (
-            f"ESCALATED: {context.agent_id}.{context.action}. "
-            f"awaiting human approval: {why}"
-        )
+        message = f"ESCALATED: {context.agent_id}.{context.action}. awaiting human approval: {why}"
         agent_msg = (
             f"The action `{context.action}` is paused awaiting human "
             f"approval ({rule}). Wait for the approval signal."

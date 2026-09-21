@@ -46,9 +46,7 @@ class Tracer:
             )
         )
 
-    def data_write(
-        self, agent: str, *, key: str, contains: list[str] | None = None
-    ) -> None:
+    def data_write(self, agent: str, *, key: str, contains: list[str] | None = None) -> None:
         """Records a data-write event.
 
         Args:

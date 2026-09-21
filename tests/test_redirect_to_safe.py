@@ -186,5 +186,3 @@ class TestRedirectStrategy:
         s = Redirect(safe="trash", message="dev only")
         assert s._safe == "trash"
         assert s._message == "dev only"
-
-

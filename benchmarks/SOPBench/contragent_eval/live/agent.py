@@ -52,9 +52,7 @@ def _post(model, key, body, max_retries=None):
     if max_retries is None:
         max_retries = int(os.environ.get("GEMINI_MAX_RETRIES", "10"))
     for attempt in range(max_retries):
-        req = urllib.request.Request(
-            url, data=data, headers={"Content-Type": "application/json"}
-        )
+        req = urllib.request.Request(url, data=data, headers={"Content-Type": "application/json"})
         try:
             with urllib.request.urlopen(req, timeout=http_timeout) as r:
                 return json.load(r)
@@ -66,13 +64,13 @@ def _post(model, key, body, max_retries=None):
                 # else exponential backoff -- both hard-capped at max_backoff.
                 delay = _retry_delay_s(raw) if code == 429 else None
                 if delay is None:
-                    delay = 3 * 2 ** attempt
+                    delay = 3 * 2**attempt
                 time.sleep(min(max_backoff, delay))
                 continue
             raise RuntimeError(f"Gemini HTTP {code}: {raw[:300]}") from e
         except urllib.error.URLError:
             if attempt < max_retries - 1:
-                time.sleep(min(max_backoff, 3 * 2 ** attempt))
+                time.sleep(min(max_backoff, 3 * 2**attempt))
                 continue
             raise
     raise RuntimeError("unreachable")

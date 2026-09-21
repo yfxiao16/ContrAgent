@@ -38,9 +38,7 @@ def _trace_of(*tools: str, agent: str = "test") -> Trace:
     """Build a Trace from a sequence of tool-call event names."""
     events = []
     for i, t in enumerate(tools):
-        events.append(
-            Event(ts=i, agent=agent, event_type="tool_call", tool=t, args={})
-        )
+        events.append(Event(ts=i, agent=agent, event_type="tool_call", tool=t, args={}))
     return Trace(events=events)
 
 

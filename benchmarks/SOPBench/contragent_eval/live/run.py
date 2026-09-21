@@ -136,8 +136,7 @@ def run_condition(domain, task, condition, model, max_steps):
     guard_calls = 0
     if condition == "enforce":
         goal_completed = any(
-            e["tool"] == hook.goal and e["args"].get("succeeded") == 1
-            for e in hook.events
+            e["tool"] == hook.goal and e["args"].get("succeeded") == 1 for e in hook.events
         )
         blocks = hook.blocks
     elif condition == "llm_guard":
@@ -204,7 +203,7 @@ def main(argv=None):
             print(
                 f"[{tag}] task {i} {cond:8s} should={should} "
                 f"goal_completed={r.get('goal_completed')} "
-                f"blocks={len(r.get('blocks', []))} {r.get('error','')}",
+                f"blocks={len(r.get('blocks', []))} {r.get('error', '')}",
                 flush=True,
             )
         return out

@@ -181,9 +181,7 @@ Predicate = (
 # ---------------------------------------------------------------------------
 
 
-def resolve_field(
-    field: Field, event: Event, extra: dict[str, Any] | None = None
-) -> Any:
+def resolve_field(field: Field, event: Event, extra: dict[str, Any] | None = None) -> Any:
     """Resolve a Field path against an Event.
 
     Supports:
@@ -228,9 +226,7 @@ def resolve_field(
 # ---------------------------------------------------------------------------
 
 
-def eval_predicate(
-    pred: Predicate, event: Event, extra: dict[str, Any] | None = None
-) -> bool:
+def eval_predicate(pred: Predicate, event: Event, extra: dict[str, Any] | None = None) -> bool:
     """Evaluate a FOL predicate against a single event.
 
     Args:
@@ -277,14 +273,10 @@ def eval_predicate(
         return not eval_predicate(pred.child, event, extra)
 
     if isinstance(pred, PAnd):
-        return eval_predicate(pred.left, event, extra) and eval_predicate(
-            pred.right, event, extra
-        )
+        return eval_predicate(pred.left, event, extra) and eval_predicate(pred.right, event, extra)
 
     if isinstance(pred, POr):
-        return eval_predicate(pred.left, event, extra) or eval_predicate(
-            pred.right, event, extra
-        )
+        return eval_predicate(pred.left, event, extra) or eval_predicate(pred.right, event, extra)
 
     if isinstance(pred, PImplies):
         if not eval_predicate(pred.guard, event, extra):

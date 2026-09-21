@@ -163,13 +163,9 @@ def test_ctx_matches_false_when_value_does_not_match():
 
     state = GroundingState()
     valuations = [
-        ground_event(e, i, state, content_atoms=content_atoms)
-        for i, e in enumerate(trace.events)
+        ground_event(e, i, state, content_atoms=content_atoms) for i, e in enumerate(trace.events)
     ]
-    assert (
-        valuations[1][pred_key("ctx_matches", "caller_id", r"^spiffe://prod/.*")]
-        is False
-    )
+    assert valuations[1][pred_key("ctx_matches", "caller_id", r"^spiffe://prod/.*")] is False
 
 
 def test_ctx_matches_false_when_key_absent():
@@ -191,7 +187,9 @@ def test_ctx_matches_false_when_key_absent():
 
 def test_ctx_gate_allows_when_ctx_holds_an_allowed_value():
     # Shipped string: contragent/contracts/benchmark/tau2_bench.yaml (airline)
-    det = ltl("G(called(send_certificate) -> ((ctx(user_membership, silver) | ctx(user_membership, gold)) | ctx(user_membership, premium)))")
+    det = ltl(
+        "G(called(send_certificate) -> ((ctx(user_membership, silver) | ctx(user_membership, gold)) | ctx(user_membership, premium)))"
+    )
     trace = _trace(
         _ctx_update(0, "bot", {"user_membership": "silver"}),
         _tool(1, "bot", "send_certificate"),
@@ -264,7 +262,9 @@ def test_ctx_composes_with_ordering_contract():
     (cancel_pending_order only when user_authenticated): cancelling is
     allowed only AFTER the lookup AND when the user is authenticated."""
     # Both strings: contragent/contracts/benchmark/tau2_bench.yaml (retail)
-    ordering = ltl("((!(called('cancel_pending_order')) U called('get_order_details')) | G(!(called('cancel_pending_order'))))")
+    ordering = ltl(
+        "((!(called('cancel_pending_order')) U called('get_order_details')) | G(!(called('cancel_pending_order'))))"
+    )
     identity = ltl("G(called(cancel_pending_order) -> ctx(user_authenticated, yes))")
 
     # Happy path: both satisfied

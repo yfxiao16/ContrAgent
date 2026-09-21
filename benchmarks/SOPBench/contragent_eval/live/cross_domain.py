@@ -22,7 +22,9 @@ def rates(rows):
 
 def main():
     d = sys.argv[1] if len(sys.argv) > 1 else "contragent_eval/live/results"
-    print(f"{'domain':14s} | {'base s/safe':>14s} | {'prompt s/safe':>14s} | {'enforce s/safe':>14s}")
+    print(
+        f"{'domain':14s} | {'base s/safe':>14s} | {'prompt s/safe':>14s} | {'enforce s/safe':>14s}"
+    )
     print("-" * 70)
     agg = {c: {"su": [], "sa": []} for c in ("base", "prompt", "enforce")}
     for dom in DOMAINS:

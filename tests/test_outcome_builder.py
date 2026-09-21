@@ -33,9 +33,7 @@ from contragent.runtime.strategies import (
 # ---------------------------------------------------------------------------
 
 
-def _det_violation(
-    desc: str = "rate exceeded", pattern: str = "rate_limit"
-) -> Violation:
+def _det_violation(desc: str = "rate exceeded", pattern: str = "rate_limit") -> Violation:
     inner = G(Implies(Atom("called", "refund"), Atom("count_with", "refund", "5")))
     formula = DetFormula(formula=inner, desc=desc, kind=pattern)
     return Violation(
@@ -121,9 +119,7 @@ def test_alternatives_round_trip_through_block_outcome():
 
 
 def test_escalate_carries_wait_voice_in_agent_msg():
-    out = Escalate(reason="manual review required").enforce(
-        _det_violation(), _ctx()
-    )
+    out = Escalate(reason="manual review required").enforce(_det_violation(), _ctx())
     assert out.action == "escalated"
     # Wait/pause voice — distinct from block (abandon) and retry
     # (regenerate). Agent should hold, not switch tactics.

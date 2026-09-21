@@ -18,9 +18,7 @@ def tool_event(ts: int, agent: str, tool: str) -> Event:
 
 
 def write_event(ts: int, agent: str, key: str, contains: list[str]) -> Event:
-    return Event(
-        ts=ts, agent=agent, event_type="data_write", key=key, contains=contains
-    )
+    return Event(ts=ts, agent=agent, event_type="data_write", key=key, contains=contains)
 
 
 def read_event(ts: int, agent: str, key: str) -> Event:

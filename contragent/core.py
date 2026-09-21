@@ -270,7 +270,9 @@ class ContrAgent:
         }
     )
 
-    def _arg_readers(self) -> tuple[frozenset[str], frozenset[tuple[str, str]], frozenset[tuple[str, str]]]:
+    def _arg_readers(
+        self,
+    ) -> tuple[frozenset[str], frozenset[tuple[str, str]], frozenset[tuple[str, str]]]:
         """What the loaded contracts read off a call's arguments.
 
         Returns the canonical names of the tools some predicate reads the
@@ -541,7 +543,9 @@ class ContrAgent:
             metadata={"args": clean},
         )
 
-    def observe_approval(self, role: str, decision: str = "allow", scope: str | None = None) -> None:
+    def observe_approval(
+        self, role: str, decision: str = "allow", scope: str | None = None
+    ) -> None:
         facts = {"approval.role": role, "approval.decision": decision}
         if scope:
             facts["approval.scope"] = scope
@@ -592,7 +596,9 @@ class ContrAgent:
                         collector.finish_span("violated")
                         details = f"Liveness unmet at session end: {g.desc}"
                         collector.add_violation(kind="liveness", severity="HIGH", evidence=details)
-                        collector.add_enforcement(strategy="LivenessEscalate", result_action="escalated")
+                        collector.add_enforcement(
+                            strategy="LivenessEscalate", result_action="escalated"
+                        )
                         failures.append(g)
                         failed = True
                         self._supervisor._emit(

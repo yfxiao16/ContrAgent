@@ -242,8 +242,6 @@ class EnforcementSpan(Span):
         return d
 
 
-
-
 # ---------------------------------------------------------------------------
 # Tree rendering
 # ---------------------------------------------------------------------------
@@ -341,11 +339,7 @@ def _span_description(span: Span) -> str:
             parts.append(f"severity={span.severity}")
         return " | ".join(parts)
     if isinstance(span, EnforcementSpan):
-        return (
-            f"{span.strategy} -> {span.result_action}"
-            if span.strategy
-            else span.result_action
-        )
+        return f"{span.strategy} -> {span.result_action}" if span.strategy else span.result_action
     return ""
 
 
@@ -425,9 +419,7 @@ class SpanCollector:
 
     # -- Convenience methods for common span types --
 
-    def start_contract_check(
-        self, contract_name: str, pipeline: str = "hard"
-    ) -> ContractCheckSpan:
+    def start_contract_check(self, contract_name: str, pipeline: str = "hard") -> ContractCheckSpan:
         """Start a contract check span."""
         span = ContractCheckSpan(
             span_type="contragent.contract_check",
@@ -458,9 +450,7 @@ class SpanCollector:
         self.start_span(span)
         return span
 
-    def add_violation(
-        self, kind: str, severity: str = "HIGH", evidence: str = ""
-    ) -> ViolationSpan:
+    def add_violation(self, kind: str, severity: str = "HIGH", evidence: str = "") -> ViolationSpan:
         """Add a violation span as a child of the current span (no push)."""
         span = ViolationSpan(
             span_type="contragent.violation",

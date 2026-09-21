@@ -53,16 +53,12 @@ class TestAgentControlledAtoms:
     def test_environment_predicates_are_not_agent_controlled(self) -> None:
         from contragent.formulas.parser import parse_repr
 
-        assert not agent_controlled_atoms(
-            parse_repr("G(!(output_has('read_file', 'SECRET')))")
-        )
+        assert not agent_controlled_atoms(parse_repr("G(!(output_has('read_file', 'SECRET')))"))
 
     def test_called_is_agent_controlled(self) -> None:
         from contragent.formulas.parser import parse_repr
 
-        assert agent_controlled_atoms(parse_repr("F(called('transfer'))")) == {
-            "called"
-        }
+        assert agent_controlled_atoms(parse_repr("F(called('transfer'))")) == {"called"}
 
 
 class TestAssumptionEnforceability:
@@ -92,8 +88,7 @@ class TestAssumptionEnforceability:
 
     def test_weak_until_is_accepted(self) -> None:
         c = self._contract(
-            "(!(output_has('t','a')) U output_has('t','b')) "
-            "| G(!(output_has('t','a')))"
+            "(!(output_has('t','a')) U output_has('t','b')) | G(!(output_has('t','a')))"
         )
         assert c.assumption is not None
 
@@ -113,6 +108,4 @@ class TestAssumptionEnforceability:
         import pytest
 
         with pytest.raises(ValueError, match="unbounded eventuality"):
-            self._contract(
-                "G((output_has('t','a') -> F(output_has('t','b'))))"
-            )
+            self._contract("G((output_has('t','a') -> F(output_has('t','b'))))")

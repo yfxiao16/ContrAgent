@@ -44,7 +44,7 @@ def _summ(name, c_lo, c_hi, samples):
     ms = [s * 1000.0 for s in samples]
     print(
         f"{name:24s} C={c_lo}-{c_hi:<3} n={len(ms):6d} "
-        f"p50={_pct(ms,0.50):.4f} p95={_pct(ms,0.95):.4f} p99={_pct(ms,0.99):.4f} ms"
+        f"p50={_pct(ms, 0.50):.4f} p95={_pct(ms, 0.95):.4f} p99={_pct(ms, 0.99):.4f} ms"
     )
     return {
         "workload": name,
@@ -81,9 +81,7 @@ def load_det_contracts(yaml_path):
 def _tool_call_idxs(events):
     """Indices of tool_call events (the points an online guard fires)."""
     return [
-        i
-        for i, e in enumerate(events)
-        if (e.get("type") or e.get("event_type")) == "tool_call"
+        i for i, e in enumerate(events) if (e.get("type") or e.get("event_type")) == "tool_call"
     ]
 
 

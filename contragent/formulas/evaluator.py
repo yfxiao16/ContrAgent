@@ -236,17 +236,13 @@ def evaluate(formula: Formula, trace: list[dict[str, object]], pos: int = 0) -> 
         return not evaluate(formula.child, trace, pos)
 
     if isinstance(formula, And):
-        return evaluate(formula.left, trace, pos) and evaluate(
-            formula.right, trace, pos
-        )
+        return evaluate(formula.left, trace, pos) and evaluate(formula.right, trace, pos)
 
     if isinstance(formula, Or):
         return evaluate(formula.left, trace, pos) or evaluate(formula.right, trace, pos)
 
     if isinstance(formula, Implies):
-        return not evaluate(formula.left, trace, pos) or evaluate(
-            formula.right, trace, pos
-        )
+        return not evaluate(formula.left, trace, pos) or evaluate(formula.right, trace, pos)
 
     # --- Temporal (LTL) ---
 

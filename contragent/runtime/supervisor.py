@@ -247,9 +247,7 @@ class Supervisor:
         with SpanCollector(agent_id, context.action) as collector:
             results.extend(self._check_contracts(agent_id, context, collector))
             collector.root.total_contracts_checked = sum(
-                1
-                for c in collector.root.children
-                if c.span_type == "contragent.contract_check"
+                1 for c in collector.root.children if c.span_type == "contragent.contract_check"
             )
             collector.root.violations = len(results)
             collector.root.blocked = any(r.action == "blocked" for r in results)

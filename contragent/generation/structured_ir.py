@@ -388,9 +388,7 @@ def _synth_length_check(ir: ConstraintIR) -> tuple[Formula, str, str]:
     physical = _physical_tool(tool)
     fld = ir.params["field"]
     n = ir.quantifier
-    f = G(
-        Implies(_called(tool), Not(Atom("arg_length_exceeds", physical, fld, str(n))))
-    )
+    f = G(Implies(_called(tool), Not(Atom("arg_length_exceeds", physical, fld, str(n)))))
     return f, f"{tool}.{fld} must not exceed {n} characters", "arg_length_limit"
 
 
@@ -739,9 +737,7 @@ def compile_ir(ir: ConstraintIR) -> IRCompilationResult:
     relation = ir.relation
     entry = _SYNTH_TABLE.get(relation)
     if entry is None:
-        result.error = (
-            f"Unknown relation '{relation}'. Available: {sorted(_SYNTH_TABLE.keys())}"
-        )
+        result.error = f"Unknown relation '{relation}'. Available: {sorted(_SYNTH_TABLE.keys())}"
         return result
 
     # Validate required fields
@@ -857,9 +853,7 @@ def _compile_guard(guard_text: str, ir: ConstraintIR) -> Any | None:
     return None
 
 
-def _compile_ir_semantic(
-    ir: ConstraintIR, result: IRCompilationResult
-) -> IRCompilationResult:
+def _compile_ir_semantic(ir: ConstraintIR, result: IRCompilationResult) -> IRCompilationResult:
     """Compile a semantic (content-quality) constraint from IR.
 
     Stochastic compilation is an extension point: this build provides

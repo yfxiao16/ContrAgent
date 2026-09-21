@@ -5,6 +5,7 @@ overall + per-category + per-contract confusion matrices and the FP/FN lists.
 
 Use: PYTHONPATH=. python benchmarks/R-Judge/contragent_eval/_harness.py [contracts.yaml]
 """
+
 from __future__ import annotations
 
 import glob
@@ -74,7 +75,7 @@ def main():
         fpr = fp / (fp + tn) if fp + tn else 0.0
         prec = tp / (tp + fp) if tp + fp else 0.0
         f1 = 2 * prec * rec / (prec + rec) if prec + rec else 0.0
-        return f"TP={tp:3} FP={fp:3} FN={fn:3} TN={tn:3} rec={rec:5.1%} FPR={fpr:5.1%} prec={prec:5.1%} F1={f1*100:4.1f}"
+        return f"TP={tp:3} FP={fp:3} FN={fn:3} TN={tn:3} rec={rec:5.1%} FPR={fpr:5.1%} prec={prec:5.1%} F1={f1 * 100:4.1f}"
 
     print("--- per contract ---")
     for desc, _, _ in contracts:

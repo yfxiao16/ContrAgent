@@ -30,7 +30,9 @@ def _text(content) -> str:
     if isinstance(content, str):
         return content
     if isinstance(content, list):
-        return "\n".join(b.get("content", "") for b in content if isinstance(b, dict) and b.get("type") == "text")
+        return "\n".join(
+            b.get("content", "") for b in content if isinstance(b, dict) and b.get("type") == "text"
+        )
     return "" if content is None else str(content)
 
 
@@ -38,7 +40,11 @@ def main() -> None:
     ap = argparse.ArgumentParser()
     ap.add_argument("model_dirs", nargs="+")
     ap.add_argument("--out", required=True)
-    ap.add_argument("--attacks", default="", help="comma list of attack classes to score besides 'none' (default: all)")
+    ap.add_argument(
+        "--attacks",
+        default="",
+        help="comma list of attack classes to score besides 'none' (default: all)",
+    )
     ap.add_argument("--batch", type=int, default=16)
     args = ap.parse_args()
     attacks = {a for a in args.attacks.split(",") if a}
@@ -46,7 +52,11 @@ def main() -> None:
     import torch
     from transformers import AutoModelForSequenceClassification, AutoTokenizer
 
-    device = "mps" if torch.backends.mps.is_available() else ("cuda" if torch.cuda.is_available() else "cpu")
+    device = (
+        "mps"
+        if torch.backends.mps.is_available()
+        else ("cuda" if torch.cuda.is_available() else "cpu")
+    )
     tok = AutoTokenizer.from_pretrained(MODEL)
     mdl = AutoModelForSequenceClassification.from_pretrained(MODEL).to(device).eval()
     safe_idx = next(i for i, name in mdl.config.id2label.items() if name.upper() == "SAFE")
@@ -79,7 +89,13 @@ def main() -> None:
     with torch.no_grad():
         for i in range(0, len(items), args.batch):
             batch = items[i : i + args.batch]
-            enc = tok([t for _, t in batch], truncation=True, max_length=512, padding=True, return_tensors="pt").to(device)
+            enc = tok(
+                [t for _, t in batch],
+                truncation=True,
+                max_length=512,
+                padding=True,
+                return_tensors="pt",
+            ).to(device)
             probs = torch.softmax(mdl(**enc).logits, dim=-1)[:, safe_idx].tolist()
             for (key, t), p_safe in zip(batch, probs, strict=True):
                 if p_safe < THRESHOLD:
@@ -87,9 +103,17 @@ def main() -> None:
             if (i // args.batch) % 25 == 0:
                 print(f"  {i + len(batch)}/{len(items)}  {time.time() - t0:.0f}s", file=sys.stderr)
     n_flag_traces = sum(1 for v in flagged.values() if v)
-    out = {"model": MODEL, "threshold": THRESHOLD, "n_tool_outputs": len(items), "traces": {k: {"n_tool_outputs": traces[k], "flagged": v} for k, v in flagged.items()}}
+    out = {
+        "model": MODEL,
+        "threshold": THRESHOLD,
+        "n_tool_outputs": len(items),
+        "traces": {k: {"n_tool_outputs": traces[k], "flagged": v} for k, v in flagged.items()},
+    }
     json.dump(out, open(args.out, "w"))
-    print(f"flagged outputs: {sum(len(v) for v in flagged.values())}; traces with a flag: {n_flag_traces}/{len(traces)}; wrote {args.out}", file=sys.stderr)
+    print(
+        f"flagged outputs: {sum(len(v) for v in flagged.values())}; traces with a flag: {n_flag_traces}/{len(traces)}; wrote {args.out}",
+        file=sys.stderr,
+    )
 
 
 if __name__ == "__main__":

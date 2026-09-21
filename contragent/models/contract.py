@@ -117,9 +117,7 @@ def _formula_is_pure_det(formula: Any) -> bool:
     if isinstance(formula, Not):
         return _formula_is_pure_det(formula.child)
     if isinstance(formula, (And, Or, Implies, U)):
-        return _formula_is_pure_det(formula.left) and _formula_is_pure_det(
-            formula.right
-        )
+        return _formula_is_pure_det(formula.left) and _formula_is_pure_det(formula.right)
     if isinstance(formula, (G, F, X)):
         return _formula_is_pure_det(formula.child)
     # Unknown node: treat as non-det so dispatch routes it away from
@@ -147,16 +145,14 @@ class Contract:
             formula or a list (conjunction).
         desc: Human-readable label.
     """
+
     agent: Agent
     guarantee: Constraint = None
     assumption: Constraint | None = None
     desc: str | None = None
 
-
     def __post_init__(self) -> None:
-        if self.guarantee is None or (
-            isinstance(self.guarantee, list) and not self.guarantee
-        ):
+        if self.guarantee is None or (isinstance(self.guarantee, list) and not self.guarantee):
             raise ValueError(
                 f"Contract(agent={self.agent.id!r}) requires a non-empty guarantee. "
                 f"Use Contract(..., guarantee=<constraint>) or provide a list."
@@ -309,11 +305,7 @@ class Contract:
                 from contragent.formulas.nl_gen import formula_to_nl
             except ImportError:
                 return None
-            formula = (
-                item
-                if isinstance(item, FormulaMixin)
-                else getattr(item, "formula", None)
-            )
+            formula = item if isinstance(item, FormulaMixin) else getattr(item, "formula", None)
             if formula is None:
                 return None
             try:
@@ -365,10 +357,7 @@ class Contract:
     def __repr__(self) -> str:
         a_count = len(self.assumptions)
         g_count = len(self.guarantees)
-        return (
-            f"Contract(agent={self.agent.id!r}, "
-            f"assumption={a_count}, guarantee={g_count})"
-        )
+        return f"Contract(agent={self.agent.id!r}, assumption={a_count}, guarantee={g_count})"
 
 
 # ---------------------------------------------------------------------------
@@ -412,9 +401,7 @@ def make_contracts(
             )
         guarantee = entry.get("guarantee") or entry.get("G")
         if guarantee is None:
-            raise ValueError(
-                f"Contract entry missing 'guarantee' (or short key 'G'): {entry!r}"
-            )
+            raise ValueError(f"Contract entry missing 'guarantee' (or short key 'G'): {entry!r}")
         assumption = entry.get("assumption", entry.get("A"))
         desc = entry.get("desc")
         out.append(

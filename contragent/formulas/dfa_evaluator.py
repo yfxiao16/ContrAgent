@@ -200,9 +200,7 @@ def _eval_pointwise(node: Any, state: dict[str, object]) -> Residual:
         )
     if isinstance(node, Subset):
         return bool(state.get(node.key(), False))
-    raise TypeError(
-        f"_eval_pointwise: unexpected non-temporal node {type(node).__name__}"
-    )
+    raise TypeError(f"_eval_pointwise: unexpected non-temporal node {type(node).__name__}")
 
 
 def _is_temporal(node: Any) -> bool:

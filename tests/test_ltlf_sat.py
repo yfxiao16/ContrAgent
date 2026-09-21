@@ -203,10 +203,7 @@ class TestCounterGadget:
         # Exactly 3 calls fit under a cap of 3 — the gadget must not
         # over-tighten.
         assert (
-            is_satisfiable(
-                [G(Le(self.X_VAR, Const(3))), _at_least_calls(self.CALLED_X, 3)]
-            )
-            is True
+            is_satisfiable([G(Le(self.X_VAR, Const(3))), _at_least_calls(self.CALLED_X, 3)]) is True
         )
 
     def test_counter_cannot_grow_without_calls(self):
@@ -226,10 +223,7 @@ class TestCounterGadget:
         assert is_satisfiable(F(Eq(self.X_VAR, Const(2)))) is True
         # count == 2 can never hold after count >= 3 (monotone).
         assert (
-            is_satisfiable(
-                F(And(Ge(self.X_VAR, Const(3)), F(Eq(self.X_VAR, Const(2)))))
-            )
-            is False
+            is_satisfiable(F(And(Ge(self.X_VAR, Const(3)), F(Eq(self.X_VAR, Const(2)))))) is False
         )
 
     def test_count_with_register(self):
@@ -303,7 +297,9 @@ class TestBudgetsAndWrappers:
         assert (
             is_satisfiable(
                 [
-                    ltl("((!(called('cancel_pending_order')) U called('get_order_details')) | G(!(called('cancel_pending_order'))))"),
+                    ltl(
+                        "((!(called('cancel_pending_order')) U called('get_order_details')) | G(!(called('cancel_pending_order'))))"
+                    ),
                     G(Not(_called("get_order_details"))),
                     F(_called("cancel_pending_order")),
                 ]

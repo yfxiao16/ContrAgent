@@ -521,7 +521,9 @@ def ground_event(
                         elif field in event.args:
                             record_grounding_miss("arg_numeric", target_tool, field, "not_numeric")
                         else:
-                            record_grounding_miss("arg_numeric", target_tool, field, "field_missing")
+                            record_grounding_miss(
+                                "arg_numeric", target_tool, field, "field_missing"
+                            )
 
         # ── arg_value(tool, field) — raw value for Term-based lookups ──
         # ``ArgValue(tool, field)`` Terms read ``state.get(pred_key(
@@ -549,9 +551,7 @@ def ground_event(
                     target_tool = args_tuple[0]
                     if _tool_matches(target_tool, event.tool, args_str):
                         if not args_str:
-                            record_grounding_miss(
-                                "arg_paths_within", target_tool, "*", "no_args"
-                            )
+                            record_grounding_miss("arg_paths_within", target_tool, "*", "no_args")
                             continue
                         prefixes = args_tuple[1:]
                         paths = re.findall(r'(/[^\s;|&>"\']+)', args_str)
@@ -559,17 +559,12 @@ def ground_event(
                             v[pred_key("arg_paths_within", *args_tuple)] = True
                         else:
                             all_within = all(
-                                any(p.startswith(pfx) for pfx in prefixes)
-                                for p in paths
+                                any(p.startswith(pfx) for pfx in prefixes) for p in paths
                             )
                             v[pred_key("arg_paths_within", *args_tuple)] = all_within
 
         # ── P0: output_has(tool, pattern) — regex on tool output ─
-        if (
-            event.content is not None
-            and content_atoms
-            and "output_has" in content_atoms
-        ):
+        if event.content is not None and content_atoms and "output_has" in content_atoms:
             content_str = str(event.content)
             for args_tuple in content_atoms["output_has"]:
                 if len(args_tuple) >= 2:
@@ -738,9 +733,7 @@ def ground_event(
                 val = event.args.get(key)
                 if val is not None:
                     try:
-                        state.token_count[key] = state.token_count.get(key, 0) + int(
-                            val
-                        )
+                        state.token_count[key] = state.token_count.get(key, 0) + int(val)
                     except (ValueError, TypeError):
                         pass
 

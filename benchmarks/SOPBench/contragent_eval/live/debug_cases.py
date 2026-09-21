@@ -23,9 +23,15 @@ from live.enforce import LiveEnforcer  # noqa: E402
 from live.run import base_system, load_tasks  # noqa: E402
 
 GOAL_ARG_KEYS = (
-    "state_user_exists", "gate_user_must_exist", "gate_user_must_not_exist",
-    "prior_logged_in", "prior_authenticated_admin", "amount_dollars",
-    "state_currency_available", "state_credit_score", "state_owed_balance",
+    "state_user_exists",
+    "gate_user_must_exist",
+    "gate_user_must_not_exist",
+    "prior_logged_in",
+    "prior_authenticated_admin",
+    "amount_dollars",
+    "state_currency_available",
+    "state_credit_score",
+    "state_owed_balance",
     "state_balance",
 )
 
@@ -48,9 +54,7 @@ def main():
             max_steps=12,
         )
         goal = t["user_goal"]
-        completed = any(
-            e["tool"] == goal and e["args"].get("succeeded") == 1 for e in enf.events
-        )
+        completed = any(e["tool"] == goal and e["args"].get("succeeded") == 1 for e in enf.events)
         print("=" * 78)
         print(
             f"task {i}  goal={goal}  should_succeed={t['action_should_succeed']}  "

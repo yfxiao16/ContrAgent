@@ -58,6 +58,7 @@ Action formats handled (all seen in the data) — pure syntax, no semantics:
 
 Usage:  python convert.py
 """
+
 from __future__ import annotations
 
 import ast
@@ -86,12 +87,7 @@ _TOOLNAME = r"[A-Za-z][A-Za-z0-9_]*"
 def parse_action(action) -> tuple[str | None, dict, str]:
     if isinstance(action, dict):
         name = action.get("name") or action.get("tool") or action.get("action")
-        args = (
-            action.get("arguments")
-            or action.get("args")
-            or action.get("input")
-            or {}
-        )
+        args = action.get("arguments") or action.get("args") or action.get("input") or {}
         if not isinstance(args, dict):
             args = {"_raw": args}
         return (str(name) if name else None), args, json.dumps(action)[:6000]
@@ -223,9 +219,7 @@ def record_to_events(rec: dict) -> list[dict]:
                 else:
                     # Free-text agent turn (a Final Answer / refusal / dialog).
                     # Emit the real text as an llm_response; no tool call.
-                    text = raw or (
-                        str(m.get("thought")) if m.get("thought") else ""
-                    )
+                    text = raw or (str(m.get("thought")) if m.get("thought") else "")
                     if text:
                         events.append(
                             {

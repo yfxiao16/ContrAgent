@@ -233,9 +233,7 @@ class TestCliEval:
         _write(tmp_path, "unsafe_a.json", "transfer")
 
         runner = CliRunner()
-        result = runner.invoke(
-            eval_cmd, [str(tmp_path), "G((Var('count', 'transfer') <= 0))"]
-        )
+        result = runner.invoke(eval_cmd, [str(tmp_path), "G((Var('count', 'transfer') <= 0))"])
         assert result.exit_code == 0, result.output
         assert "TP" in result.output and "FP" in result.output
         # Pretty output mentions both labels

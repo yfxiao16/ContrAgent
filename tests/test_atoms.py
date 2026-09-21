@@ -48,9 +48,7 @@ def _ground(events: list[Event], formulas=None):
     return [ground_event(ev, i, state, content_atoms) for i, ev in enumerate(events)]
 
 
-def _tool(
-    tool: str, args: dict | None = None, ts: float = 1.0, agent: str = "a"
-) -> Event:
+def _tool(tool: str, args: dict | None = None, ts: float = 1.0, agent: str = "a") -> Event:
     return Event(event_type="tool_call", tool=tool, agent=agent, ts=ts, args=args or {})
 
 
@@ -203,9 +201,7 @@ def test_delegation_depth_increments_on_message():
 
 def test_ctx_atom_emitted_after_context_update():
     state = GroundingState()
-    upd = Event(
-        event_type="context_update", agent="a", ts=1.0, args={"caller_id": "alice"}
-    )
+    upd = Event(event_type="context_update", agent="a", ts=1.0, args={"caller_id": "alice"})
     tool = _tool("wire_transfer", ts=2.0)
     v0 = ground_event(upd, 0, state)
     v1 = ground_event(tool, 1, state)
@@ -234,9 +230,7 @@ def test_ctx_matches_evaluates_regex_against_current_ctx():
 
 def test_llm_said_matches_regex_against_response():
     atom = Atom("llm_said", r"\bsecret\b")
-    e = Event(
-        event_type="llm_response", agent="a", ts=1.0, content="the secret is here"
-    )
+    e = Event(event_type="llm_response", agent="a", ts=1.0, content="the secret is here")
     [v] = _ground([e], [atom])
     assert v.get(atom.key()) is True
 
@@ -275,9 +269,7 @@ def test_time_since_zero_when_predicate_just_fired():
     var = Var("time_since", "ctx(approval, granted)")
     state = GroundingState()
     content_atoms = collect_content_atoms([var])
-    upd = Event(
-        event_type="context_update", agent="a", ts=1.0, args={"approval": "granted"}
-    )
+    upd = Event(event_type="context_update", agent="a", ts=1.0, args={"approval": "granted"})
     v = ground_event(upd, 0, state, content_atoms)
     # ``last_ts`` updated to ts=1.0 in this event; delta = 0.
     assert v.get(var.key()) == 0
@@ -287,9 +279,7 @@ def test_time_since_advances_with_clock():
     var = Var("time_since", "ctx(approval, granted)")
     state = GroundingState()
     content_atoms = collect_content_atoms([var])
-    upd = Event(
-        event_type="context_update", agent="a", ts=1.0, args={"approval": "granted"}
-    )
+    upd = Event(event_type="context_update", agent="a", ts=1.0, args={"approval": "granted"})
     later = _tool("act", ts=10.0)
     ground_event(upd, 0, state, content_atoms)
     v = ground_event(later, 1, state, content_atoms)
@@ -327,9 +317,7 @@ def test_perm_atom_from_agent_permissions():
 
 
 def test_flow_atom_from_data_read_after_write():
-    e1 = Event(
-        event_type="data_write", agent="writer", ts=1.0, key="doc", contains=["pii"]
-    )
+    e1 = Event(event_type="data_write", agent="writer", ts=1.0, key="doc", contains=["pii"])
     e2 = Event(event_type="data_read", agent="reader", ts=2.0, key="doc")
     vs = _ground([e1, e2])
     assert vs[0].get("contains(pii)") is True
@@ -337,9 +325,7 @@ def test_flow_atom_from_data_read_after_write():
 
 
 def test_contains_atom_propagates_forward():
-    e1 = Event(
-        event_type="data_write", agent="bot", ts=1.0, key="customer", contains=["pii"]
-    )
+    e1 = Event(event_type="data_write", agent="bot", ts=1.0, key="customer", contains=["pii"])
     e2 = _tool("ping", ts=2.0)
     vs = _ground([e1, e2])
     # ``contains(pii)`` should still be True at the next event due to

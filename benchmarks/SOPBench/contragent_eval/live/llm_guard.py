@@ -117,7 +117,7 @@ class LLMGuard:
         # blind to world state and fabricates preconditions; with them the
         # comparison to the det enforcer is apples-to-apples on observation.
         return "\n".join(
-            f"  {i+1}. {n}({_compact_args(a)}) -> {_compact_result(ok, payload)}"
+            f"  {i + 1}. {n}({_compact_args(a)}) -> {_compact_result(ok, payload)}"
             for i, (n, a, ok, payload) in enumerate(self.history)
         )
 
@@ -162,13 +162,17 @@ class LLMGuard:
 
         if not allow:
             self.blocks.append({"tool": name, "rules": [reason or "blocked by guard"]})
-            return False, None, (
-                f"`{name}` was blocked by the policy guard: {reason}. If a required "
-                "prerequisite is missing, perform it NOW in this turn using the "
-                "information already provided (e.g. `login_user`, "
-                "`authenticate_admin_password`, the required verification call), "
-                f"then call `{name}` again. If the policy genuinely forbids "
-                f"`{name}` for this request, stop and explain to the user."
+            return (
+                False,
+                None,
+                (
+                    f"`{name}` was blocked by the policy guard: {reason}. If a required "
+                    "prerequisite is missing, perform it NOW in this turn using the "
+                    "information already provided (e.g. `login_user`, "
+                    "`authenticate_admin_password`, the required verification call), "
+                    f"then call `{name}` again. If the policy genuinely forbids "
+                    f"`{name}` for this request, stop and explain to the user."
+                ),
             )
 
         # Allowed -> execute for real and commit to history (with result).

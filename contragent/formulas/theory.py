@@ -272,11 +272,7 @@ class Z3Checker:
             if lit.total:
                 solver.add(cmp if lit.positive else z3.Not(cmp))
             else:
-                guards = [
-                    presence_of(s)
-                    for s in (lit.left, lit.right)
-                    if not isinstance(s, Const)
-                ]
+                guards = [presence_of(s) for s in (lit.left, lit.right) if not isinstance(s, Const)]
                 holds = z3.And(*guards, cmp)
                 if lit.positive:
                     solver.add(holds)

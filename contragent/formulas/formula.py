@@ -102,8 +102,7 @@ class Atom(FormulaMixin):
         desc: str = "",
         atom_type: Literal["det", "sto"] = "det",
         output_type: Literal["classify", "score"] | None = None,
-        context_scope: Literal["event", "last_k", "full_trace", "io_bundle"]
-        | None = None,
+        context_scope: Literal["event", "last_k", "full_trace", "io_bundle"] | None = None,
         context_k: int | None = None,
         prompt_override: str | None = None,
     ):
@@ -288,9 +287,7 @@ class Term:
     """
 
     def evaluate(self, state: dict) -> object:  # pragma: no cover - abstract
-        raise NotImplementedError(
-            f"{type(self).__name__} must implement evaluate(state)"
-        )
+        raise NotImplementedError(f"{type(self).__name__} must implement evaluate(state)")
 
 
 @dataclass(frozen=True)
@@ -573,23 +570,7 @@ class Subset(FormulaMixin):
 # Union type
 # ---------------------------------------------------------------------------
 
-Formula = (
-    Atom
-    | Not
-    | And
-    | Or
-    | Implies
-    | G
-    | F
-    | X
-    | U
-    | Le
-    | Lt
-    | Ge
-    | Gt
-    | Eq
-    | Subset
-)
+Formula = Atom | Not | And | Or | Implies | G | F | X | U | Le | Lt | Ge | Gt | Eq | Subset
 
 
 # ---------------------------------------------------------------------------

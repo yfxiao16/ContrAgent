@@ -57,7 +57,15 @@ def family(desc: str) -> str:
         return "ordering"
     if "exist" in d:
         return "existence"
-    if "credit" in d or ">=" in d or "<=" in d or "threshold" in d or "score" in d or "balance" in d or "amount" in d:
+    if (
+        "credit" in d
+        or ">=" in d
+        or "<=" in d
+        or "threshold" in d
+        or "score" in d
+        or "balance" in d
+        or "amount" in d
+    ):
         return "value/threshold"
     if "login" in d or "auth" in d or "logged" in d:
         return "auth"
@@ -95,7 +103,9 @@ def force_goal_success(trace_dict, goal):
 
 def main():
     # per-model aggregates
-    pm = collections.defaultdict(lambda: {"u": 0, "u_hit": 0, "s": 0, "s_fp": 0, "fam": collections.Counter()})
+    pm = collections.defaultdict(
+        lambda: {"u": 0, "u_hit": 0, "s": 0, "s_fp": 0, "fam": collections.Counter()}
+    )
     # oracle ablation pooled
     orc = {"u": 0, "ship": 0, "oracle": 0}
 
@@ -147,13 +157,19 @@ def main():
 
     # ---- report (A) per-model profiles ----
     print("\n=== (A) Per-model violation profiles (SOPBench offline, det, 0 LLM) ===")
-    print(f"{'model':38s} {'recall':>7s} {'FPR':>6s} {'n_uns':>6s} {'n_safe':>6s}  top-family(share)")
+    print(
+        f"{'model':38s} {'recall':>7s} {'FPR':>6s} {'n_uns':>6s} {'n_safe':>6s}  top-family(share)"
+    )
     rows = []
     for model, r in pm.items():
         rec = 100 * r["u_hit"] / r["u"] if r["u"] else float("nan")
         fpr = 100 * r["s_fp"] / r["s"] if r["s"] else float("nan")
         topfam = r["fam"].most_common(1)
-        tf = f"{topfam[0][0]} ({100*topfam[0][1]/sum(r['fam'].values()):.0f}%)" if topfam else "-"
+        tf = (
+            f"{topfam[0][0]} ({100 * topfam[0][1] / sum(r['fam'].values()):.0f}%)"
+            if topfam
+            else "-"
+        )
         rows.append((rec, model, fpr, r["u"], r["s"], tf))
     for rec, model, fpr, nu, ns, tf in sorted(rows, key=lambda x: -x[0]):
         print(f"{model:38s} {rec:6.1f}% {fpr:5.1f}% {nu:6d} {ns:6d}  {tf}")
@@ -165,12 +181,17 @@ def main():
     print(f"  n_unsafe={orc['u']}")
     print(f"  shipped recall : {sr:.1f}%")
     print(f"  oracle  recall : {oc:.1f}%  (force goal succeeded=1)")
-    print(f"  delta          : {oc - sr:+.1f} pp  -> grounding is{' NOT' if abs(oc-sr)<3 else ''} the bottleneck; "
-          f"residual is {'coverage' if abs(oc-sr)<3 else 'mixed'}")
+    print(
+        f"  delta          : {oc - sr:+.1f} pp  -> grounding is{' NOT' if abs(oc - sr) < 3 else ''} the bottleneck; "
+        f"residual is {'coverage' if abs(oc - sr) < 3 else 'mixed'}"
+    )
 
-    json.dump({"per_model": {m: pm[m] | {"fam": dict(pm[m]["fam"])} for m in pm},
-               "oracle": orc}, open(os.path.join(HERE, "appendix_profiles_results.json"), "w"),
-              indent=2, default=str)
+    json.dump(
+        {"per_model": {m: pm[m] | {"fam": dict(pm[m]["fam"])} for m in pm}, "oracle": orc},
+        open(os.path.join(HERE, "appendix_profiles_results.json"), "w"),
+        indent=2,
+        default=str,
+    )
 
 
 if __name__ == "__main__":

@@ -97,7 +97,9 @@ def main():
         ),
     ]
 
-    print(f"{'temporal property':30s} | {'ContrAgent':>10s} | {'memoryless':>10s} | {'no false-pos':>12s}")
+    print(
+        f"{'temporal property':30s} | {'ContrAgent':>10s} | {'memoryless':>10s} | {'no false-pos':>12s}"
+    )
     print("-" * 74)
     ok = True
     for name, det, bad, good in cases:

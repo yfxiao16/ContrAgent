@@ -41,9 +41,7 @@ class Agent:
         for attr in ("tools", "reads_from", "writes_to", "permissions"):
             value = getattr(self, attr)
             if not isinstance(value, list):
-                raise TypeError(
-                    f"Agent.{attr} must be a list (got {type(value).__name__})."
-                )
+                raise TypeError(f"Agent.{attr} must be a list (got {type(value).__name__}).")
             for item in value:
                 if not isinstance(item, str) or not item:
                     raise ValueError(

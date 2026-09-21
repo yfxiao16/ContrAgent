@@ -106,8 +106,6 @@ or Var(count_with, bash, "sed -i") to target the operation, e.g.
 """
 
 
-
-
 # ---------------------------------------------------------------------------
 # Extensible atom registry
 # ---------------------------------------------------------------------------
@@ -183,7 +181,6 @@ def _build_atom_vocabulary() -> str:
     )
     text = header + _BUILTIN_ATOMS
 
-
     if _custom_atoms:
         lines = ["Custom atoms (domain-specific, registered by the user):"]
         for sig, desc in _custom_atoms:
@@ -234,8 +231,6 @@ class ExtractionResult:
 # ---------------------------------------------------------------------------
 # Suggestion engine for parse/compilation failures
 # ---------------------------------------------------------------------------
-
-
 
 
 # ---------------------------------------------------------------------------
@@ -300,9 +295,7 @@ def _compile_det(item: dict) -> ExtractionResult:
                     # generate_yaml) can round-trip it as `A:`.
                     result.assumption_raw = assumption_str
                 except Exception as e:
-                    logger.warning(
-                        "Assumption parse failed: %s — %s", assumption_str, e
-                    )
+                    logger.warning("Assumption parse failed: %s — %s", assumption_str, e)
 
         except Exception as e:
             result.error = f"Formula parse failed: {e} — input: {formula_str}"
@@ -323,8 +316,6 @@ def _compile_det(item: dict) -> ExtractionResult:
         "interaction predicates listed in the atom vocabulary."
     )
     return result
-
-
 
 
 def compile_extraction(item: dict) -> ExtractionResult:
@@ -650,9 +641,7 @@ class UnifiedExtractor:
         if provider == "gemini":
             self._model = model or "gemini-2.5-flash-lite"
             self._api_key = (
-                api_key
-                or os.environ.get("GOOGLE_API_KEY")
-                or os.environ.get("GEMINI_API_KEY")
+                api_key or os.environ.get("GOOGLE_API_KEY") or os.environ.get("GEMINI_API_KEY")
             )
             self._client = None  # use google.genai directly
         elif provider == "anthropic":
@@ -688,9 +677,7 @@ class UnifiedExtractor:
         """Tools discovered by the most recent LLM extraction call."""
         return self._last_discovered_tools
 
-    def _call_llm(
-        self, system_prompt: str, user_content: str
-    ) -> tuple[list[dict], list[dict]]:
+    def _call_llm(self, system_prompt: str, user_content: str) -> tuple[list[dict], list[dict]]:
         """Make the LLM call and parse the JSON response.
 
         Supports both OpenAI and Gemini providers.
@@ -711,9 +698,7 @@ class UnifiedExtractor:
             constraints = data.get("constraints", [])
             tools = data.get("tools", [])
             if not isinstance(constraints, list):
-                logger.warning(
-                    "LLM returned non-list 'constraints': %s", type(constraints)
-                )
+                logger.warning("LLM returned non-list 'constraints': %s", type(constraints))
                 constraints = []
             if not isinstance(tools, list):
                 tools = []
@@ -732,8 +717,7 @@ class UnifiedExtractor:
             import openai
         except ImportError as exc:
             raise ImportError(
-                "openai is required for LLM extraction. "
-                "Install with: pip install 'contragent[llm]'"
+                "openai is required for LLM extraction. Install with: pip install 'contragent[llm]'"
             ) from exc
         kwargs: dict = {}
         api_key = self._openai_lazy_api_key

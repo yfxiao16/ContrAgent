@@ -75,8 +75,7 @@ def safe_resolve(
             p.relative_to(root)
         except ValueError as e:
             raise PathEscapeError(
-                f"path {spec!r} resolves to {p} which is outside the "
-                f"allowed root {root}"
+                f"path {spec!r} resolves to {p} which is outside the allowed root {root}"
             ) from e
 
     return p

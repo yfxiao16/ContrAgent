@@ -63,8 +63,10 @@ def fmt(v):
 def main():
     data = collect()
     nseeds = max((len(data[d][c]["su"]) for d in data for c in CONDS), default=0)
-    print(f"# Live 3-condition results, mean ± std over {nseeds} seeds "
-          f"(gemini-2.5-flash-lite). success / safety (%)\n")
+    print(
+        f"# Live 3-condition results, mean ± std over {nseeds} seeds "
+        f"(gemini-2.5-flash-lite). success / safety (%)\n"
+    )
     print(f"{'domain':14s} | {'base':>17s} | {'prompt':>17s} | {'enforce':>17s}")
     print("-" * 76)
     agg = {c: {"su": [], "sa": []} for c in CONDS}
@@ -87,8 +89,10 @@ def main():
         sa = ms(agg[c]["sa"])
         cells.append(f"{fmt(su)} / {fmt(sa)}")
     print(f"{'MEAN':14s} | {cells[0]:>17s} | {cells[1]:>17s} | {cells[2]:>17s}")
-    print("\n(per-domain cell = mean±std over seeds; MEAN row = mean±std across the "
-          "7 per-domain means)")
+    print(
+        "\n(per-domain cell = mean±std over seeds; MEAN row = mean±std across the "
+        "7 per-domain means)"
+    )
 
 
 if __name__ == "__main__":

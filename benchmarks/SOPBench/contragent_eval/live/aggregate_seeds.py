@@ -84,7 +84,9 @@ def main():
         sm, ssd = mean_std(per_seed_s)
         sfm, sfsd = mean_std(per_seed_sf)
         pooled.append((c, sm, ssd, sfm, sfsd))
-        print(f"  {c:10s}: success {sm:.1f}±{ssd:.1f}   safety {sfm:.1f}±{sfsd:.1f}  (n_seeds={len(per_seed_s)})")
+        print(
+            f"  {c:10s}: success {sm:.1f}±{ssd:.1f}   safety {sfm:.1f}±{sfsd:.1f}  (n_seeds={len(per_seed_s)})"
+        )
 
     # ---- (2) pro single-seed ----
     print("\n=== GEMINI-2.5-PRO (single seed, limit 30): success/safety ===")

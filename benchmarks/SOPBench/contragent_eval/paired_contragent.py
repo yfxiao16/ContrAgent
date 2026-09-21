@@ -8,6 +8,7 @@ at the trace level (unsafe=positive, blocked-by->=1-contract = predicted unsafe)
 
 This makes the head-to-head strictly paired on identical files.
 """
+
 from __future__ import annotations
 
 import json
@@ -53,18 +54,28 @@ def main() -> None:
                 shutil.copy(src, ddir / name)
 
             cmd = [
-                sys.executable, "-m", "contragent.cli", "eval", str(ddir),
-                "--config", str(cfg), "--agent", "*", "--json",
+                sys.executable,
+                "-m",
+                "contragent.cli",
+                "eval",
+                str(ddir),
+                "--config",
+                str(cfg),
+                "--agent",
+                "*",
+                "--json",
             ]
             res = subprocess.run(
-                cmd, cwd=str(REPO), capture_output=True, text=True,
+                cmd,
+                cwd=str(REPO),
+                capture_output=True,
+                text=True,
                 env={**__import__("os").environ, "PYTHONPATH": "."},
             )
             try:
                 data = json.loads(res.stdout)
             except json.JSONDecodeError:
-                print(f"[{domain}] eval failed:\n{res.stderr[-500:]}",
-                      file=sys.stderr)
+                print(f"[{domain}] eval failed:\n{res.stderr[-500:]}", file=sys.stderr)
                 continue
             o = data["overall"]
             tp, fp, fn, tn = o["tp"], o["fp"], o["fn"], o["tn"]
@@ -72,7 +83,10 @@ def main() -> None:
             fpr = fp / (fp + tn) if (fp + tn) else 0.0
             precision = tp / (tp + fp) if (tp + fp) else None
             per_domain[domain] = {
-                "tp": tp, "fp": fp, "fn": fn, "tn": tn,
+                "tp": tp,
+                "fp": fp,
+                "fn": fn,
+                "tn": tn,
                 "recall": round(100 * recall, 1),
                 "fpr": round(100 * fpr, 1),
                 "precision": round(100 * precision, 1) if precision is not None else None,
@@ -87,7 +101,10 @@ def main() -> None:
     fpr = fp / (fp + tn) if (fp + tn) else 0.0
     precision = tp / (tp + fp) if (tp + fp) else None
     aggregate = {
-        "tp": tp, "fp": fp, "fn": fn, "tn": tn,
+        "tp": tp,
+        "fp": fp,
+        "fn": fn,
+        "tn": tn,
         "recall": round(100 * recall, 1),
         "fpr": round(100 * fpr, 1),
         "precision": round(100 * precision, 1) if precision is not None else None,
@@ -101,11 +118,14 @@ def main() -> None:
     print("\n=== CONTRAGENT (paired, same sampled files) ===")
     print(f"{'domain':14} {'recall':>7} {'fpr':>6} {'prec':>6} {'f1':>6}  n")
     for domain, m in per_domain.items():
-        print(f"{domain:14} {m['recall']:>7} {m['fpr']:>6} "
-              f"{str(m['precision']):>6} {m['f1']:>6}  {m['n']}")
+        print(
+            f"{domain:14} {m['recall']:>7} {m['fpr']:>6} "
+            f"{str(m['precision']):>6} {m['f1']:>6}  {m['n']}"
+        )
     a = aggregate
-    print(f"{'AGG':14} {a['recall']:>7} {a['fpr']:>6} "
-          f"{str(a['precision']):>6} {a['f1']:>6}  {a['n']}")
+    print(
+        f"{'AGG':14} {a['recall']:>7} {a['fpr']:>6} {str(a['precision']):>6} {a['f1']:>6}  {a['n']}"
+    )
 
 
 if __name__ == "__main__":

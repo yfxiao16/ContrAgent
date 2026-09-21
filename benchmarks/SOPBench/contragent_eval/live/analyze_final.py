@@ -26,7 +26,9 @@ def rate(results, cond, key):
 
 
 def main():
-    agg = {c: {"succ_n": 0, "succ_d": 0, "safe_n": 0, "safe_d": 0, "gc": 0, "tasks": 0} for c in CONDS}
+    agg = {
+        c: {"succ_n": 0, "succ_d": 0, "safe_n": 0, "safe_d": 0, "gc": 0, "tasks": 0} for c in CONDS
+    }
     print(f"{'domain':14s} | " + " | ".join(f"{c:^14s}" for c in CONDS) + " | guard/task")
     print("-" * 100)
     for dom in ORDER:
@@ -61,7 +63,9 @@ def main():
         sf = 100.0 * a["safe_n"] / a["safe_d"] if a["safe_d"] else float("nan")
         mean_cells.append(f"{s:3.0f}/{sf:3.0f}")
     gpt = agg["llm_guard"]["gc"] / agg["llm_guard"]["tasks"] if agg["llm_guard"]["tasks"] else 0
-    print(f"{'MEAN(pooled)':14s} | " + " | ".join(f"{m:^14s}" for m in mean_cells) + f" | {gpt:.2f}")
+    print(
+        f"{'MEAN(pooled)':14s} | " + " | ".join(f"{m:^14s}" for m in mean_cells) + f" | {gpt:.2f}"
+    )
 
 
 if __name__ == "__main__":

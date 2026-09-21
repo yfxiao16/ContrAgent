@@ -144,9 +144,7 @@ class LiveEnforcer:
         from contragent.eval_runner import _eval_contract_on_trace
         from contragent.models.trace import Trace
 
-        trace = Trace.from_dict(
-            {"metadata": {"domain": self.domain}, "events": candidate_events}
-        )
+        trace = Trace.from_dict({"metadata": {"domain": self.domain}, "events": candidate_events})
         fired = []
         with warnings.catch_warnings():
             # An inactive value-vs-threshold gate leaves its arg ungrounded;
@@ -177,8 +175,11 @@ class LiveEnforcer:
         # latched recoverable auth blocks as HARD and killed recovery.
         d = desc.lower()
         return (
-            "logged in" in d or "logged_in" in d or "login" in d
-            or "must precede" in d or "admin" in d
+            "logged in" in d
+            or "logged_in" in d
+            or "login" in d
+            or "must precede" in d
+            or "admin" in d
         )
 
     @staticmethod
@@ -202,11 +203,17 @@ class LiveEnforcer:
         # A goal already hard-blocked for this task stays blocked (anti-circumvention).
         if name in self.latched:
             self.blocks.append({"tool": name, "rules": ["LATCHED: " + self.latched[name]]})
-            self.debug.append({"name": name, "allowed": False, "fired": ["latched"], "args": dict(args)})
-            return False, None, (
-                f"`{name}` is not permitted for this request -- a policy precondition "
-                f"cannot be satisfied ({self.latched[name]}). Do not attempt it again "
-                "in any form; explain to the user why it cannot be done."
+            self.debug.append(
+                {"name": name, "allowed": False, "fired": ["latched"], "args": dict(args)}
+            )
+            return (
+                False,
+                None,
+                (
+                    f"`{name}` is not permitted for this request -- a policy precondition "
+                    f"cannot be satisfied ({self.latched[name]}). Do not attempt it again "
+                    "in any form; explain to the user why it cannot be done."
+                ),
             )
         # Build the candidate event as if this call SUCCEEDED (the raw env would
         # execute it), then ask ContrAgent whether that completes a violation.
@@ -226,11 +233,16 @@ class LiveEnforcer:
             if hard:
                 # latch: an immutable-state violation -> permanently block this goal.
                 self.latched[name] = hard[0]
-                return False, None, (
-                    f"`{name}` was blocked and is NOT permitted for this request: "
-                    + "; ".join(hard[:3]) + ". This is a world-state condition that "
-                    "cannot be changed by retrying or rephrasing. Do NOT attempt "
-                    f"`{name}` again; explain to the user why it cannot be done."
+                return (
+                    False,
+                    None,
+                    (
+                        f"`{name}` was blocked and is NOT permitted for this request: "
+                        + "; ".join(hard[:3])
+                        + ". This is a world-state condition that "
+                        "cannot be changed by retrying or rephrasing. Do NOT attempt "
+                        f"`{name}` again; explain to the user why it cannot be done."
+                    ),
                 )
             # only soft prerequisites missing -> recoverable: name the exact tool
             # to call first (WHY blocked + WHAT to do), then retry. This is a
@@ -250,7 +262,10 @@ class LiveEnforcer:
                 )
             reason = (
                 f"`{name}` was blocked because a required prerequisite is not yet "
-                "satisfied: " + "; ".join(fired[:3]) + ". " + first
+                "satisfied: "
+                + "; ".join(fired[:3])
+                + ". "
+                + first
                 + f"THEN immediately call `{name}` again with the same arguments. "
                 "Do this in THIS turn; do not end your turn or ask the user to retry."
             )

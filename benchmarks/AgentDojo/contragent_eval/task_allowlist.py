@@ -76,8 +76,16 @@ SCOPED_NOTARGET_TOOLS = {"update_password", "delete_file", "delete_email"}
 # `reservation` targets are restricted to the per-task ground_truth (a hotel
 # hijack redirects to a *different real* hotel, so the env catalog must NOT be a
 # blanket allow). These kinds DO inherit the benign-env catalog:
-ENV_BACKED_KINDS = {"iban", "email", "email_list", "slack_user", "slack_channel",
-                    "slack_invitee", "url", "url_in_body"}
+ENV_BACKED_KINDS = {
+    "iban",
+    "email",
+    "email_list",
+    "slack_user",
+    "slack_channel",
+    "slack_invitee",
+    "url",
+    "url_in_body",
+}
 
 _URL_RE = re.compile(r"((?:https?://|www\.)[^\s,;'\"\)\]\}<>]+)", re.I)
 _URL_TRAIL = r".,;:!?)]}" + "\"'"

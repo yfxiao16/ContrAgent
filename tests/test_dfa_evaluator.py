@@ -214,9 +214,7 @@ class TestSnapshotRestore:
 # ---------------------------------------------------------------------------
 
 
-def _verdict_both(
-    formula, trace: Trace, agents: dict | None = None
-) -> tuple[bool, bool]:
+def _verdict_both(formula, trace: Trace, agents: dict | None = None) -> tuple[bool, bool]:
     """Return (recursive_verdict, dfa_verdict) for the same (formula, trace)."""
     v_rec = TraceVerifier(agents=agents, backend="recursive")
     v_rec.sync(trace)
@@ -243,7 +241,9 @@ class TestDifferentialPatterns:
     )
     def test_precedence(self, sequence, expected):
         # Shipped string: contragent/contracts/benchmark/tau2_bench.yaml (retail)
-        f = ltl("((!(called('cancel_pending_order')) U called('get_order_details')) | G(!(called('cancel_pending_order'))))")
+        f = ltl(
+            "((!(called('cancel_pending_order')) U called('get_order_details')) | G(!(called('cancel_pending_order'))))"
+        )
         rec, dfa = _verdict_both(f, _trace(*sequence))
         assert rec == dfa
         assert rec is expected
@@ -336,7 +336,9 @@ class TestDifferentialPatterns:
     def test_arg_field_allowed_values(self):
         """Dual of the forbidden-value shape: arg must match one of the allowed patterns."""
         # Shipped string: contragent/contracts/benchmark/tau2_bench.yaml (retail)
-        f = ltl("G((called('cancel_pending_order') -> (arg_field_has('cancel_pending_order', 'reason', '^no longer needed$') | arg_field_has('cancel_pending_order', 'reason', '^ordered by mistake$'))))")
+        f = ltl(
+            "G((called('cancel_pending_order') -> (arg_field_has('cancel_pending_order', 'reason', '^no longer needed$') | arg_field_has('cancel_pending_order', 'reason', '^ordered by mistake$'))))"
+        )
         from contragent.tracer.grounding import collect_content_atoms
 
         # Allowed: matches one of the listed patterns
@@ -397,7 +399,9 @@ class TestDifferentialIncremental:
 
     def test_precedence_incremental(self):
         # Shipped string: contragent/contracts/benchmark/tau2_bench.yaml (retail)
-        f = ltl("((!(called('cancel_pending_order')) U called('get_order_details')) | G(!(called('cancel_pending_order'))))")
+        f = ltl(
+            "((!(called('cancel_pending_order')) U called('get_order_details')) | G(!(called('cancel_pending_order'))))"
+        )
         v_rec = TraceVerifier(backend="recursive")
         v_dfa = TraceVerifier(backend="dfa")
 

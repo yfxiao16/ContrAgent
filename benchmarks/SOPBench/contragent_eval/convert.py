@@ -45,6 +45,7 @@ Per the task spec:
 is read directly off the trajectory. Neither is a contract verdict — the
 contracts must independently decide to block, and the eval compares the two.
 """
+
 from __future__ import annotations
 
 import datetime as _dt
@@ -159,7 +160,7 @@ def _required_gates(node) -> set[str]:
         # active-flag keys on the underlying gate identity.
         name = node[1]
         if isinstance(name, str) and name.startswith("not "):
-            name = name[len("not "):]
+            name = name[len("not ") :]
         return {name}
     if op in ("and", "chain"):
         out: set[str] = set()
@@ -201,7 +202,7 @@ def _all_gates(node, acc: set[str]) -> None:
         name = node[1]
         if isinstance(name, str):
             if name.startswith("not "):
-                name = name[len("not "):]
+                name = name[len("not ") :]
             acc.add(name)
     elif op in ("and", "chain", "or", "gate"):
         for child in node[1]:
@@ -221,7 +222,7 @@ def _existence_polarity(node, _neg=False) -> int:
         name = node[1]
         neg = _neg
         if isinstance(name, str) and name.startswith("not "):
-            name = name[len("not "):]
+            name = name[len("not ") :]
             neg = not neg
         if name == "internal_check_username_exist":
             return -1 if neg else 1
@@ -272,8 +273,11 @@ def _existence_contradiction(node) -> bool:
             ng = neg
             if isinstance(name, str) and name.startswith("not "):
                 name, ng = name[4:], not ng
-            if name == "internal_check_username_exist" and isinstance(params, dict) \
-                    and "username" in params.values():
+            if (
+                name == "internal_check_username_exist"
+                and isinstance(params, dict)
+                and "username" in params.values()
+            ):
                 pols.add(not ng)  # True = must exist, False = must not exist
         elif op == "not":
             walk(n[1], not neg)
@@ -574,9 +578,7 @@ def _derived_atoms(task: dict, goal: str | None, goal_args: dict) -> dict[str, f
                         if ce is not None:
                             out["claim_epoch"] = ce
                             if _is_scalar_num(cp.get("appeal_period")):
-                                out["appeal_window_end_epoch"] = ce + float(
-                                    cp["appeal_period"]
-                                )
+                                out["appeal_window_end_epoch"] = ce + float(cp["appeal_period"])
                         break
         # CROSS-ENTITY (provider gates): read the named provider's row from the
         # PROVIDERS roster, located by the provider_id the goal CALL names
@@ -596,7 +598,7 @@ def _derived_atoms(task: dict, goal: str | None, goal_args: dict) -> dict[str, f
             # provider_covers_policy: provider.service_type == policy.type. Both
             # are stored strings; the equality fact is grounded as 0/1.
             stype = prov.get("service_type")
-            ptype = (details.get("type") if isinstance(details, dict) else None)
+            ptype = details.get("type") if isinstance(details, dict) else None
             if isinstance(stype, str) and isinstance(ptype, str):
                 out["provider_covers"] = 1.0 if stype == ptype else 0.0
         # provider_authorized: provider_id in the acting user's OWN
@@ -619,9 +621,11 @@ def _derived_atoms(task: dict, goal: str | None, goal_args: dict) -> dict[str, f
             out["state_policy_type_valid"] = 1.0 if check_type in valid_types else 0.0
         # no_pending_claims: none of the prior claims is pending.
         if isinstance(claims, list):
-            out["state_no_pending_claims"] = 0.0 if any(
-                isinstance(c, dict) and c.get("status") == "pending" for c in claims
-            ) else 1.0
+            out["state_no_pending_claims"] = (
+                0.0
+                if any(isinstance(c, dict) and c.get("status") == "pending" for c in claims)
+                else 1.0
+            )
         # provider existence in the roster (internal_check_provider_exists).
         if isinstance(prov_id, str):
             out["state_provider_exists"] = 1.0 if prov_id in providers else 0.0
@@ -737,7 +741,8 @@ def _derived_atoms(task: dict, goal: str | None, goal_args: dict) -> dict[str, f
             mi = majors.get(nm)
             if isinstance(mi, dict) and _is_scalar_num(mi.get("capacity")):
                 cnt = sum(
-                    1 for s in (db.get("students") or {}).values()
+                    1
+                    for s in (db.get("students") or {}).values()
                     if isinstance(s, dict) and s.get("major") == nm
                 )
                 out["state_major_has_capacity"] = 1.0 if cnt < mi["capacity"] else 0.0
@@ -747,9 +752,7 @@ def _derived_atoms(task: dict, goal: str | None, goal_args: dict) -> dict[str, f
                 and isinstance(rec, dict)
                 and _is_scalar_num(rec.get("gpa"))
             ):
-                out["state_meets_major_gpa"] = (
-                    1.0 if rec["gpa"] >= mi["min_gpa"] else 0.0
-                )
+                out["state_meets_major_gpa"] = 1.0 if rec["gpa"] >= mi["min_gpa"] else 0.0
             if isinstance(rec, dict) and rec.get("major") is not None:
                 out["state_major_not_current"] = 0.0 if rec.get("major") == nm else 1.0
         mn = goal_args.get("minor") or goal_args.get("minor_name")
@@ -765,18 +768,12 @@ def _derived_atoms(task: dict, goal: str | None, goal_args: dict) -> dict[str, f
                 major = rec.get("major")
                 inc = md.get("incompatible_majors")
                 if isinstance(inc, list) and major is not None:
-                    out["state_minor_compatible_with_major"] = (
-                        0.0 if major in inc else 1.0
-                    )
+                    out["state_minor_compatible_with_major"] = 0.0 if major in inc else 1.0
                 if _is_scalar_num(rec.get("gpa")) and _is_scalar_num(md.get("min_gpa")):
-                    out["state_meets_minor_gpa"] = (
-                        1.0 if rec["gpa"] >= md["min_gpa"] else 0.0
-                    )
+                    out["state_meets_minor_gpa"] = 1.0 if rec["gpa"] >= md["min_gpa"] else 0.0
                 pre, comp = md.get("prerequisites"), rec.get("completed_courses")
                 if isinstance(pre, list) and isinstance(comp, list):
-                    out["state_meets_minor_prereqs"] = (
-                        1.0 if set(pre).issubset(set(comp)) else 0.0
-                    )
+                    out["state_meets_minor_prereqs"] = 1.0 if set(pre).issubset(set(comp)) else 0.0
                 if _is_scalar_num(rec.get("completed_credits")) and _is_scalar_num(
                     md.get("min_credits")
                 ):
@@ -892,9 +889,7 @@ def _derived_atoms(task: dict, goal: str | None, goal_args: dict) -> dict[str, f
                 # vehicle renewal window: expiry - window <= now <= expiry,
                 # where expiry = reg_date (per dmv.py).
                 if _is_scalar_num(cp.get("vehicle_renewal_window")):
-                    out["veh_renewal_start_epoch"] = ve - float(
-                        cp["vehicle_renewal_window"]
-                    )
+                    out["veh_renewal_start_epoch"] = ve - float(cp["vehicle_renewal_window"])
         # per-test attempt count, selected by the goal's test_type arg
         # (within_attempt_limit for the named test).
         tt = goal_args.get("test_type")
@@ -1030,9 +1025,7 @@ def _derived_atoms(task: dict, goal: str | None, goal_args: dict) -> dict[str, f
         except ValueError:
             ndays = -1
         if isinstance(room, dict) and ndays > 0:
-            required = {
-                (cin + _dt.timedelta(days=i)).isoformat() for i in range(ndays)
-            }
+            required = {(cin + _dt.timedelta(days=i)).isoformat() for i in range(ndays)}
             avail_map = room.get("availability")
             found = False
             if isinstance(avail_map, dict):
@@ -1085,7 +1078,9 @@ def _derived_atoms(task: dict, goal: str | None, goal_args: dict) -> dict[str, f
                 if _is_scalar_num(w):
                     out["dl_renew_start_epoch"] = e - float(w)
             if "address_new" in goal_args:
-                out["state_dl_address_same"] = 1.0 if dl.get("address") == goal_args.get("address_new") else 0.0
+                out["state_dl_address_same"] = (
+                    1.0 if dl.get("address") == goal_args.get("address_new") else 0.0
+                )
         # age in whole years from birthday vs interaction time
         bd = rec.get("birthday")
         itime = (db.get("interaction_time") or "")[:10]
@@ -1108,7 +1103,9 @@ def _derived_atoms(task: dict, goal: str | None, goal_args: dict) -> dict[str, f
             )
             out["state_plate_registered"] = 1.0 if reg else 0.0
         if isinstance(veh, dict):
-            out["state_vehicle_insurance_valid"] = 1.0 if veh.get("insurance_status") == "valid" else 0.0
+            out["state_vehicle_insurance_valid"] = (
+                1.0 if veh.get("insurance_status") == "valid" else 0.0
+            )
             e = _epoch_day(veh.get("reg_date"))
             if e is not None:
                 out["veh_reg_epoch"] = e
@@ -1116,7 +1113,9 @@ def _derived_atoms(task: dict, goal: str | None, goal_args: dict) -> dict[str, f
                 if _is_scalar_num(w):
                     out["veh_renew_start_epoch"] = e - float(w)
             if "address_new" in goal_args:
-                out["state_vehicle_address_same"] = 1.0 if veh.get("address") == goal_args.get("address_new") else 0.0
+                out["state_vehicle_address_same"] = (
+                    1.0 if veh.get("address") == goal_args.get("address_new") else 0.0
+                )
         # test selected by test_type
         tt = goal_args.get("test_type")
         tests = rec.get("tests") or {}
@@ -1127,7 +1126,9 @@ def _derived_atoms(task: dict, goal: str | None, goal_args: dict) -> dict[str, f
         tdet = tests.get(tt) if tt else None
         if isinstance(tdet, dict):
             out["state_test_attempts"] = float(tdet.get("attempts", 0) or 0)
-            out["state_test_scheduled"] = 1.0 if (tdet.get("status") == "scheduled" and tdet.get("scheduled_time")) else 0.0
+            out["state_test_scheduled"] = (
+                1.0 if (tdet.get("status") == "scheduled" and tdet.get("scheduled_time")) else 0.0
+            )
             se = _epoch_day(tdet.get("scheduled_time"))
             if se is not None:
                 out["test_sched_epoch"] = se
@@ -1137,7 +1138,11 @@ def _derived_atoms(task: dict, goal: str | None, goal_args: dict) -> dict[str, f
         # drive_test_ready: knowledge passed AND drive not scheduled
         kn, dr = tests.get("knowledge"), tests.get("drive")
         if isinstance(kn, dict) and isinstance(dr, dict):
-            out["state_drive_ready"] = 1.0 if (kn.get("status") == "passed" and dr.get("status") == "not scheduled") else 0.0
+            out["state_drive_ready"] = (
+                1.0
+                if (kn.get("status") == "passed" and dr.get("status") == "not scheduled")
+                else 0.0
+            )
 
     # ---- HOTEL -------------------------------------------------------------
     # Hotel has no per-user account record; the guest is named by guest_name and
@@ -1165,7 +1170,12 @@ def _derived_atoms(task: dict, goal: str | None, goal_args: dict) -> dict[str, f
         if rt is not None:
             out["state_room_type_valid"] = 1.0 if rt in rooms else 0.0
             room = rooms.get(rt)
-            if isinstance(room, dict) and _is_scalar_num(room.get("price_per_night")) and ci is not None and co is not None:
+            if (
+                isinstance(room, dict)
+                and _is_scalar_num(room.get("price_per_night"))
+                and ci is not None
+                and co is not None
+            ):
                 out["booking_fee"] = float(room["price_per_night"]) * (co - ci)
         amt = ga.get("amount")
         if _is_scalar_num(amt):
@@ -1174,7 +1184,14 @@ def _derived_atoms(task: dict, goal: str | None, goal_args: dict) -> dict[str, f
         if guest is not None:
             mem = next((m for m in members if isinstance(m, dict) and m.get("name") == guest), None)
             out["state_is_loyalty_member"] = 1.0 if mem is not None else 0.0
-            out["state_is_gold_plus"] = 1.0 if (isinstance(mem, dict) and str(mem.get("tier", "")).lower() in ("gold", "platinum")) else 0.0
+            out["state_is_gold_plus"] = (
+                1.0
+                if (
+                    isinstance(mem, dict)
+                    and str(mem.get("tier", "")).lower() in ("gold", "platinum")
+                )
+                else 0.0
+            )
             bookings = (db.get("bookings") or {}).values()
             # the reservation being acted on is dated by check_in/out for
             # book/checkin/cancel, but by OLD dates for modify_reservation.
@@ -1182,15 +1199,27 @@ def _derived_atoms(task: dict, goal: str | None, goal_args: dict) -> dict[str, f
                 (ga.get("check_in_date"), ga.get("check_out_date")),
                 (ga.get("old_check_in_date"), ga.get("old_check_out_date")),
             ]
-            out["state_has_confirmed_reservation"] = 1.0 if any(
-                isinstance(b, dict) and b.get("guest") == guest
-                and (b.get("check_in_date"), b.get("check_out_date")) in date_pairs
-                and b.get("status") == "confirmed" for b in bookings
-            ) else 0.0
-            out["state_checked_in"] = 1.0 if any(
-                isinstance(b, dict) and b.get("guest") == guest and b.get("status") == "checked-in"
-                for b in bookings
-            ) else 0.0
+            out["state_has_confirmed_reservation"] = (
+                1.0
+                if any(
+                    isinstance(b, dict)
+                    and b.get("guest") == guest
+                    and (b.get("check_in_date"), b.get("check_out_date")) in date_pairs
+                    and b.get("status") == "confirmed"
+                    for b in bookings
+                )
+                else 0.0
+            )
+            out["state_checked_in"] = (
+                1.0
+                if any(
+                    isinstance(b, dict)
+                    and b.get("guest") == guest
+                    and b.get("status") == "checked-in"
+                    for b in bookings
+                )
+                else 0.0
+            )
 
     # ---- ONLINE_MARKET -----------------------------------------------------
     if rec is not None and ("credit_rating" in rec or "order_history" in rec):
@@ -1208,7 +1237,11 @@ def _derived_atoms(task: dict, goal: str | None, goal_args: dict) -> dict[str, f
                 out["state_rating_in_bounds"] = 1.0 if lo <= rating <= hi else 0.0
         orders = rec.get("order_history") or []
         oid = goal_args.get("order_id")
-        order = next((o for o in orders if isinstance(o, dict) and o.get("order_id") == oid), None) if oid else None
+        order = (
+            next((o for o in orders if isinstance(o, dict) and o.get("order_id") == oid), None)
+            if oid
+            else None
+        )
         if oid:
             out["state_order_exists"] = 1.0 if order is not None else 0.0
         if isinstance(order, dict):
@@ -1226,26 +1259,35 @@ def _derived_atoms(task: dict, goal: str | None, goal_args: dict) -> dict[str, f
             # (old_product_id for exchange; product_id otherwise).
             pid_in = goal_args.get("old_product_id") or goal_args.get("product_id")
             if pid_in is not None:
-                out["state_product_in_order"] = 1.0 if any(
-                    it.get("product_id") == pid_in for it in order.get("items", [])
-                ) else 0.0
+                out["state_product_in_order"] = (
+                    1.0
+                    if any(it.get("product_id") == pid_in for it in order.get("items", []))
+                    else 0.0
+                )
         products = _find_collection(db, "products")
         pid = goal_args.get("product_id")
         prod = products.get(pid) if isinstance(pid, str) else None
         if pid:
             out["state_product_exists"] = 1.0 if prod is not None else 0.0
-            out["state_product_bought"] = 1.0 if any(
-                it.get("product_id") == pid
-                for o in orders if isinstance(o, dict)
-                for it in o.get("items", [])
-            ) else 0.0
+            out["state_product_bought"] = (
+                1.0
+                if any(
+                    it.get("product_id") == pid
+                    for o in orders
+                    if isinstance(o, dict)
+                    for it in o.get("items", [])
+                )
+                else 0.0
+            )
         if isinstance(prod, dict):
             if _is_scalar_num(prod.get("stock")):
                 out["state_stock"] = float(prod["stock"])
             revs = prod.get("reviews") or []
-            out["state_unique_review"] = 0.0 if any(
-                isinstance(r, dict) and r.get("username") == username for r in revs
-            ) else 1.0
+            out["state_unique_review"] = (
+                0.0
+                if any(isinstance(r, dict) and r.get("username") == username for r in revs)
+                else 1.0
+            )
         # exchange brings in a NEW product (new_product_id): its existence and
         # stock are what enough_stock / product-exists check for exchange_product.
         npid = goal_args.get("new_product_id")
@@ -1259,18 +1301,21 @@ def _derived_atoms(task: dict, goal: str | None, goal_args: dict) -> dict[str, f
         coup = coupons.get(code) if isinstance(code, str) else None
         if code:
             out["state_coupon_exists"] = 1.0 if coup is not None else 0.0
-            used = any(
-                code in (o.get("coupons_used") or []) for o in orders if isinstance(o, dict)
-            )
+            used = any(code in (o.get("coupons_used") or []) for o in orders if isinstance(o, dict))
             out["state_coupon_not_used"] = 0.0 if used else 1.0
         if isinstance(coup, dict):
             ce = _epoch_day(coup.get("expiration_date"))
             if ce is not None:
                 out["coupon_exp_epoch"] = ce
             vp = coup.get("valid_products") or []
-            out["state_coupon_valid"] = 1.0 if (isinstance(order, dict) and any(
-                it.get("product_id") in vp for it in order.get("items", [])
-            )) else 0.0
+            out["state_coupon_valid"] = (
+                1.0
+                if (
+                    isinstance(order, dict)
+                    and any(it.get("product_id") in vp for it in order.get("items", []))
+                )
+                else 0.0
+            )
 
     return out
 

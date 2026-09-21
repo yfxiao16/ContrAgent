@@ -90,9 +90,7 @@ def _to_nl(node) -> str:
             if atom.predicate == "called":
                 return f"`{atom.args[0]}` must never be called"
             if atom.predicate == "called_with":
-                return (
-                    f"`{atom.args[0]}` (matching {atom.args[1]}) must never be called"
-                )
+                return f"`{atom.args[0]}` (matching {atom.args[1]}) must never be called"
         # G(Le(...)) → rate limit
         if isinstance(child, Le):
             return _comparison_nl(child, "at most")
@@ -110,11 +108,7 @@ def _to_nl(node) -> str:
     if isinstance(node, U):
         # Not(called(B)) U called(A) → "A must precede B"
         left, right = node.left, node.right
-        if (
-            isinstance(left, Not)
-            and isinstance(left.child, Atom)
-            and isinstance(right, Atom)
-        ):
+        if isinstance(left, Not) and isinstance(left.child, Atom) and isinstance(right, Atom):
             la = left.child
             ra = right
             if la.predicate in ("called", "called_with") and ra.predicate in (
@@ -265,9 +259,7 @@ def _comparison_nl(node, op_word: str) -> str:
             return f"`{tool}` called {op_word} {right.value} times"
         if left.name == "count_with" and len(left.args) >= 2:
             tool, pattern = left.args[0], left.args[1]
-            return (
-                f"`{tool}` (matching `{pattern}`) called {op_word} {right.value} times"
-            )
+            return f"`{tool}` (matching `{pattern}`) called {op_word} {right.value} times"
         return f"{left.key()} {op_word} {right.value}"
 
     return f"{_to_nl(left)} {op_word} {_to_nl(right)}"

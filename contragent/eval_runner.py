@@ -535,9 +535,7 @@ def diff_reports(baseline: dict, current: EvalReport) -> BaselineDiff:
     )
 
     base_by_nl: dict[str, dict] = {c["nl"]: c for c in baseline.get("contracts", [])}
-    cur_by_nl: dict[str, ContractMetrics] = {
-        m.contract_nl: m for m in current.contracts
-    }
+    cur_by_nl: dict[str, ContractMetrics] = {m.contract_nl: m for m in current.contracts}
 
     # Walk the union, in current-then-baseline order so the renderer
     # shows new contracts first (most likely the focus of the PR).
@@ -605,21 +603,10 @@ def format_diff(diff: BaselineDiff) -> str:
         lines.append(header)
         lines.append("  " + "-" * (len(header) - 2))
         for c in diff.contracts:
-            status = (
-                "added"
-                if not c.in_baseline
-                else "removed"
-                if not c.in_current
-                else "changed"
-            )
-            nl = (
-                c.contract_nl
-                if len(c.contract_nl) <= 50
-                else c.contract_nl[:47] + "..."
-            )
+            status = "added" if not c.in_baseline else "removed" if not c.in_current else "changed"
+            nl = c.contract_nl if len(c.contract_nl) <= 50 else c.contract_nl[:47] + "..."
             lines.append(
-                f"  {status:<8} {_fmt_delta(c.fpr_delta):>7} "
-                f"{_fmt_delta(c.fnr_delta):>7}  {nl}"
+                f"  {status:<8} {_fmt_delta(c.fpr_delta):>7} {_fmt_delta(c.fnr_delta):>7}  {nl}"
             )
     lines.append("")
     return "\n".join(lines)
@@ -646,11 +633,7 @@ def format_report(report: EvalReport) -> str:
         lines.append(header)
         lines.append("  " + "-" * (len(header) - 2))
         for m in report.contracts:
-            nl = (
-                m.contract_nl
-                if len(m.contract_nl) <= 60
-                else m.contract_nl[:57] + "..."
-            )
+            nl = m.contract_nl if len(m.contract_nl) <= 60 else m.contract_nl[:57] + "..."
             lines.append(
                 f"  {m.tp:>4} {m.fp:>4} {m.fn:>4} {m.tn:>4}  "
                 f"{_fmt_rate(m.fpr):>6} {_fmt_rate(m.fnr):>6}  "

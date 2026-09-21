@@ -17,6 +17,7 @@ trace can use it directly::
 Outputs are :class:`Verdict` / :class:`ContractVerdict` values: facts
 about the trace, with no enforcement side effects.
 """
+
 from __future__ import annotations
 
 from dataclasses import dataclass, field
@@ -102,7 +103,6 @@ class Verdict:
         user-configured strategy policy map.
         """
         return self.policy_key or self.desc
-
 
 
 @dataclass
@@ -479,17 +479,11 @@ class TraceVerifier:
         if isinstance(node, G):
             return self._cached_g_eval(node)
         if isinstance(node, And):
-            return self._incremental_eval(node.left) and self._incremental_eval(
-                node.right
-            )
+            return self._incremental_eval(node.left) and self._incremental_eval(node.right)
         if isinstance(node, Or):
-            return self._incremental_eval(node.left) or self._incremental_eval(
-                node.right
-            )
+            return self._incremental_eval(node.left) or self._incremental_eval(node.right)
         if isinstance(node, Implies):
-            return (not self._incremental_eval(node.left)) or self._incremental_eval(
-                node.right
-            )
+            return (not self._incremental_eval(node.left)) or self._incremental_eval(node.right)
         if isinstance(node, Not):
             return not self._incremental_eval(node.child)
 

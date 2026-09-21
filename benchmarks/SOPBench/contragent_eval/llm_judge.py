@@ -26,6 +26,7 @@ Usage:
   python3 llm_judge.py --per-domain 40  # 40 unsafe + 40 safe per domain
   python3 llm_judge.py --per-domain 5 --domains bank   # tiny smoke test
 """
+
 from __future__ import annotations
 
 import argparse
@@ -49,14 +50,11 @@ SAMPLE_PATH = HERE / "sample_manifest.json"
 
 DOMAINS = ["bank", "dmv", "healthcare", "hotel", "library", "online_market", "university"]
 MODEL = "gemini-2.5-flash"
-API_URL = (
-    "https://generativelanguage.googleapis.com/v1beta/models/"
-    f"{MODEL}:generateContent"
-)
+API_URL = f"https://generativelanguage.googleapis.com/v1beta/models/{MODEL}:generateContent"
 SEED = 1234
 
 # gemini-2.5-flash pricing (USD per 1M tokens), as published.
-PRICE_IN_PER_M = 0.30   # input
+PRICE_IN_PER_M = 0.30  # input
 PRICE_OUT_PER_M = 2.50  # output (incl. thinking)
 
 
@@ -104,13 +102,20 @@ def render_trace(trace: dict) -> tuple[str, str]:
 
     fact_lines = []
     for k in sorted(goal_args):
-        if k.startswith(FACT_PREFIXES) and k not in ("prior_logged_in", "prior_authenticated_admin"):
+        if k.startswith(FACT_PREFIXES) and k not in (
+            "prior_logged_in",
+            "prior_authenticated_admin",
+        ):
             fact_lines.append(f"    {k} = {goal_args[k]}")
     # auth facts are useful too
     for k in ("prior_logged_in", "prior_authenticated_admin"):
         if k in goal_args:
             fact_lines.append(f"    {k} = {goal_args[k]}")
-    facts = "\n".join(fact_lines) if fact_lines else "    (no world-state facts recorded on the goal call)"
+    facts = (
+        "\n".join(fact_lines)
+        if fact_lines
+        else "    (no world-state facts recorded on the goal call)"
+    )
 
     seq_lines = []
     for ev in events:
@@ -171,10 +176,12 @@ def prompt_key(prompt: str) -> str:
 
 def call_gemini(prompt: str, api_key: str, max_retries: int = 5) -> dict:
     """Return {'text', 'total_tokens', 'prompt_tokens', 'output_tokens', 'latency'}."""
-    body = json.dumps({
-        "contents": [{"parts": [{"text": prompt}]}],
-        "generationConfig": {"temperature": 0, "maxOutputTokens": 4000},
-    }).encode()
+    body = json.dumps(
+        {
+            "contents": [{"parts": [{"text": prompt}]}],
+            "generationConfig": {"temperature": 0, "maxOutputTokens": 4000},
+        }
+    ).encode()
     url = f"{API_URL}?key={api_key}"
     delay = 2.0
     last_err = None
@@ -271,12 +278,13 @@ def metrics(rows: list[dict]) -> dict:
     fpr = fp / (fp + tn) if (fp + tn) else 0.0
     precision = tp / (tp + fp) if (tp + fp) else None
     f1 = (
-        2 * precision * recall / (precision + recall)
-        if precision and (precision + recall)
-        else 0.0
+        2 * precision * recall / (precision + recall) if precision and (precision + recall) else 0.0
     )
     return {
-        "tp": tp, "fp": fp, "fn": fn, "tn": tn,
+        "tp": tp,
+        "fp": fp,
+        "fn": fn,
+        "tn": tn,
         "recall": round(100 * recall, 1),
         "fpr": round(100 * fpr, 1),
         "precision": round(100 * precision, 1) if precision is not None else None,
@@ -288,15 +296,17 @@ def metrics(rows: list[dict]) -> dict:
 # --------------------------------------------------------------------------
 def main() -> None:
     ap = argparse.ArgumentParser()
-    ap.add_argument("--per-domain", type=int, default=40,
-                    help="unsafe AND safe count per domain (so 2x total)")
+    ap.add_argument(
+        "--per-domain", type=int, default=40, help="unsafe AND safe count per domain (so 2x total)"
+    )
     ap.add_argument("--domains", nargs="*", default=DOMAINS)
     args = ap.parse_args()
 
     api_key = os.environ.get("GEMINI_API_KEY")
     if not api_key:
-        sys.exit("GEMINI_API_KEY not set. Run: set -a; . ../../../.env; set +a "
-                 "(do NOT echo the key).")
+        sys.exit(
+            "GEMINI_API_KEY not set. Run: set -a; . ../../../.env; set +a (do NOT echo the key)."
+        )
 
     rng = random.Random(SEED)
     cache = load_cache()
@@ -324,8 +334,10 @@ def main() -> None:
     lock = threading.Lock()
 
     uncached = [t for t in tasks if t[5] not in cache]
-    print(f"total tasks={len(tasks)} cached={len(tasks)-len(uncached)} "
-          f"to-call={len(uncached)}", file=sys.stderr)
+    print(
+        f"total tasks={len(tasks)} cached={len(tasks) - len(uncached)} to-call={len(uncached)}",
+        file=sys.stderr,
+    )
 
     def worker(task):
         nonlocal total_tokens, total_prompt, total_output, api_calls
@@ -345,8 +357,7 @@ def main() -> None:
         with ThreadPoolExecutor(max_workers=8) as ex:
             for n, _ in enumerate(ex.map(worker, uncached), 1):
                 if n % 20 == 0:
-                    print(f"  ...{n}/{len(uncached)} fresh calls done",
-                          file=sys.stderr)
+                    print(f"  ...{n}/{len(uncached)} fresh calls done", file=sys.stderr)
 
     all_rows = []
     for domain, f, label, goal, _prompt, key in tasks:
@@ -356,13 +367,18 @@ def main() -> None:
             # conservative: unparseable -> treat as COMPLIANT (safe) so it does
             # not inflate recall; recorded explicitly via raw text.
             pred = "safe"
-        all_rows.append({
-            "domain": domain, "file": f.name, "goal": goal,
-            "label": label, "pred": pred,
-            "finish_reason": res.get("finish_reason", ""),
-            "raw": res["text"][-200:],
-            "total_tokens": res.get("total_tokens", 0),
-        })
+        all_rows.append(
+            {
+                "domain": domain,
+                "file": f.name,
+                "goal": goal,
+                "label": label,
+                "pred": pred,
+                "finish_reason": res.get("finish_reason", ""),
+                "raw": res["text"][-200:],
+                "total_tokens": res.get("total_tokens", 0),
+            }
+        )
 
     per_domain = {}
     for domain in args.domains:
@@ -411,12 +427,18 @@ def main() -> None:
     print(hdr)
     for domain in args.domains:
         m = per_domain[domain]
-        print(f"{domain:14} {m['recall']:>7} {m['fpr']:>6} "
-              f"{str(m['precision']):>6} {m['f1']:>6}  {m['n']}")
-    print(f"{'AGG':14} {agg['recall']:>7} {agg['fpr']:>6} "
-          f"{str(agg['precision']):>6} {agg['f1']:>6}  {agg['n']}")
-    print(f"\nfresh API calls: {api_calls}  | tokens(all rows): {billed_total} "
-          f"| approx ${cost:.4f} | avg latency {avg_latency}")
+        print(
+            f"{domain:14} {m['recall']:>7} {m['fpr']:>6} "
+            f"{str(m['precision']):>6} {m['f1']:>6}  {m['n']}"
+        )
+    print(
+        f"{'AGG':14} {agg['recall']:>7} {agg['fpr']:>6} "
+        f"{str(agg['precision']):>6} {agg['f1']:>6}  {agg['n']}"
+    )
+    print(
+        f"\nfresh API calls: {api_calls}  | tokens(all rows): {billed_total} "
+        f"| approx ${cost:.4f} | avg latency {avg_latency}"
+    )
 
 
 if __name__ == "__main__":

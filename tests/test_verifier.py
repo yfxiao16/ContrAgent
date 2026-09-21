@@ -27,7 +27,9 @@ COUNT_AT_MOST_2 = "G((Var('count', 'cancel_pending_order') <= 2))"
 # contragent/contracts/benchmark/tau2_bench.yaml (airline)
 COUNT_AT_MOST_1 = "G((Var('count', 'send_certificate') <= 1))"
 # contragent/contracts/benchmark/agentdojo.yaml
-FORBIDDEN_FILE_ID = "G((called('delete_file') -> !(arg_field_has('delete_file', 'file_id', '^13$'))))"
+FORBIDDEN_FILE_ID = (
+    "G((called('delete_file') -> !(arg_field_has('delete_file', 'file_id', '^13$'))))"
+)
 
 
 def _trace(*tool_calls: str) -> Trace:
@@ -161,9 +163,7 @@ class TestCheckContract:
             assumption=_clean_output("act"),
             guarantee=ltl("G((Var('count', 'act') <= 1))"),  # will be violated
         )
-        v = _verdict(
-            contract, _trace_with_output(("act", "clean"), ("act", "clean"))
-        )
+        v = _verdict(contract, _trace_with_output(("act", "clean"), ("act", "clean")))
         cv = v.check_contract(contract)
         assert cv.assumption_holds is True
         assert cv.holds is False

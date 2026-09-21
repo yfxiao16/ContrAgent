@@ -293,9 +293,7 @@ def _expect(tokens: list[str], pos: int, expected: str) -> int:
     if pos >= len(tokens):
         raise ParseError(f"Expected '{expected}' but reached end of formula")
     if tokens[pos] != expected:
-        raise ParseError(
-            f"Expected '{expected}' at position {pos}, got '{tokens[pos]}'"
-        )
+        raise ParseError(f"Expected '{expected}' at position {pos}, got '{tokens[pos]}'")
     return pos + 1
 
 
@@ -423,9 +421,7 @@ def parse_repr(text: str) -> And | Or | Not | Implies | G | F | X | U | Atom:
 
     result = parse_expr()
     if pos[0] != len(tokens):
-        raise ParseError(
-            f"Unexpected tokens after position {pos[0]}: {tokens[pos[0] :]}"
-        )
+        raise ParseError(f"Unexpected tokens after position {pos[0]}: {tokens[pos[0] :]}")
     return result
 
 
@@ -538,9 +534,7 @@ def _tokenize_repr(text: str) -> list[str]:
                 j += 1
             tokens.append(text[i : j + 1])
             i = j + 1
-        elif text[i].isdigit() or (
-            text[i] == "-" and i + 1 < len(text) and text[i + 1].isdigit()
-        ):
+        elif text[i].isdigit() or (text[i] == "-" and i + 1 < len(text) and text[i + 1].isdigit()):
             j = i + 1 if text[i] == "-" else i
             while j < len(text) and (text[j].isdigit() or text[j] == "."):
                 j += 1

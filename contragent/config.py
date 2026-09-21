@@ -353,7 +353,9 @@ def _compile_ltl(entry: ConstraintEntry) -> Any:
         try:
             formula = parse_formula(entry.ltl)
         except ParseError:
-            raise ConfigError(f"Failed to parse formula {entry.ltl!r}: {infix_error}") from infix_error
+            raise ConfigError(
+                f"Failed to parse formula {entry.ltl!r}: {infix_error}"
+            ) from infix_error
     try:
         check_regexes(formula)
     except RegexValidationError as e:
@@ -382,7 +384,12 @@ def has_pending_obligation(formula: Any) -> bool:
             return False
         a, b = node.left, node.right
         for u, g in ((a, b), (b, a)):
-            if isinstance(u, U) and isinstance(g, G) and isinstance(u.left, Not) and isinstance(g.child, Not):
+            if (
+                isinstance(u, U)
+                and isinstance(g, G)
+                and isinstance(u.left, Not)
+                and isinstance(g.child, Not)
+            ):
                 if u.left == g.child:
                     return True
         return False
@@ -404,7 +411,9 @@ def has_pending_obligation(formula: Any) -> bool:
     return walk(formula)
 
 
-def _compile_nl(entry: ConstraintEntry, llm_extractor: Any, tool_inventory: list[dict] | None) -> Any:
+def _compile_nl(
+    entry: ConstraintEntry, llm_extractor: Any, tool_inventory: list[dict] | None
+) -> Any:
     """Lift a natural-language requirement to a formula through the extractor."""
     if llm_extractor is None:
         raise ConfigError(
@@ -472,8 +481,7 @@ def config_to_system(
 
     if tool_inventory is None and config.tools:
         tool_inventory = [
-            {"name": t.name, "description": t.description, "params": t.params}
-            for t in config.tools
+            {"name": t.name, "description": t.description, "params": t.params} for t in config.tools
         ]
     if llm_extractor is None:
         llm_extractor = build_extractor(config.extractor)

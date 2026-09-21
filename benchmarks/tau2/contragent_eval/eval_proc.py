@@ -58,9 +58,7 @@ from contragent.models.trace import Trace  # noqa: E402
 from contragent.runtime.verifier import TraceVerifier, _raw_formula  # noqa: E402
 
 LIBRARY = REPO_ROOT / "contragent" / "contracts" / "benchmark" / "tau2_bench.yaml"
-RESULTS_DIR = (
-    Path(__file__).resolve().parent.parent / "data" / "tau2" / "results" / "final"
-)
+RESULTS_DIR = Path(__file__).resolve().parent.parent / "data" / "tau2" / "results" / "final"
 
 # Canonical leaderboard cells: 4 models x 3 domains, default/base variant
 # (telecom-workflow + ablation variants excluded).
@@ -233,17 +231,10 @@ def evaluate():
 
         # proc-clean^k: fraction of tasks where ALL trials were clean
         tasks = list(by_task)
-        proc_clean_k = (
-            sum(1 for t in tasks if all(by_task[t])) / len(tasks) if tasks else 0.0
-        )
-        pass_k = (
-            sum(1 for t in tasks if all(by_task_pass[t])) / len(tasks)
-            if tasks
-            else 0.0
-        )
+        proc_clean_k = sum(1 for t in tasks if all(by_task[t])) / len(tasks) if tasks else 0.0
+        pass_k = sum(1 for t in tasks if all(by_task_pass[t])) / len(tasks) if tasks else 0.0
         joint_k = (
-            sum(1 for t in tasks if all(by_task[t]) and all(by_task_pass[t]))
-            / len(tasks)
+            sum(1 for t in tasks if all(by_task[t]) and all(by_task_pass[t])) / len(tasks)
             if tasks
             else 0.0
         )

@@ -125,9 +125,7 @@ class TestNotOperator:
 
 class TestConstraintEntryLtl:
     def test_dict_with_ltl_key_parses(self):
-        entry = _parse_constraint_entry(
-            {"ltl": "G(called(x) -> F(called(y)))", "source": "test"}
-        )
+        entry = _parse_constraint_entry({"ltl": "G(called(x) -> F(called(y)))", "source": "test"})
         assert isinstance(entry, ConstraintEntry)
         assert entry.is_ltl is True
         assert entry.source == "test"

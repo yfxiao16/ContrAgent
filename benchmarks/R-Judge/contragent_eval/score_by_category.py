@@ -15,6 +15,7 @@ an unsafe trace calls none of the gated tools, its risk is purely SEMANTIC
 deterministic contract can catch it. We report recall over the whole unsafe set
 AND over just the structurally-decidable subset.
 """
+
 from __future__ import annotations
 
 import glob
@@ -126,10 +127,7 @@ def main() -> None:
         f"purely semantic (no gated tool called): {sem_total}/{total_unsafe} "
         f"({sem_total / total_unsafe:.1%})"
     )
-    print(
-        f"  recall on decidable subset: {det_tp}/{det_total} = "
-        f"{det_tp / det_total:.1%}"
-    )
+    print(f"  recall on decidable subset: {det_tp}/{det_total} = {det_tp / det_total:.1%}")
 
 
 if __name__ == "__main__":

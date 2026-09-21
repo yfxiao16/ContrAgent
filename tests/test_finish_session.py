@@ -21,9 +21,7 @@ def _make_guard(contracts):
 class TestFinishSessionHappyPath:
     def test_discharged_obligation_yields_empty(self):
         """Trigger fired and response eventually fired → no violations."""
-        guard = _make_guard(
-            ["G((called('receive_request') -> F(called('log_request'))))"]
-        )
+        guard = _make_guard(["G((called('receive_request') -> F(called('log_request'))))"])
         guard.guard_before("receive_request")
         guard.guard_before("log_request")
 
@@ -32,9 +30,7 @@ class TestFinishSessionHappyPath:
 
     def test_no_trigger_yields_empty(self):
         """Trigger never fired → obligation vacuously satisfied."""
-        guard = _make_guard(
-            ["G((called('receive_request') -> F(called('log_request'))))"]
-        )
+        guard = _make_guard(["G((called('receive_request') -> F(called('log_request'))))"])
         guard.guard_before("something_else")
 
         pending = guard.finish_session()
@@ -57,9 +53,7 @@ class TestFinishSessionHappyPath:
 class TestFinishSessionViolations:
     def test_undischarged_obligation_reports_violation(self):
         """Trigger fired but response never fired → liveness violation."""
-        guard = _make_guard(
-            ["G((called('receive_request') -> F(called('log_request'))))"]
-        )
+        guard = _make_guard(["G((called('receive_request') -> F(called('log_request'))))"])
         guard.guard_before("receive_request")
         # session ends without log_request
 
@@ -71,9 +65,7 @@ class TestFinishSessionViolations:
 
     def test_multiple_triggers_single_missing_response(self):
         """Multiple triggers, never any response → still one violation."""
-        guard = _make_guard(
-            ["G((called('receive_request') -> F(called('log_request'))))"]
-        )
+        guard = _make_guard(["G((called('receive_request') -> F(called('log_request'))))"])
         for _ in range(3):
             guard.guard_before("receive_request")
 
@@ -99,9 +91,7 @@ class TestFinishSessionViolations:
 
 class TestFinishSessionIdempotency:
     def test_second_call_returns_same_result_without_double_emit(self):
-        guard = _make_guard(
-            ["G((called('receive_request') -> F(called('log_request'))))"]
-        )
+        guard = _make_guard(["G((called('receive_request') -> F(called('log_request'))))"])
         guard.guard_before("receive_request")
 
         first = guard.finish_session()
@@ -114,9 +104,7 @@ class TestFinishSessionIdempotency:
         assert len(guard.violations) == first_violation_count
 
     def test_reset_allows_finish_session_to_rerun(self):
-        guard = _make_guard(
-            ["G((called('receive_request') -> F(called('log_request'))))"]
-        )
+        guard = _make_guard(["G((called('receive_request') -> F(called('log_request'))))"])
         guard.guard_before("receive_request")
         first = guard.finish_session()
         assert len(first) == 1
@@ -251,21 +239,15 @@ class TestFinishSessionSpanEmission:
         assert contract_span.status == "violated"
 
         # Level 2: guarantee span (the liveness formula, failed)
-        guarantee_spans = [
-            c for c in contract_span.children if isinstance(c, GuaranteeSpan)
-        ]
+        guarantee_spans = [c for c in contract_span.children if isinstance(c, GuaranteeSpan)]
         assert len(guarantee_spans) == 1
         g_span = guarantee_spans[0]
         assert g_span.result is False
         assert g_span.status == "violated"
 
         # Level 2: violation + enforcement siblings on the contract
-        violation_spans = [
-            c for c in contract_span.children if isinstance(c, ViolationSpan)
-        ]
-        enforcement_spans = [
-            c for c in contract_span.children if isinstance(c, EnforcementSpan)
-        ]
+        violation_spans = [c for c in contract_span.children if isinstance(c, ViolationSpan)]
+        enforcement_spans = [c for c in contract_span.children if isinstance(c, EnforcementSpan)]
         assert len(violation_spans) == 1
         assert len(enforcement_spans) == 1
         assert violation_spans[0].kind == "liveness"
@@ -306,5 +288,3 @@ class TestFinishSessionSpanEmission:
         text = render_tree(guard.last_check_span, colorize=False)
         assert "<session_end>" in text
         assert "VIOLATED" in text or "violated" in text.lower()
-
-

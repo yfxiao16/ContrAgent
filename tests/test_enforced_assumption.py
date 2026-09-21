@@ -45,11 +45,11 @@ def _guard(mode: str = "gate") -> ContrAgent:
 
 class TestDeclaration:
     def test_no_assumption_mode_is_carried(self) -> None:
-        c = contract("c").assume(_no_secret_in_output()).guarantees(
-            parse_repr("G(called('a'))")
-        )
+        c = contract("c").assume(_no_secret_in_output()).guarantees(parse_repr("G(called('a'))"))
         assert "assumption_mode" not in c.to_dict()
-        assert not hasattr(Contract(agent=Agent(id="a"), guarantee=parse_repr("G(called('a'))")), "assumption_mode")
+        assert not hasattr(
+            Contract(agent=Agent(id="a"), guarantee=parse_repr("G(called('a'))")), "assumption_mode"
+        )
 
     def test_environment_assumption_is_accepted(self) -> None:
         contract = Contract(
