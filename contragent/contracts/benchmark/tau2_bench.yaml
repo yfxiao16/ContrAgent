@@ -368,9 +368,9 @@ agents:
     - desc: "update_reservation_flights must not set insurance (cannot be added after booking)"
       G:
         ltl: "G((called('update_reservation_flights') -> ((!(arg_field_has('update_reservation_flights', 'insurance', '^[Tt]rue$')) & !(arg_field_has('update_reservation_flights', 'insurance', '^1$'))) & !(arg_field_has('update_reservation_flights', 'insurance', '^[Yy]es$')))))"
-    - desc: book_reservation insurance flag must be 0 or 1
+    - desc: book_reservation insurance flag must be yes or no
       G:
-        ltl: "G(((Var('arg_numeric', 'book_reservation', 'insurance') >= 0) & (Var('arg_numeric', 'book_reservation', 'insurance') <= 1)))"
+        ltl: "G((called('book_reservation') -> (arg_field_has('book_reservation', 'insurance', '^(yes|no)$') | arg_field_has('book_reservation', 'insurance', '^[01]$'))))"
     - desc: cancel_reservation target reservation must be owned by the authenticated user
       G:
         ltl: "G(called(cancel_reservation) -> ctx(target_reservation_owner_match, yes))"
