@@ -11,7 +11,9 @@ layer and the formula constructors: ``"bash:rm -rf"`` denotes the
 physical tool ``bash`` restricted to calls whose arguments match the
 pattern ``rm -rf`` (a :math:`\\mathsf{ArgHas}` refinement of
 :math:`\\mathsf{Call}`), while ``"server:tool"`` is a namespaced tool
-name and is left intact.
+name and is left intact. Predicate keys write the tool name in its
+canonical spelling (:mod:`contragent.formulas.tool_names`), so a
+contract keys on one spelling however its author typed the name.
 """
 
 from __future__ import annotations

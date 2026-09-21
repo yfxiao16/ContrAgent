@@ -74,6 +74,7 @@ from dataclasses import dataclass, field
 
 from contragent.formulas._compare import to_number
 from contragent.formulas._pred_key import pred_key
+from contragent.formulas.tool_names import canonical_tool, tool_aliases
 from contragent.models.trace import Event, Trace
 
 
@@ -130,7 +131,8 @@ class GroundingState:
     token_count: dict[str, int] = field(default_factory=dict)  # L2.1
     delegation_depth: int = 0  # L2.4
     consecutive_counts: dict[str, int] = field(default_factory=dict)  # L1.4
-    last_tool: str = ""  # previous tool name for consecutive detection
+    last_tool: str = ""  # previous tool name (canonical) for consecutive detection
+    last_tool_aliases: tuple[str, ...] = ()  # its aliases, reset together
     # Event-clock primitives. ``now`` is the ts of the most recently
     # grounded event; ``last_ts[predicate_key]`` is the ts of the last
     # event where ``predicate_key`` *transitioned* False→True. We
@@ -160,6 +162,7 @@ class GroundingState:
         self.delegation_depth = 0
         self.consecutive_counts.clear()
         self.last_tool = ""
+        self.last_tool_aliases = ()
         self.current_ctx.clear()
         self.now = 0.0
         self.last_ts.clear()
@@ -171,11 +174,12 @@ _NAMESPACED_TOOL_RE = re.compile(r"^[A-Za-z_][\w-]*:[A-Za-z_][\w-]*$")
 
 # ── Grounding misses ───────────────────────────────────────────────
 # A predicate over a call's arguments that some loaded contract reads
-# could not be evaluated on an event, because the value it needs was
-# absent (no arguments, or no such field) or could not be interpreted
-# (a numeric field that holds no number). The paper defines every
-# interaction predicate as a total function into {true, false}; these
-# are the inputs on which the implementation has no value to give.
+# could not be evaluated on an event: the call carried no arguments at
+# all, or a numeric field was absent or held no number. The paper
+# defines every interaction predicate as a total function into
+# {true, false}; these are the inputs on which the implementation has
+# no value to give. A pattern predicate over a field that is absent is
+# not a miss: ``ArgHas(T, f, p)`` is false when there is no ``f``.
 #
 # Each miss is counted under ``(predicate, tool, field, reason)`` and
 # reported once through ``warnings`` so that a harness can state how
@@ -223,12 +227,15 @@ def _tool_matches(target_tool: str, event_tool: str, args_str: str) -> bool:
       the whole string is a literal tool name. Detected by both sides
       being bare identifiers (``[A-Za-z_][\\w-]*``).
 
-    Plain tool names with no ``:`` match directly.
+    Plain tool names match on their canonical spelling, and an event
+    answers to every alias of its tool name (the bare name behind an
+    ``mcp__server__`` prefix included).
     """
+    names = {canonical_tool(a) for a in tool_aliases(event_tool)}
     if ":" in target_tool and not _NAMESPACED_TOOL_RE.match(target_tool):
         physical, pattern = target_tool.split(":", 1)
-        return physical == event_tool and bool(re.search(pattern, args_str))
-    return target_tool == event_tool
+        return canonical_tool(physical) in names and bool(re.search(pattern, args_str))
+    return canonical_tool(target_tool) in names
 
 
 # Atom predicates that require regex matching against event content.
@@ -366,7 +373,13 @@ def ground_event(
             stacklevel=2,
         )
     if event.event_type == "tool_call" and event.tool:
-        v[pred_key("called", event.tool)] = True
+        # A call is grounded under every spelling a contract could have
+        # named it by. ``pred_key`` folds case and whitespace, so the
+        # aliases that remain distinct are the raw name and the bare
+        # name behind an ``mcp__server__`` prefix.
+        aliases = tuple(dict.fromkeys(canonical_tool(a) for a in tool_aliases(event.tool)))
+        for alias in aliases:
+            v[pred_key("called", alias)] = True
         # ``called_any`` — true at any timestep where SOME tool fires,
         # regardless of which.  Used by ``tool_allowlist`` to gate
         # ``G(called_any -> Or(called(t₁)..called(tₙ)))`` so the rule
@@ -377,18 +390,21 @@ def ground_event(
         # L1.4: consecutive_count — track how many times the same tool
         # has been called in an unbroken run. Resets when a different
         # tool is called. Used by loop_detection pattern.
-        if event.tool == state.last_tool:
-            state.consecutive_counts[event.tool] = (
-                state.consecutive_counts.get(event.tool, 1) + 1
-            )
-        else:
-            # Different tool → reset the previous tool's consecutive count
-            if state.last_tool:
-                state.consecutive_counts[state.last_tool] = 0
-            state.consecutive_counts[event.tool] = 1
-        state.last_tool = event.tool
+        # Counters are keyed like ``called``: one stream per alias, so a
+        # bound on ``count(issue_refund)`` counts the MCP-prefixed calls
+        # too. "Same tool again" holds when the two calls share a spelling.
+        same_tool = bool(set(aliases) & set(state.last_tool_aliases))
+        for stale in state.last_tool_aliases:
+            if stale not in aliases:
+                state.consecutive_counts[stale] = 0
+        for alias in aliases:
+            prev = state.consecutive_counts.get(alias, 0) if same_tool else 0
+            state.consecutive_counts[alias] = prev + 1
+        state.last_tool = aliases[0]
+        state.last_tool_aliases = aliases
 
-        state.call_counts[event.tool] = state.call_counts.get(event.tool, 0) + 1
+        for alias in aliases:
+            state.call_counts[alias] = state.call_counts.get(alias, 0) + 1
 
         args_str = str(event.args) if event.args else ""
 
@@ -401,7 +417,7 @@ def ground_event(
             for args_tuple in cw_patterns:
                 if len(args_tuple) >= 2:
                     target_tool, pattern = args_tuple[0], args_tuple[1]
-                    if target_tool == event.tool:
+                    if canonical_tool(target_tool) in aliases:
                         matched = bool(re.search(pattern, args_str))
                         v[pred_key("called_with", *args_tuple)] = matched
                         if matched:
@@ -436,9 +452,7 @@ def ground_event(
                         if field_val is not None:
                             matched = bool(re.search(pattern, str(field_val)))
                         else:
-                            record_grounding_miss(
-                                "arg_field_has", target_tool, field, "field_missing"
-                            )
+                            # No such field: the field does not match p.
                             matched = False
                         v[pred_key("arg_field_has", *args_tuple)] = matched
 
@@ -457,10 +471,7 @@ def ground_event(
                             max_chars = int(args_tuple[2])
                         except (ValueError, TypeError):
                             max_chars = 500
-                        if field not in event.args:
-                            record_grounding_miss(
-                                "arg_length_exceeds", target_tool, field, "field_missing"
-                            )
+                        # No such field: its length does not exceed the bound.
                         field_val = event.args.get(field, "")
                         exceeded = len(str(field_val)) > max_chars
                         v[pred_key("arg_length_exceeds", *args_tuple)] = exceeded
