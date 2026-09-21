@@ -3,7 +3,7 @@
 (grounds with collect_content_atoms, so content predicates fire), then reports
 overall + per-category + per-contract confusion matrices and the FP/FN lists.
 
-Use: PYTHONPATH=. python benchmarks/R-Judge/contragent_eval/_harness.py [contracts.yaml]
+Use: PYTHONPATH=. python benchmarks/R-Judge/contragent_eval/_harness.py [rjudge.yaml]
 """
 
 from __future__ import annotations
@@ -36,7 +36,11 @@ def load_contracts(path):
 
 
 def main():
-    cpath = sys.argv[1] if len(sys.argv) > 1 else str(HERE / "contracts.yaml")
+    cpath = (
+        sys.argv[1]
+        if len(sys.argv) > 1
+        else str(HERE.parents[2] / "contragent" / "contracts" / "benchmark" / "rjudge.yaml")
+    )
     contracts = load_contracts(cpath)
 
     overall = [0, 0, 0, 0]  # tp fp fn tn

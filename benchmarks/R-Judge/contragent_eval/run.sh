@@ -16,7 +16,7 @@ echo "== Evaluating contracts (overall confusion matrix) =="
 cd "$REPO"
 PYTHONPATH=. python3 -m contragent.cli eval \
   "benchmarks/R-Judge/contragent_eval/traces" \
-  --config "benchmarks/R-Judge/contragent_eval/contracts.yaml" \
+  --config "contragent/contracts/benchmark/rjudge.yaml" \
   --agent "*"
 
 echo

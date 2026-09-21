@@ -1,5 +1,5 @@
 """
-Generate the live-only contract overlay (contracts/<domain>.live.yaml).
+Generate the live-only contract overlay (live/overlays/<domain>.live.yaml).
 
 These contracts use ``state_user_exists`` -- an atom ContrAgent observes from the
 REAL world state at decision time (the acting user's row is present in the DB).
@@ -39,7 +39,7 @@ def gen(domain):
     lines = [
         "# AUTO-GENERATED live-only overlay (see live/gen_live_contracts.py).",
         "# Uses state_user_exists, observed from the real world state in-loop.",
-        f"# Loaded IN ADDITION to contracts/{domain}.yaml by the enforce guard only;",
+        f"# Loaded IN ADDITION to contragent/contracts/sopbench/{domain}.yaml by the enforce guard only;",
         "# the offline detection config is unchanged.",
         "agents:",
         '  "*":',
@@ -60,7 +60,8 @@ def gen(domain):
             f"& arg_value({g}, gate_user_must_not_exist) >= 1) -> "
             f'arg_value({g}, state_user_exists) <= 0)"}}'
         )
-    out = os.path.join(_EVAL_DIR, "contracts", f"{domain}.live.yaml")
+    out = os.path.join(_EVAL_DIR, "live", "overlays", f"{domain}.live.yaml")
+    os.makedirs(os.path.dirname(out), exist_ok=True)
     open(out, "w").write("\n".join(lines) + "\n")
     print("wrote", out, f"({len(goals_for(domain))} goals)")
 

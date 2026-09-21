@@ -9,7 +9,7 @@ It performs **no semantic judgment**:
 
 * It does NOT call SOPBench's evaluator, ``State_Tracker`` or
   ``Dependency_Evaluator``. It never computes whether the SOP was satisfied.
-  All policy lives in hand-authored LTL in ``contracts/<domain>.yaml``.
+  All policy lives in hand-authored LTL in ``contragent/contracts/sopbench/<domain>.yaml``.
 * It does NOT tag capabilities by regex, invent class-level tools, or precompute
   any gate verdict.
 

@@ -46,7 +46,9 @@ def _called_tools(node, out: set[str]) -> None:
 
 
 def main() -> None:
-    cfg = yaml.safe_load(open(HERE / "contracts.yaml"))
+    cfg = yaml.safe_load(
+        open(HERE.parents[2] / "contragent" / "contracts" / "benchmark" / "rjudge.yaml")
+    )
     raw = cfg["agents"]["*"]["contracts"]
     contracts = [(c["desc"], parse_repr(c["G"]["ltl"])) for c in raw]
 

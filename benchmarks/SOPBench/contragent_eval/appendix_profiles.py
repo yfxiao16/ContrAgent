@@ -110,7 +110,7 @@ def main():
     orc = {"u": 0, "ship": 0, "oracle": 0}
 
     for dom in DOMAINS:
-        ydir = os.path.join(HERE, "contracts", f"{dom}.yaml")
+        ydir = os.path.join(REPO, "contragent", "contracts", "sopbench", f"{dom}.yaml")
         if not os.path.isfile(ydir):
             continue
         parsed = load_det_contracts(ydir)

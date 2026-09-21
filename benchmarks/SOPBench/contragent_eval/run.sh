@@ -3,7 +3,7 @@
 #
 # For each domain: convert the recorded agent trajectories under
 # output/<domain>/ into labelled ContrAgent traces (traces/<domain>/), then
-# evaluate the hand-authored SOP contracts (contracts/<domain>.yaml) and print
+# evaluate the hand-authored SOP contracts (contragent/contracts/sopbench/<domain>.yaml) and print
 # the confusion matrix.
 #
 # Label convention (read by `contragent eval` from the filename prefix):
@@ -30,10 +30,10 @@ python3 "$HERE/convert.py" "${DOMAINS[@]}"
 
 cd "$REPO"
 for d in "${DOMAINS[@]}"; do
-  cfg="benchmarks/SOPBench/contragent_eval/contracts/${d}.yaml"
+  cfg="contragent/contracts/sopbench/${d}.yaml"
   traces="benchmarks/SOPBench/contragent_eval/traces/${d}"
   if [ ! -f "$cfg" ]; then
-    echo; echo "== ${d}: no contracts/${d}.yaml — skipping =="; continue
+    echo; echo "== ${d}: no contragent/contracts/sopbench/${d}.yaml — skipping =="; continue
   fi
   echo; echo "================ ${d} ================"
   PYTHONPATH=. python3 -m contragent.cli eval "$traces" --config "$cfg" --agent "*" \

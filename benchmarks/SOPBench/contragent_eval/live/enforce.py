@@ -2,7 +2,7 @@
 ContrAgent live enforcement guard for SOPBench (the "enforce" condition).
 
 This is genuine ContrAgent: it loads the SAME hand-authored LTL contracts used
-for offline detection (``contracts/<domain>.yaml``), grounds the SAME observable
+for offline detection (``contragent/contracts/sopbench/<domain>.yaml``), grounds the SAME observable
 atoms (via convert.py's grounders), and decides with the SAME engine
 (``_eval_contract_on_trace``). The only difference from offline eval is timing:
 the check runs PRE-execution on a candidate trace, so a violating goal call is
@@ -21,6 +21,7 @@ import sys
 
 _HERE = os.path.dirname(os.path.abspath(__file__))
 _EVAL_DIR = os.path.dirname(_HERE)  # contragent_eval/
+_REPO = os.path.dirname(os.path.dirname(os.path.dirname(_EVAL_DIR)))
 _SOP_ROOT = os.path.dirname(_EVAL_DIR)  # benchmarks/SOPBench/
 if _SOP_ROOT not in sys.path:
     sys.path.insert(0, _SOP_ROOT)
@@ -52,7 +53,7 @@ class LiveEnforcer:
         # Resolve the domain's contracts once (assumptions + guarantees).
         from contragent.config import load_config
 
-        cfg_path = os.path.join(_EVAL_DIR, "contracts", f"{domain}.yaml")
+        cfg_path = os.path.join(_REPO, "contragent", "contracts", "sopbench", f"{domain}.yaml")
         config = load_config(cfg_path)
         agent = config.agents.get("*") or next(iter(config.agents.values()))
         self.parsed = []  # (desc, parsed)
@@ -62,7 +63,7 @@ class LiveEnforcer:
         # Optional live-only overlay: contracts that use atoms only observable at
         # decision time from the real world state (e.g. user existence). Kept in
         # a separate visible YAML so the offline detection config is unchanged.
-        live_path = os.path.join(_EVAL_DIR, "contracts", f"{domain}.live.yaml")
+        live_path = os.path.join(_EVAL_DIR, "live", "overlays", f"{domain}.live.yaml")
         if os.path.exists(live_path):
             lcfg = load_config(live_path)
             lagent = lcfg.agents.get("*") or next(iter(lcfg.agents.values()))

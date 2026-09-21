@@ -10,7 +10,7 @@ Pipeline (all paired on the SAME sampled instances):
               world-state FACTS on the goal call (state_*, param_*, gate_*),
               and the ordered tool-call sequence.
   3. JUDGE    ask gemini-2.5-flash, given a per-domain SOP description (extracted
-              faithfully from contracts/<domain>.yaml `desc:` rules, which are
+              faithfully from contragent/contracts/sopbench/<domain>.yaml `desc:` rules, which are
               authored from env/domains/<domain>/<domain>.py), whether the agent
               completed the goal in VIOLATION or COMPLIANT.
   4. SCORE    recall / FPR / precision / F1 per domain + aggregate. unsafe=pos.
