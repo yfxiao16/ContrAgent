@@ -174,5 +174,10 @@ agents:
         G: {ltl: "G((called(update_membership) & arg_value(update_membership, succeeded) >= 1 & arg_value(update_membership, gate_logged_in_user_active) >= 1) -> arg_value(update_membership, prior_logged_in) >= 1)"}
       - desc: "add_book: internal_is_admin"
         G: {ltl: "G((called(add_book) & arg_value(add_book, succeeded) >= 1 & arg_value(add_book, gate_internal_is_admin_active) >= 1) -> arg_value(add_book, state_is_admin) >= 1)"}
+      # amount_positive_restr({amount: count}): the added count must be positive
+      # (an intrinsic precondition of add_book in its SOP; ungated, since adding a
+      # non-positive number of books is never valid, so permitted tasks have count>=1).
+      - desc: "add_book: amount_positive (count >= 1)"
+        G: {ltl: "G((called(add_book) & arg_value(add_book, succeeded) >= 1) -> arg_value(add_book, count) >= 1)"}
       - desc: "remove_book: internal_is_admin"
         G: {ltl: "G((called(remove_book) & arg_value(remove_book, succeeded) >= 1 & arg_value(remove_book, gate_internal_is_admin_active) >= 1) -> arg_value(remove_book, state_is_admin) >= 1)"}

@@ -4,7 +4,7 @@
 
 [![License: BSD-3-Clause](https://img.shields.io/badge/License-BSD_3--Clause-blue.svg)](LICENSE)
 [![Python 3.10+](https://img.shields.io/badge/python-3.10+-blue.svg)](https://www.python.org/downloads/)
-[![arXiv](https://img.shields.io/badge/arXiv-2609.XXXXX-b31b1b.svg)](https://arxiv.org/abs/2609.XXXXX)
+[![arXiv](https://img.shields.io/badge/arXiv-2609.18128-b31b1b.svg)](https://arxiv.org/abs/2609.18128)
 
 ContrAgent is the reference implementation of *Symbolic Temporal Supervision
 of LLM Agents Using Contracts*. It supervises a tool-using agent with
@@ -258,7 +258,7 @@ pytest
 @article{xiao2026contragent,
   title   = {Symbolic Temporal Supervision of {LLM} Agents Using Contracts},
   author  = {Xiao, Yifeng and Nuzzo, Pierluigi},
-  journal = {arXiv preprint arXiv:2609.XXXXX},
+  journal = {arXiv preprint arXiv:2609.18128},
   year    = {2026}
 }
 ```

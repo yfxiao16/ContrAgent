@@ -67,6 +67,25 @@ agents:
     contracts:
 
       # --- Auth: logged_in_user (login before completing the action).
+      # Each fires only when the task's SOP marks the login gate active
+      # (gate_logged_in_user_active>=1), i.e. faithfully compiled from the SOP
+      # like every other domain (cf. healthcare ``<tool>: logged_in_user``).
+      - desc: "add_review: logged_in_user"
+        G: {ltl: "G((called(add_review) & arg_value(add_review, succeeded) >= 1 & arg_value(add_review, gate_logged_in_user_active) >= 1) -> arg_value(add_review, prior_logged_in) >= 1)"}
+      - desc: "add_shipping_address: logged_in_user"
+        G: {ltl: "G((called(add_shipping_address) & arg_value(add_shipping_address, succeeded) >= 1 & arg_value(add_shipping_address, gate_logged_in_user_active) >= 1) -> arg_value(add_shipping_address, prior_logged_in) >= 1)"}
+      - desc: "add_to_cart: logged_in_user"
+        G: {ltl: "G((called(add_to_cart) & arg_value(add_to_cart, succeeded) >= 1 & arg_value(add_to_cart, gate_logged_in_user_active) >= 1) -> arg_value(add_to_cart, prior_logged_in) >= 1)"}
+      - desc: "cancel_order: logged_in_user"
+        G: {ltl: "G((called(cancel_order) & arg_value(cancel_order, succeeded) >= 1 & arg_value(cancel_order, gate_logged_in_user_active) >= 1) -> arg_value(cancel_order, prior_logged_in) >= 1)"}
+      - desc: "exchange_product: logged_in_user"
+        G: {ltl: "G((called(exchange_product) & arg_value(exchange_product, succeeded) >= 1 & arg_value(exchange_product, gate_logged_in_user_active) >= 1) -> arg_value(exchange_product, prior_logged_in) >= 1)"}
+      - desc: "place_order: logged_in_user"
+        G: {ltl: "G((called(place_order) & arg_value(place_order, succeeded) >= 1 & arg_value(place_order, gate_logged_in_user_active) >= 1) -> arg_value(place_order, prior_logged_in) >= 1)"}
+      - desc: "return_order: logged_in_user"
+        G: {ltl: "G((called(return_order) & arg_value(return_order, succeeded) >= 1 & arg_value(return_order, gate_logged_in_user_active) >= 1) -> arg_value(return_order, prior_logged_in) >= 1)"}
+      - desc: "use_coupon: logged_in_user"
+        G: {ltl: "G((called(use_coupon) & arg_value(use_coupon, succeeded) >= 1 & arg_value(use_coupon, gate_logged_in_user_active) >= 1) -> arg_value(use_coupon, prior_logged_in) >= 1)"}
 
       # --- Existence-check ordering required by the SOP before each goal.
       - desc: "internal_check_username_exist must precede a completed add_shipping_address (SOP existence check)"
