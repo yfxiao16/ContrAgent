@@ -18,6 +18,7 @@ from __future__ import annotations
 
 import warnings
 
+from contragent.formulas._compare import coerce_ordered
 from contragent.formulas.formula import (
     And,
     Atom,
@@ -153,18 +154,21 @@ def _resolve_arith(expr: object, state: dict[str, object]) -> object:
 
 
 def _safe_compare(op: str, left: object, right: object) -> bool:
-    """Compare two resolved values with the canonical "missing" semantics.
+    """Compare two resolved values.
 
-    If either operand is ``None`` (Term resolved to "missing"), the
-    comparison evaluates to ``False`` rather than raising. Same for
-    ``TypeError`` from mismatched types (e.g. ``str < int``). This is
-    the Hoare-vacuity convention: a comparison that can't decide
-    falls through as not-satisfied, and the contract author should
-    scope it with ``Implies(scope, comparison)`` to suppress where
-    irrelevant.
+    For an ordered comparison a string operand that denotes a number is
+    read as that number first (see :mod:`contragent.formulas._compare`),
+    so a numeric predicate is defined on ``"5000"`` or ``"$5,000"`` as
+    it is on ``5000``. If an operand is ``None`` (the term has no value
+    on this event) or the two cannot be compared, the comparison is
+    ``False``. That value on its own is not fail-closed for every
+    formula shape; the supervisor's missing-arguments gate is what
+    refuses a call whose arguments a contract needs but did not get.
     """
     if left is None or right is None:
         return False
+    if op != "eq":
+        left, right = coerce_ordered(left, right)
     try:
         if op == "le":
             return left <= right  # type: ignore[operator]

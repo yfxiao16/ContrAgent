@@ -51,6 +51,7 @@ from __future__ import annotations
 
 from typing import Any, Literal
 
+from contragent.formulas._compare import coerce_ordered
 from contragent.formulas.formula import (
     And,
     Atom,
@@ -113,14 +114,16 @@ def _resolve_arith(expr: Any, state: dict[str, object]) -> object:
 
 
 def _safe_compare(op: str, left: object, right: object) -> bool:
-    """Compare two resolved Term values with "missing" semantics.
+    """Compare two resolved Term values.
 
-    If either operand is ``None`` (Term resolved to missing), evaluate
-    to ``False`` rather than raise. Same for ``TypeError`` from
-    mismatched types. Mirrors ``contragent.formulas.evaluator._safe_compare``.
+    Mirrors ``contragent.formulas.evaluator._safe_compare``: an ordered
+    comparison first reads a numeric string operand as a number; a
+    ``None`` operand or an incomparable pair evaluates to ``False``.
     """
     if left is None or right is None:
         return False
+    if op != "eq":
+        left, right = coerce_ordered(left, right)
     try:
         if op == "le":
             return left <= right  # type: ignore[operator]

@@ -72,6 +72,7 @@ import warnings
 from collections import Counter
 from dataclasses import dataclass, field
 
+from contragent.formulas._compare import to_number
 from contragent.formulas._pred_key import pred_key
 from contragent.models.trace import Event, Trace
 
@@ -470,6 +471,9 @@ def ground_event(
         #   1. Direct dict lookup: event.args[field]
         #   2. CLI flag: --field VALUE in serialized command string
         #   3. Positional: field="N" → Nth whitespace-separated number
+        # Every strategy reads the value through ``to_number``, so a
+        # currency-formatted string ("$5,000", "5000 USD") grounds to
+        # the same number here as it does on the ``ArgValue`` path.
         if content_atoms and "arg_numeric" in content_atoms:
             for args_tuple in content_atoms["arg_numeric"]:
                 if len(args_tuple) >= 2:
@@ -478,24 +482,15 @@ def ground_event(
                         numeric_val = None
                         # Strategy 1: direct dict key
                         if event.args and field in event.args:
-                            try:
-                                numeric_val = int(event.args[field])
-                            except (ValueError, TypeError):
-                                try:
-                                    numeric_val = float(event.args[field])
-                                except (ValueError, TypeError):
-                                    pass
+                            numeric_val = to_number(event.args[field])
                         # Strategy 2: CLI --field VALUE
                         if numeric_val is None and args_str:
                             m = re.search(
-                                rf"--{re.escape(field)}\s+([+-]?\d+(?:\.\d+)?)",
+                                rf"--{re.escape(field)}\s+(\S+)",
                                 args_str,
                             )
                             if m:
-                                try:
-                                    numeric_val = int(m.group(1))
-                                except ValueError:
-                                    numeric_val = float(m.group(1))
+                                numeric_val = to_number(m.group(1))
                         # Strategy 3: positional (field = digit → Nth whitespace token from command)
                         if numeric_val is None and event.args and field.isdigit():
                             cmd_str = event.args.get("command", "")
@@ -504,19 +499,10 @@ def ground_event(
                                 pos = int(field)
                                 # Count from end if negative-looking, otherwise from start
                                 if pos < len(tokens):
-                                    try:
-                                        numeric_val = int(tokens[pos])
-                                    except ValueError:
-                                        try:
-                                            numeric_val = float(tokens[pos])
-                                        except ValueError:
-                                            pass
+                                    numeric_val = to_number(tokens[pos])
                                 # Also try from the end (field="-1" → last token)
                                 if numeric_val is None and tokens:
-                                    try:
-                                        numeric_val = int(tokens[-1])
-                                    except ValueError:
-                                        pass
+                                    numeric_val = to_number(tokens[-1])
                         if numeric_val is not None:
                             v[pred_key("arg_numeric", *args_tuple)] = numeric_val
                         elif not event.args:
