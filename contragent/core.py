@@ -12,6 +12,7 @@ a recorded trace offline through ``evaluate_trace``.
 from __future__ import annotations
 
 import os
+import re
 import threading
 from dataclasses import dataclass, field
 from typing import Any
@@ -218,14 +219,171 @@ class ContrAgent:
         The call is appended to the trace and every contract is advanced.
         A blocked or redirected call is rolled back from the trace so it
         does not count as having happened.
+
+        A call whose arguments a contract reads but did not receive (no
+        arguments, a field the contract reads absent, or a value a numeric
+        predicate cannot read as a number) is refused before it enters
+        the trace, since the contract cannot be evaluated on it. See
+        :meth:`_args_unevaluable`.
         """
         with self._lock:
+            reason = self._args_unevaluable(tool_name, args)
+            refusal = None
+            if reason is not None:
+                gated = self._mode != "flag"
+                refusal = EnforcementResult(
+                    action="blocked" if gated else "observed",
+                    message=(
+                        f"{'BLOCKED' if gated else 'OBSERVED'}: {self.agent_id}.{tool_name} "
+                        f"{reason}. The contract cannot be evaluated on this call, so the "
+                        "call is refused rather than run unchecked "
+                        "(set CONTRAGENT_ALLOW_MISSING_ARGS=1 to allow it)."
+                    ),
+                    rule_id="args:unevaluable",
+                    agent_msg=(
+                        f"The action `{tool_name}` was rejected: it {reason}. "
+                        "Retry with the arguments included."
+                    ),
+                )
+                if gated:
+                    self._record(tool_name, [refusal])
+                    return CheckResult(allowed=False, violations=[refusal])
             results = self._supervisor.check_action(
                 agent_id=self.agent_id,
                 action=tool_name,
                 metadata={"args": args} if args else {},
             )
+            if refusal is not None:
+                results = [refusal, *results]
             return self._finish_check(tool_name, results)
+
+    # Atoms whose value is read off a call's arguments.
+    _ARG_PREDICATES = frozenset(
+        {
+            "arg_has",
+            "arg_field_has",
+            "arg_length_exceeds",
+            "arg_paths_within",
+            "arg_numeric",
+            "called_with",
+            "count_with",
+        }
+    )
+
+    def _arg_readers(self) -> tuple[frozenset[str], frozenset[tuple[str, str]], frozenset[tuple[str, str]]]:
+        """What the loaded contracts read off a call's arguments.
+
+        Returns the canonical names of the tools some predicate reads the
+        arguments of, the ``(tool, field)`` pairs whose value must be
+        present, and the ``(tool, field)`` pairs whose value must be a
+        number. Computed once; the contract set does not change after
+        construction.
+        """
+        cached = getattr(self, "_arg_readers_cache", None)
+        if cached is not None:
+            return cached
+        from contragent.formulas.det import physical_tool
+        from contragent.formulas.formula import (
+            ArgLength,
+            ArgValue,
+            Atom,
+            Eq,
+            Ge,
+            Gt,
+            Le,
+            Lt,
+            Term,
+            UnaryFn,
+            Var,
+        )
+        from contragent.formulas.tool_names import canonical_tool
+        from contragent.runtime.verifier import _collect_det_formulas, _raw_formula
+
+        tools: set[str] = set()
+        fields: set[tuple[str, str]] = set()
+        numbers: set[tuple[str, str]] = set()
+
+        def term(t: Any, ordered: bool) -> None:
+            if isinstance(t, ArgValue):
+                (numbers if ordered else fields).add((canonical_tool(t.tool), t.field))
+            elif isinstance(t, ArgLength):
+                fields.add((canonical_tool(t.tool), t.field))
+            elif isinstance(t, UnaryFn):
+                term(t.arg, False)
+            elif isinstance(t, Var) and t.name == "arg_numeric" and len(t.args) >= 2:
+                numbers.add((canonical_tool(physical_tool(t.args[0])), t.args[1]))
+            elif isinstance(t, Var) and t.name == "count_with" and t.args:
+                tools.add(canonical_tool(physical_tool(t.args[0])))
+
+        def walk(node: Any) -> None:
+            if node is None:
+                return
+            if isinstance(node, Atom):
+                if node.predicate in self._ARG_PREDICATES and node.args:
+                    tools.add(canonical_tool(physical_tool(node.args[0])))
+                return
+            if isinstance(node, (Le, Lt, Ge, Gt)):
+                term(node.left, True)
+                term(node.right, True)
+                return
+            if isinstance(node, Eq):
+                term(node.left, False)
+                term(node.right, False)
+                return
+            if isinstance(node, Term):
+                term(node, False)
+                return
+            for attr in ("child", "left", "right"):
+                walk(getattr(node, attr, None))
+
+        own = [c for c in self._system.contracts if c.agent.id in (self.agent_id, "*")]
+        for constraint in _collect_det_formulas(own):
+            walk(_raw_formula(constraint))
+        result = (frozenset(tools), frozenset(fields), frozenset(numbers))
+        self._arg_readers_cache = result
+        return result
+
+    def _args_unevaluable(self, tool_name: str, args: dict | None) -> str | None:
+        """Why the contracts cannot be evaluated on this call, or ``None``.
+
+        The paper defines an interaction predicate as a total function of
+        the state, the event, and its parameter. An adapter that loses the
+        arguments, a partial streamed call, or an amount written as text a
+        numeric predicate cannot read leave the implementation with no
+        value to give; reading such a predicate as false would let a
+        guarantee of the form ``G(call -> !bad)`` pass unchecked. The
+        supervisor refuses the call instead and says why. Setting
+        ``CONTRAGENT_ALLOW_MISSING_ARGS=1`` restores the earlier behaviour.
+        """
+        if os.environ.get("CONTRAGENT_ALLOW_MISSING_ARGS") == "1":
+            return None
+        from contragent.formulas._compare import to_number
+        from contragent.formulas.tool_names import canonical_tool, tool_aliases
+
+        tools, fields, numbers = self._arg_readers()
+        names = {canonical_tool(a) for a in tool_aliases(tool_name)}
+        read = [(t, f) for t, f in sorted(fields | numbers) if t in names]
+        if not (names & tools) and not read:
+            return None
+        if not args:
+            return "was called with no arguments, but a contract reads them"
+        serialized = str(args)
+        for t, f in read:
+            if f in args:
+                if (t, f) in numbers and to_number(args[f]) is None:
+                    return (
+                        f"passed {str(args[f])[:40]!r} as {f!r}, which a numeric "
+                        "predicate cannot read as a number"
+                    )
+                continue
+            if (t, f) in numbers and (
+                f.isdigit() or re.search(rf"--{re.escape(f)}\s+\S", serialized)
+            ):
+                # Grounding reads such a field from the serialized command
+                # (positional token or ``--flag value``), not from a key.
+                continue
+            return f"was called without the argument {f!r}, which a contract reads"
+        return None
 
     def guard_after(self, tool_name: str, output: Any) -> CheckResult:
         """Attach the tool result to its call and re-check the contracts.

@@ -278,11 +278,13 @@ class Term:
 
     Subclasses must implement ``evaluate(state) -> object | None``.
 
-    ``None`` is the canonical "missing" signal — comparison evaluation
-    treats either operand being ``None`` as False (the comparison can't
-    decide), so contract authors should wrap fragile comparisons in an
-    ``Implies(scope_predicate, comparison)`` to suppress them where the
-    relevant arg isn't applicable.
+    ``None`` means the term has no value on this event, and a comparison
+    with a ``None`` operand evaluates to False. That value is not
+    fail-closed for every formula shape, so the supervisor refuses a
+    call whose arguments a contract reads but did not get before any
+    comparison is evaluated (``ContrAgent._args_unevaluable``). Scope a
+    comparison with ``Implies(called(tool), ...)`` so it is read only on
+    the calls it is about.
     """
 
     def evaluate(self, state: dict) -> object:  # pragma: no cover - abstract
