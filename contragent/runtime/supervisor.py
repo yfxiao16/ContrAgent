@@ -38,7 +38,6 @@ from contragent.runtime.strategies import (
     Block,
     EnforcementResult,
     EnforcementStrategy,
-    Escalate,
 )
 from contragent.runtime.verifier import TraceVerifier, Verdict
 

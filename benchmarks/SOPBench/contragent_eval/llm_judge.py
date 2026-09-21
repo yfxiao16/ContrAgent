@@ -178,7 +178,7 @@ def call_gemini(prompt: str, api_key: str, max_retries: int = 5) -> dict:
     url = f"{API_URL}?key={api_key}"
     delay = 2.0
     last_err = None
-    for attempt in range(max_retries):
+    for _attempt in range(max_retries):
         t0 = time.time()
         req = urllib.request.Request(url, data=body, headers={"Content-Type": "application/json"})
         try:
@@ -349,7 +349,7 @@ def main() -> None:
                           file=sys.stderr)
 
     all_rows = []
-    for domain, f, label, goal, prompt, key in tasks:
+    for domain, f, label, goal, _prompt, key in tasks:
         res = cache[key]
         pred = parse_verdict(res["text"])
         if pred is None:

@@ -48,7 +48,6 @@ def main():
     seeds = ["final", "s2", "s3"]
     print("=== FLASH 3-seed: success/safety  mean +/- std (pp) ===")
     print(f"{'domain':13s} | " + " | ".join(f"{c:^20s}" for c in CONDS))
-    agg = {c: {"s": [], "sf": [], "gc": []} for c in CONDS}  # pooled per-seed means
     perseed_pool = {sd: {c: {"s": [], "sf": []} for c in CONDS} for sd in seeds}
     for dom in DOMAINS:
         cells = []

@@ -39,7 +39,7 @@ def gen(domain):
     lines = [
         "# AUTO-GENERATED live-only overlay (see live/gen_live_contracts.py).",
         "# Uses state_user_exists, observed from the real world state in-loop.",
-        "# Loaded IN ADDITION to contracts/%s.yaml by the enforce guard only;" % domain,
+        f"# Loaded IN ADDITION to contracts/{domain}.yaml by the enforce guard only;",
         "# the offline detection config is unchanged.",
         "agents:",
         '  "*":',

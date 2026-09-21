@@ -30,3 +30,6 @@ benchmarks/**/pi_flags*.json
 benchmarks/*/upstream
 benchmarks/tau2/data
 benchmarks/tau2/src
+
+# SOPBench recorded trajectories placed by the reader (read by SOPBench/contragent_eval/convert.py)
+benchmarks/**/output

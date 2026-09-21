@@ -76,9 +76,9 @@ class TestAssumptionEnforceability:
 
     @staticmethod
     def _contract(assumption: str):
+        from contragent.formulas.parser import parse_repr
         from contragent.models.agent import Agent
         from contragent.models.contract import Contract
-        from contragent.formulas.parser import parse_repr
 
         return Contract(
             agent=Agent(id="bot"),
