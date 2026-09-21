@@ -154,9 +154,14 @@ an MCP wire name `mcp__server__tool` also answers to `tool`. See
 The fluent Python helper writes the same contract in code:
 
 ```python
-contract("file reads carry no credential")
+from contragent import ContrAgent, contract, parse_repr
+
+no_leak = (
+    contract("file reads carry no credential")
     .assume(parse_repr("G(!(output_has('read_file', 'BEGIN PRIVATE KEY')))"))
     .guarantees(parse_repr("G((called('send_email') -> called('read_file')))"))
+)
+guard = ContrAgent(agent_id="assistant", contracts=[no_leak])
 ```
 
 ## Offline evaluation
