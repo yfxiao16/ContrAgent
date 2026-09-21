@@ -1396,6 +1396,15 @@ def record_to_trace(rec: dict, domain: str, task_idx: int):
                 # read off given world state + the clock; never a verdict.
                 for ak, av in _derived_atoms(task, goal, args).items():
                     args.setdefault(ak, av)
+            elif name == "add_authorized_provider":
+                # The provider-existence rule is ungated (an intrinsic
+                # precondition, not a per-task SOP gate), so it also reads
+                # non-goal calls of this tool. Ground the one fact it needs
+                # there too; a missing fact would otherwise read as 0 and
+                # fail the rule on a call nothing looked at.
+                derived = _derived_atoms(task, name, args)
+                if "state_provider_exists" in derived:
+                    args.setdefault("state_provider_exists", derived["state_provider_exists"])
 
             events.append(
                 {
