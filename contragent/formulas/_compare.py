@@ -1,6 +1,6 @@
 """Numeric coercion for the ordered comparisons of numeric predicates.
 
-A numeric predicate of the paper has the form ``theta(s, a) <bowtie> c``,
+A numeric predicate in ContrAgent has the form ``theta(s, a) <bowtie> c``,
 where ``theta`` extracts a quantity from the event. Tool arguments reach
 the grounder as the integration passes them, and a model routinely writes
 an amount as ``"5000"``, ``"$5,000"``, ``"5,000"`` or ``"5000 USD"``. Before
