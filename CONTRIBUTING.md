@@ -31,6 +31,28 @@ organized by mechanism (`test_atoms.py`, `test_theory.py`,
 `test_fluent_contracts.py`, ...). Put the new test next to the mechanism
 it exercises.
 
+## Layout
+
+```
+contragent/
+  formulas/     ALTLf syntax, parsers, pointwise evaluator, DFA monitor, LTLf satisfiability
+  tracer/       grounding of trace events into predicate valuations
+  models/       Contract, Agent, System, Trace
+  runtime/      Supervisor (online), TraceVerifier (offline), enforcement actions
+  analysis/     conflict check, dead-end check, completion verdict, CHASE export
+  generation/   contract formulation from natural language
+  discovery/    loaders for policy documents and traces
+  contracts/    shipped contract libraries
+  config.py     library files and compilation
+  contract.py   fluent Python helper
+  eval_runner.py  offline evaluation of trace directories
+  core.py       the ContrAgent supervisor
+  cli.py        eval, replay, conflicts, export-chase
+benchmarks/     harnesses for the four benchmarks (datasets not redistributed)
+examples/       runnable programs and traces
+docs/           authoring guide, predicate vocabulary, tooling notes
+```
+
 ## Where things go
 
 | You want to | Change |

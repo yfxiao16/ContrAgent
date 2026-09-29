@@ -47,6 +47,14 @@ in words ("`verify_identity` must precede `transfer_funds`, or
 `transfer_funds` must never be called"), which is accurate but says
 nothing about why the rule exists.
 
+Two more keys a library file accepts. `include: [contragent:sopbench/bank]`
+pulls in a shipped library. A constraint written as `nl: "..."` instead
+of `ltl:` is lifted to a formula at load time by the formulation
+pipeline, which needs an `extractor:` section naming a model and the
+`.[llm]` extra; the result is reported back in words for review, and
+this guide's checks (section 6) apply to it as to any hand-written
+formula.
+
 ## 2. Reading the policy
 
 Go through the policy document sentence by sentence and sort each rule

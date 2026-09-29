@@ -1,13 +1,17 @@
-# The smallest contract library: two rules for a bank agent.
+# The library from the README: four guarantees and one assumption.
 #
-# Formulas are ALTLf over the interaction predicates (docs/predicates.md).
-# `G` is the guarantee (what the agent must keep); an optional `A` is the
-# assumption (what the environment must keep, see README "Assumptions").
+# Formulas are ALTLf over the interaction predicates (docs/predicates.md);
+# docs/authoring.md explains how to write them.
 version: "1"
 agents:
   "*":
     contracts:
       - desc: "identity must be verified before funds move"
         G: {ltl: "(!(called('transfer_funds')) U called('verify_identity')) | G(!(called('transfer_funds')))"}
+      - desc: "at most three transfers per session"
+        G: {ltl: "G((Var('count', 'transfer_funds') <= 3))"}
       - desc: "every transfer is eventually receipted"
-        G: {ltl: "G(called('transfer_funds') -> F(called('send_receipt')))"}
+        G: {ltl: "G((called('transfer_funds') -> F(called('send_receipt'))))"}
+      - desc: "file reads carry no credential"
+        A: {ltl: "G(!(output_has('read_file', 'BEGIN PRIVATE KEY')))"}
+        G: {ltl: "G((called('send_email') -> called('read_file')))"}
