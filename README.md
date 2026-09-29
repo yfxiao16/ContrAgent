@@ -6,13 +6,16 @@
 [![Python 3.10+](https://img.shields.io/badge/python-3.10+-blue.svg)](https://www.python.org/downloads/)
 [![arXiv](https://img.shields.io/badge/arXiv-2609.18128-b31b1b.svg)](https://arxiv.org/abs/2609.18128)
 
+Write rules about what an agent may call, and when. ContrAgent checks
+every tool call against them before it runs, in microseconds, with no
+model in the loop.
+
 ContrAgent is the reference implementation of *Symbolic Temporal Supervision
-of LLM Agents Using Contracts*. It supervises a tool-using agent with
-assume-guarantee contracts, each a pair of ALTL<sub>f</sub> formulas (linear
-temporal logic on finite traces with linear arithmetic) over a fixed
-vocabulary of interaction predicates evaluated on the agent's tool-call
-trace. Every contract compiles to a deterministic finite automaton, and the
-same automata serve two roles:
+of LLM Agents Using Contracts*. The rules are assume-guarantee contracts,
+each a pair of ALTL<sub>f</sub> formulas (linear temporal logic on finite
+traces with linear arithmetic) over a fixed vocabulary of interaction
+predicates evaluated on the agent's tool-call trace. Every contract compiles
+to a deterministic finite automaton, and the same automata serve two roles:
 
 * **Online**, they gate each tool call before it executes and block,
   redirect, or escalate a violating call. No model is called on this path.
@@ -62,7 +65,9 @@ from contragent import ContrAgent
 guard = ContrAgent(agent_id="bank_agent", config="bank.yaml")
 
 result = guard.guard_before("transfer_funds", {"amount": 500})
-print(result.blocked)     # True, and result.feedback names the contract
+print(result.blocked)     # True
+print(result.feedback)    # The action `transfer_funds` was rejected by policy:
+                          # identity must be verified before funds move. Choose a different approach.
 
 guard.guard_before("verify_identity", {})
 guard.guard_after("verify_identity", {"ok": True})
@@ -135,9 +140,7 @@ A contract's assumption states what the environment is required to keep, and
 the supervisor maintains it rather than only observing it. A tool result that
 would falsify the assumption is suppressed: `guard_after` returns
 `result.suppressed`, the result is not attached to the trace, and the session
-state does not advance on it. The agent is told why, so it can choose another
-route. Blocking a call keeps the agent a valid implementation of the
-contract; suppressing an event keeps its environment a valid environment.
+state does not advance on it, and the agent is told why.
 
 ```yaml
 - desc: file reads carry no credential
@@ -148,6 +151,22 @@ contract; suppressing an event keeps its environment a valid environment.
 An assumption must be written over environment predicates. A condition on the
 agent's own actions belongs in the guarantee instead, as `G(trigger -> ...)`;
 see [`docs/predicates.md`](docs/predicates.md#which-side-a-predicate-belongs-on).
+
+### In Python
+
+The fluent helper writes the same contracts in code, for a library that is
+generated or lives next to the tools:
+
+```python
+from contragent import ContrAgent, contract, parse_repr
+
+no_leak = (
+    contract("file reads carry no credential")
+    .assume(parse_repr("G(!(output_has('read_file', 'BEGIN PRIVATE KEY')))"))
+    .guarantees(parse_repr("G((called('send_email') -> called('read_file')))"))
+)
+guard = ContrAgent(agent_id="assistant", contracts=[no_leak])
+```
 
 ## Online supervision
 
@@ -160,27 +179,11 @@ Data-flow and context predicates are fed through `observe_data_write`,
 `gate` (default) acts on it, `flag` records the same decision without gating
 the agent.
 
-A call the contracts cannot be evaluated on is refused rather than passed.
-When a loaded contract reads a tool's arguments and the call arrives with
-none, without a field the contract reads, or with a value a numeric
-predicate cannot read as a number, `guard_before` rejects the call and
-tells the agent why. `CONTRAGENT_ALLOW_MISSING_ARGS=1` restores the
-permissive behaviour. Tool names are compared in a canonical spelling, and
-an MCP wire name `mcp__server__tool` also answers to `tool`. See
+A call the contracts cannot be evaluated on (a contract reads an argument
+the call did not carry) is refused rather than passed; tool names are
+compared in a canonical spelling, so an MCP wire name `mcp__server__tool`
+answers to `tool`. Both are described in
 [docs/predicates.md](docs/predicates.md#when-a-predicate-has-no-value).
-
-The fluent Python helper writes the same contract in code:
-
-```python
-from contragent import ContrAgent, contract, parse_repr
-
-no_leak = (
-    contract("file reads carry no credential")
-    .assume(parse_repr("G(!(output_has('read_file', 'BEGIN PRIVATE KEY')))"))
-    .guarantees(parse_repr("G((called('send_email') -> called('read_file')))"))
-)
-guard = ContrAgent(agent_id="assistant", contracts=[no_leak])
-```
 
 ## Offline evaluation
 
@@ -204,32 +207,13 @@ A trace is a JSON object with an `events` list; each event carries `ts`,
 
 The conflict check treats the library as the conjunction of its contracts,
 extracts a minimal unsatisfiable core, and tests whether the assumptions of
-that core are jointly satisfiable. It runs with no extra dependencies; two
-optional tools refine it.
+that core are jointly satisfiable. It needs no extra dependencies; Z3 makes
+its numeric filter exact and mus2muc enumerates every minimal core. Setup
+for both is in [`docs/conflict-check.md`](docs/conflict-check.md).
 
-* **Z3** (`pip install -e ".[smt]"`) makes the numeric consistency filter
-  exact. Without it a built-in interval checker is used.
-* **mus2muc** enumerates every minimal core instead of the disjoint cores
-  found by the built-in search. Install the package with
-  `pip install git+https://github.com/ainnoot/mus2muc`, build its patched
-  `wasp` solver and an LTL<sub>f</sub> solver (`aaltaf` or `black`) as
-  described in its README, and point `CONTRAGENT_MUS2MUC_BIN` at the folder
-  holding the binaries. `contragent conflicts --backend mus2muc` then uses
-  it; the default `--backend auto` uses it whenever it is available.
-
-## Design-time analysis
-
-A library exports to the *logics* specification language of
-[CHASE](https://chase-cps.github.io), which brings a contract algebra
-(composition, conjunction, refinement) and model-checking and synthesis back
-ends:
-
-```bash
-contragent export-chase --config contragent/contracts/sopbench/bank.yaml -o bank.logics
-```
-
-See [`docs/chase.md`](docs/chase.md) for the export semantics, the Python
-bindings, and how to build them.
+A library also exports to the *logics* language of
+[CHASE](https://chase-cps.github.io) for contract algebra and model
+checking (`contragent export-chase`); see [`docs/chase.md`](docs/chase.md).
 
 ## Experiments
 
