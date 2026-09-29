@@ -39,10 +39,13 @@ agents:
         G: {ltl: "G((called('send_email') -> called('read_file')))"}
 ```
 
-The `desc` matters: it is what a refused agent is told
-("`transfer_funds` was rejected by policy: identity must be verified
-before funds move"), so write it as the rule a person would state, not
-as a label.
+The `desc` is what a refused agent is told ("`transfer_funds` was
+rejected by policy: identity must be verified before funds move"), so
+write it as the rule a person would state, not as a label. It is
+optional: a contract without one is reported under its formula read back
+in words ("`verify_identity` must precede `transfer_funds`, or
+`transfer_funds` must never be called"), which is accurate but says
+nothing about why the rule exists.
 
 ## 2. Reading the policy
 

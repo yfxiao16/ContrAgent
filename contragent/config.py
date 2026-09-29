@@ -367,10 +367,23 @@ def _compile_ltl(entry: ConstraintEntry, fallback_desc: str | None = None) -> An
         raise ConfigError(f"Invalid regex in formula {entry.ltl!r}: {e}") from e
     return DetFormula(
         formula=formula,
-        desc=entry.desc or fallback_desc or entry.ltl,
+        desc=entry.desc or fallback_desc or describe_formula(formula, entry.ltl),
         kind="ltl",
         liveness=has_pending_obligation(formula),
     )
+
+
+def describe_formula(formula: Any, fallback: str = "") -> str:
+    """The sentence a contract without a ``desc`` is reported under: the
+    formula read back in words (:mod:`contragent.formulas.nl_gen`), or its
+    spelling if the back-translator has no reading for it."""
+    try:
+        from contragent.formulas.nl_gen import formula_to_nl
+
+        text = formula_to_nl(formula)
+    except Exception:  # noqa: BLE001 - a description must never fail a load
+        text = ""
+    return text or fallback or str(formula)
 
 
 def has_pending_obligation(formula: Any) -> bool:

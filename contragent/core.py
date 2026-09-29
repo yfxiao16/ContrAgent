@@ -171,7 +171,12 @@ class ContrAgent:
         under ``desc`` (the contract's description) and its unbounded
         eventualities are flagged, so :meth:`finish_session` decides them.
         """
-        from contragent.config import ConstraintEntry, _compile_ltl, has_pending_obligation
+        from contragent.config import (
+            ConstraintEntry,
+            _compile_ltl,
+            describe_formula,
+            has_pending_obligation,
+        )
         from contragent.formulas.det import DetFormula
         from contragent.formulas.formula import FormulaMixin
 
@@ -182,7 +187,7 @@ class ContrAgent:
         if isinstance(value, FormulaMixin):
             return DetFormula(
                 formula=value,
-                desc=desc or str(value),
+                desc=desc or describe_formula(value),
                 kind="ltl",
                 liveness=has_pending_obligation(value),
             )

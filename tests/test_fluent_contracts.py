@@ -64,3 +64,20 @@ def test_fluent_eventuality_discharged_is_clean():
     guard.guard_before("send_receipt", {})
     guard.guard_after("send_receipt", {"ok": True})
     assert guard.finish_session() == []
+
+
+def test_contract_without_desc_is_reported_in_words(tmp_path):
+    """No desc: the refusal carries the formula read back in words, never the
+    formula itself."""
+    cfg = tmp_path / "bank.yaml"
+    cfg.write_text(
+        f"version: '1'\nagents:\n  '*':\n    contracts:\n      - G: {{ltl: \"{PRECEDENCE}\"}}\n"
+    )
+    guard = ContrAgent(agent_id="a", config=cfg)
+    result = guard.guard_before("transfer_funds", {"amount": 5})
+    assert result.blocked
+    assert "must precede" in result.feedback
+    assert "U called" not in result.feedback
+
+    raw = ContrAgent(agent_id="a", contracts=[parse_repr(PRECEDENCE)])
+    assert "must precede" in raw.guard_before("transfer_funds", {"amount": 5}).feedback

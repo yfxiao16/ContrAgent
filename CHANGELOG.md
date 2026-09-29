@@ -10,7 +10,9 @@ project uses [semantic versioning](https://semver.org/).
 - License changed from BSD-3-Clause to Apache-2.0.
 - A refusal now reports the contract's `desc` ("identity must be
   verified before funds move") instead of echoing the formula. A
-  formula without a description of its own inherits the contract's.
+  formula without a description of its own inherits the contract's, and
+  a contract without any is reported under its formula read back in
+  words (`contragent.config.describe_formula`).
 
 ### Fixed
 - Contracts built with the fluent helper (`contract(...).guarantees(...)`)

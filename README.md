@@ -10,9 +10,10 @@ Write rules about what an agent may call, and when. ContrAgent checks
 every tool call against them before it runs, in microseconds, with no
 model in the loop.
 
-The rules are assume-guarantee contracts, each a pair of ALTL<sub>f</sub> formulas (linear temporal logic on finite
-traces with linear arithmetic) over a fixed vocabulary of interaction
-predicates evaluated on the agent's tool-call trace. Every contract compiles
+The rules are assume-guarantee contracts, each a pair of ALTL<sub>f</sub>
+formulas (linear temporal logic on finite traces with linear arithmetic)
+over a fixed vocabulary of interaction predicates evaluated on the agent's
+tool-call trace. Every contract compiles
 to a deterministic finite automaton, and the same automata serve two roles:
 
 * **Online**, they gate each tool call before it executes and block,

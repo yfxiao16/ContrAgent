@@ -3,8 +3,8 @@
 Two kinds of artifact are loaded here: policy documents (text, Markdown,
 PDF), which the formulation pipeline turns into proposed contracts, and
 recorded traces, which are replayed offline against a library. Agent
-source code is a third input in the pipeline the ContrAgent paper
-describes; its analysis lives outside this package.
+source code is a third possible input; its analysis lives outside this
+package.
 """
 
 from __future__ import annotations
