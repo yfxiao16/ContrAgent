@@ -1,7 +1,6 @@
 """Contract-library conflict checking.
 
-Implements the library check from the ContrAgent paper (§ Contract
-library). An assumption states what the environment is required to
+An assumption states what the environment is required to
 keep, so every assumption holds on every legal run. Contracts that are
 consistent and compatible one at a time can still be unsatisfiable
 together, so the library is checked as a whole, once at load time and

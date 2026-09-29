@@ -599,8 +599,8 @@ def collect_atoms(formula: Formula) -> set[Atom]:
     return set()
 
 
-#: Predicates decided by the agent's own actions, the set $V_{ag}$ of the
-#: paper. A contract's assumption states what the environment is required
+#: Predicates decided by the agent's own actions, the set $V_{ag}$. A
+#: contract's assumption states what the environment is required
 #: to keep, so it rests on the complementary set; a condition on these
 #: predicates belongs to the guarantee, as ``G(trigger -> ...)``.
 AGENT_CONTROLLED_PREDICATES = frozenset(

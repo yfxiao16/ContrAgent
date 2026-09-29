@@ -14,7 +14,7 @@ synthesis function that directly composes the LTL formula.  This gives us:
 2. **Richer expressiveness** — IR can express combinations such as
    "A or B must precede C".
 3. **Transparent mapping** — the IR→LTL table is self-documenting
-   and directly presentable in a paper.
+   and easy to present.
 
 **Key insight (from Req2LTL, AUTOMATE, nl2spec):**
 LLMs excel at identifying atomic propositions and classifying temporal

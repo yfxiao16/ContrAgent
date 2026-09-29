@@ -1,6 +1,6 @@
 # Benchmark harnesses
 
-Each directory holds the harness for one benchmark of the ContrAgent paper under
+Each directory holds the harness for one benchmark under
 `<benchmark>/contragent_eval/`: a converter from the benchmark's native
 format to the ContrAgent trace format, the scoring scripts, and (for
 SOPBench) the live four-condition enforcement experiment.
@@ -74,7 +74,7 @@ condition is stable across them and the model-driven ones are not.
 The domains are not all the same size. `university` has only 6 permitted
 tasks, so a `--limit 40` slice yields 26 tasks there rather than 40, and
 `--limit 0` runs its full pool of 42 (6 permitted, 36 forbidden). The
-`university` cell the paper reports is from the full pool; the other domains
+reported `university` cell is from the full pool; the other domains
 are from the balanced 40-task slice.
 
 ### AgentDojo
@@ -118,8 +118,8 @@ repeated trials, and the enforced condition by under 1 point, since its
 verdict does not depend on the agent. Aggregates are stable. Across our
 repeated trials the enforced mean stays at 89 to 90% success and 96 to 98%
 safety, and the unguarded base at 91% success and 32% safety. Individual
-domain cells can still differ by several points from the table in the
-paper, and by more if the hosted model snapshot has changed since, so
+domain cells can still differ by several points from the reported table,
+and by more if the hosted model snapshot has changed since, so
 compare the aggregates and the ordering between conditions rather than
 individual cells.
 

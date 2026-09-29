@@ -10,9 +10,7 @@ Write rules about what an agent may call, and when. ContrAgent checks
 every tool call against them before it runs, in microseconds, with no
 model in the loop.
 
-ContrAgent is the reference implementation of *Symbolic Temporal Supervision
-of LLM Agents Using Contracts*. The rules are assume-guarantee contracts,
-each a pair of ALTL<sub>f</sub> formulas (linear temporal logic on finite
+The rules are assume-guarantee contracts, each a pair of ALTL<sub>f</sub> formulas (linear temporal logic on finite
 traces with linear arithmetic) over a fixed vocabulary of interaction
 predicates evaluated on the agent's tool-call trace. Every contract compiles
 to a deterministic finite automaton, and the same automata serve two roles:
@@ -217,7 +215,7 @@ checking (`contragent export-chase`); see [`docs/chase.md`](docs/chase.md).
 
 ## Experiments
 
-The ContrAgent paper evaluates both roles on four benchmarks. Libraries ship under
+Both roles are evaluated on four benchmarks. Libraries ship under
 `contragent/contracts/`, the harnesses that convert each benchmark's data and
 score the results under `benchmarks/`, and the experiment records under
 `experiments/`. Third-party datasets are not redistributed;

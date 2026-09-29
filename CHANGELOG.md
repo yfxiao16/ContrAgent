@@ -39,7 +39,7 @@ project uses [semantic versioning](https://semver.org/).
   examples.
 - `contragent.analysis.completion` and `contragent.analysis.dead_ends`:
   the completion verdict and the static dead-end check under the names
-  the ACORN paper uses.
+  ACORN uses.
 
 ## [1.0.0] - 2026-09-21
 

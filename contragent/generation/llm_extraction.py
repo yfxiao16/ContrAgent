@@ -65,7 +65,7 @@ logger = logging.getLogger(__name__)
 # ---------------------------------------------------------------------------
 
 _BUILTIN_ATOMS = """\
-Interaction predicates (paper name -- formula spelling -- meaning).
+Interaction predicates (notation -- formula spelling -- meaning).
 Structural predicates are boolean at each event; numeric quantities are
 used inside Var(...) and compared with Le/Lt/Ge/Gt/Eq against Const(n).
 

@@ -1,7 +1,6 @@
 """Static (load-time) analyses over a contract library.
 
-Currently one analysis: the conflict-freedom check described in the
-ContrAgent paper — see :func:`check_conflicts`.
+Currently one analysis: the conflict-freedom check, :func:`check_conflicts`.
 """
 
 from contragent.analysis.conflicts import (

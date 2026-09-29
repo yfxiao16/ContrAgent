@@ -1,10 +1,10 @@
 # Interaction predicates
 
 The fixed vocabulary that ALTL<sub>f</sub> formulas are written over. The
-left column is the notation of the ContrAgent paper, the middle column the
+left column is the mathematical notation, the middle column the
 spelling accepted by the parser.
 
-| Paper | Formula spelling | Meaning |
+| Notation | Formula spelling | Meaning |
 |---|---|---|
 | Call(T) | `called(T)`, `called_with(T, p)` | tool T is invoked (with arguments matching p) |
 | ArgHas(T,f,p) | `arg_field_has(T, f, p)` | argument f of T matches pattern p |

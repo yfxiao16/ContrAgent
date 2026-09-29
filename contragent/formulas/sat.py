@@ -3,8 +3,8 @@
 This module answers one question: *does any non-empty finite trace
 satisfy a conjunction of contract formulas?* It is the decision
 procedure behind the library conflict check
-(:mod:`contragent.analysis.conflicts`), which follows the ContrAgent
-paper: test whether :math:`\\bigwedge_i A_i` is satisfiable, so that a
+(:mod:`contragent.analysis.conflicts`), which proceeds in two steps:
+test whether :math:`\\bigwedge_i A_i` is satisfiable, so that a
 legal environment exists, then extract a minimal unsatisfiable core of
 :math:`\\bigwedge_i (A_i \\wedge G_i)` to name the contracts that clash.
 
