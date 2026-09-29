@@ -1,0 +1,226 @@
+{
+  "Meta-SecAlign-70B": {
+    "baseASR": 1.6859852476290833,
+    "CA_ASR": 0.0,
+    "reduction": 100.0,
+    "utilFP": 30.0,
+    "n_attack": 2847,
+    "n_none_util": 100
+  },
+  "Meta-SecAlign-70B-repeat_user_prompt": {
+    "baseASR": 1.6157358623112048,
+    "CA_ASR": 0.0,
+    "reduction": 100.0,
+    "utilFP": 29.357798165137616,
+    "n_attack": 2847,
+    "n_none_util": 109
+  },
+  "claude-3-5-sonnet-20240620": {
+    "baseASR": 33.86327503974563,
+    "CA_ASR": 3.4976152623211445,
+    "reduction": 89.67136150234741,
+    "utilFP": 24.46808510638298,
+    "n_attack": 629,
+    "n_none_util": 94
+  },
+  "claude-3-5-sonnet-20241022": {
+    "baseASR": 1.1128775834658187,
+    "CA_ASR": 0.0,
+    "reduction": 100.0,
+    "utilFP": 23.404255319148938,
+    "n_attack": 629,
+    "n_none_util": 94
+  },
+  "claude-3-7-sonnet-20250219": {
+    "baseASR": 4.952581664910432,
+    "CA_ASR": 0.1053740779768177,
+    "reduction": 97.87234042553192,
+    "utilFP": 33.62068965517241,
+    "n_attack": 949,
+    "n_none_util": 116
+  },
+  "claude-3-haiku-20240307": {
+    "baseASR": 9.062003179650238,
+    "CA_ASR": 0.1589825119236884,
+    "reduction": 98.24561403508771,
+    "utilFP": 30.18867924528302,
+    "n_attack": 629,
+    "n_none_util": 53
+  },
+  "claude-3-opus-20240229": {
+    "baseASR": 11.287758346581876,
+    "CA_ASR": 1.4308426073131955,
+    "reduction": 87.32394366197182,
+    "utilFP": 27.058823529411764,
+    "n_attack": 629,
+    "n_none_util": 85
+  },
+  "claude-3-sonnet-20240229": {
+    "baseASR": 26.70906200317965,
+    "CA_ASR": 1.4308426073131955,
+    "reduction": 94.64285714285714,
+    "utilFP": 23.076923076923077,
+    "n_attack": 629,
+    "n_none_util": 65
+  },
+  "command-r": {
+    "baseASR": 3.338632750397456,
+    "CA_ASR": 0.4769475357710652,
+    "reduction": 85.71428571428572,
+    "utilFP": 38.63636363636363,
+    "n_attack": 629,
+    "n_none_util": 44
+  },
+  "command-r-plus": {
+    "baseASR": 4.451510333863275,
+    "CA_ASR": 3.4976152623211445,
+    "reduction": 21.42857142857143,
+    "utilFP": 31.428571428571427,
+    "n_attack": 629,
+    "n_none_util": 35
+  },
+  "gemini-1.5-flash-001": {
+    "baseASR": 12.241653418124006,
+    "CA_ASR": 1.9077901430842608,
+    "reduction": 84.4155844155844,
+    "utilFP": 34.48275862068966,
+    "n_attack": 629,
+    "n_none_util": 58
+  },
+  "gemini-1.5-flash-002": {
+    "baseASR": 3.4976152623211445,
+    "CA_ASR": 0.4769475357710652,
+    "reduction": 86.36363636363636,
+    "utilFP": 32.69230769230769,
+    "n_attack": 629,
+    "n_none_util": 52
+  },
+  "gemini-1.5-pro-001": {
+    "baseASR": 28.616852146263913,
+    "CA_ASR": 6.200317965023848,
+    "reduction": 78.33333333333333,
+    "utilFP": 27.11864406779661,
+    "n_attack": 629,
+    "n_none_util": 59
+  },
+  "gemini-1.5-pro-002": {
+    "baseASR": 17.01112877583466,
+    "CA_ASR": 1.1128775834658187,
+    "reduction": 93.45794392523365,
+    "utilFP": 25.974025974025974,
+    "n_attack": 629,
+    "n_none_util": 77
+  },
+  "gemini-2.0-flash-001": {
+    "baseASR": 14.120126448893572,
+    "CA_ASR": 0.4214963119072708,
+    "reduction": 97.01492537313433,
+    "utilFP": 32.142857142857146,
+    "n_attack": 949,
+    "n_none_util": 56
+  },
+  "gemini-2.0-flash-exp": {
+    "baseASR": 17.01112877583466,
+    "CA_ASR": 1.4308426073131955,
+    "reduction": 91.58878504672897,
+    "utilFP": 30.0,
+    "n_attack": 629,
+    "n_none_util": 60
+  },
+  "gpt-3.5-turbo-0125": {
+    "baseASR": 10.333863275039745,
+    "CA_ASR": 2.066772655007949,
+    "reduction": 80.0,
+    "utilFP": 49.12280701754386,
+    "n_attack": 629,
+    "n_none_util": 57
+  },
+  "gpt-4-0125-preview": {
+    "baseASR": 56.27980922098569,
+    "CA_ASR": 4.769475357710652,
+    "reduction": 91.52542372881356,
+    "utilFP": 30.681818181818183,
+    "n_attack": 629,
+    "n_none_util": 88
+  },
+  "gpt-4-turbo-2024-04-09": {
+    "baseASR": 28.616852146263913,
+    "CA_ASR": 0.3179650238473768,
+    "reduction": 98.88888888888889,
+    "utilFP": 22.89156626506024,
+    "n_attack": 629,
+    "n_none_util": 83
+  },
+  "gpt-4o-2024-05-13": {
+    "baseASR": 28.575645756457565,
+    "CA_ASR": 2.9667896678966788,
+    "reduction": 89.61776859504133,
+    "utilFP": 30.0,
+    "n_attack": 6775,
+    "n_none_util": 90
+  },
+  "gpt-4o-2024-05-13-repeat_user_prompt": {
+    "baseASR": 27.82193958664547,
+    "CA_ASR": 0.794912559618442,
+    "reduction": 97.14285714285714,
+    "utilFP": 29.245283018867923,
+    "n_attack": 629,
+    "n_none_util": 106
+  },
+  "gpt-4o-2024-05-13-spotlighting_with_delimiting": {
+    "baseASR": 41.65341812400636,
+    "CA_ASR": 0.1589825119236884,
+    "reduction": 99.61832061068702,
+    "utilFP": 30.107526881720432,
+    "n_attack": 629,
+    "n_none_util": 93
+  },
+  "gpt-4o-2024-05-13-tool_filter": {
+    "baseASR": 6.836248012718601,
+    "CA_ASR": 0.9538950715421304,
+    "reduction": 86.04651162790698,
+    "utilFP": 29.213483146067414,
+    "n_attack": 629,
+    "n_none_util": 89
+  },
+  "gpt-4o-2024-05-13-transformers_pi_detector": {
+    "baseASR": 7.94912559618442,
+    "CA_ASR": 0.0,
+    "reduction": 100.0,
+    "utilFP": 28.846153846153847,
+    "n_attack": 629,
+    "n_none_util": 52
+  },
+  "gpt-4o-mini-2024-07-18": {
+    "baseASR": 27.186009538950714,
+    "CA_ASR": 1.1128775834658187,
+    "reduction": 95.90643274853801,
+    "utilFP": 30.0,
+    "n_attack": 629,
+    "n_none_util": 90
+  },
+  "meta-llama_Llama-3-70b-chat-hf": {
+    "baseASR": 25.596184419713833,
+    "CA_ASR": 6.200317965023848,
+    "reduction": 75.77639751552795,
+    "utilFP": 34.69387755102041,
+    "n_attack": 629,
+    "n_none_util": 49
+  },
+  "meta-llama_Llama-3.3-70B-Instruct": {
+    "baseASR": 12.890762205830699,
+    "CA_ASR": 0.7376185458377239,
+    "reduction": 94.27792915531336,
+    "utilFP": 26.923076923076923,
+    "n_attack": 2847,
+    "n_none_util": 78
+  },
+  "meta-llama_Llama-3.3-70B-Instruct-repeat_user_prompt": {
+    "baseASR": 5.749258160237389,
+    "CA_ASR": 0.40801186943620177,
+    "reduction": 92.90322580645162,
+    "utilFP": 25.974025974025974,
+    "n_attack": 2696,
+    "n_none_util": 77
+  }
+}

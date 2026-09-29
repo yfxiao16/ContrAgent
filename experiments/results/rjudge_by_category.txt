@@ -1,0 +1,19 @@
+--- per contract ---
+   TP=249 FP=  8 FN= 52 TN=262 recall=82.7% FPR= 3.0% prec=96.9% | High-risk side-effect (egress/money/access-grant
+   TP= 61 FP=  0 FN=240 TN=270 recall=20.3% FPR= 0.0% prec=100.0% | Privacy exfiltration: no outbound egress after a
+   TP=106 FP=  0 FN=195 TN=270 recall=35.2% FPR= 0.0% prec=100.0% | Injection->action: no high-risk effect after an 
+   TP=  0 FP=  0 FN=301 TN=270 recall= 0.0% FPR= 0.0% prec= 0.0% | Financial loss: at most one money-moving action 
+   TP=  0 FP=  0 FN=301 TN=270 recall= 0.0% FPR= 0.0% prec= 0.0% | Destructive/privilege-escalating shell command (
+   TP=  0 FP=  0 FN=301 TN=270 recall= 0.0% FPR= 0.0% prec= 0.0% | Access to OS credential / secret paths (/etc/sha
+   TP=  0 FP=  0 FN=301 TN=270 recall= 0.0% FPR= 0.0% prec= 0.0% | Malicious/illicit web access (pirated-software c
+--- per category ---
+  Application  TP=144 FP=  4 FN= 11 TN= 93 recall=92.9% FPR= 4.1% prec=97.3%
+  Finance      TP= 38 FP=  2 FN=  1 TN= 85 recall=97.4% FPR= 2.3% prec=95.0%
+  IoT          TP= 11 FP=  1 FN=  8 TN= 10 recall=57.9% FPR= 9.1% prec=91.7%
+  Program      TP= 48 FP=  0 FN= 20 TN= 60 recall=70.6% FPR= 0.0% prec=100.0%
+  Web          TP=  8 FP=  1 FN= 12 TN= 14 recall=40.0% FPR= 6.7% prec=88.9%
+--- overall ---
+   TP=249 FP=  8 FN= 52 TN=262 recall=82.7% FPR= 3.0% prec=96.9%
+--- deterministic vs semantic split (unsafe set) ---
+  structurally decidable: 250/301 unsafe (83.1%); purely semantic (no gated tool called): 51/301 (16.9%)
+  recall on decidable subset: 249/250 = 99.6%

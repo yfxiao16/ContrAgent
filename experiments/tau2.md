@@ -28,6 +28,8 @@ from the reported rates by the harness, as in the paper.
 
 ## Results (paper Figure `fig:tau2tax`)
 
+Summary file: [`results/tau2_proc_eval.json`](results/tau2_proc_eval.json).
+
 Across the 4,464-trace matrix Claude 3.7 reaches an outcome `pass^4` of
 25% to 60% yet a `joint^4` of 0% in all three domains: no task is completed
 reliably without at least one procedural violation. The contract library

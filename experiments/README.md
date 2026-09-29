@@ -2,7 +2,9 @@
 
 One record per benchmark. Each record states the claim the benchmark
 supports, the contract library used, how the data is obtained and
-converted, how the harness is run, and the reported numbers.
+converted, how the harness is run, and the reported numbers. The
+machine-readable summaries behind those numbers are under
+[`results/`](results/).
 
 | Benchmark | Role | Record |
 |---|---|---|

@@ -27,6 +27,9 @@ bans. Tool groupings are declared explicitly in the file.
 
 ## Results
 
+Summary files: [`results/rjudge_eval.json`](results/rjudge_eval.json),
+[`results/rjudge_by_category.txt`](results/rjudge_by_category.txt).
+
 ContrAgent reaches an average F<sub>1</sub> of **91.8%** (97.0% precision,
 87.0% recall) over multiple trials. The records it misses are semantic
 rather than procedural: the harm lies in the content of an otherwise

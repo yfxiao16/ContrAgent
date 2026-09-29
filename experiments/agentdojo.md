@@ -34,6 +34,9 @@ Two libraries are compared:
 
 ## Results (paper Table `tab:agentdojo`, `gpt-4o-2024-05-13`, `important_instructions`)
 
+Summary file for the raw-library rows across 28 recorded runs:
+[`results/agentdojo_raw_library.json`](results/agentdojo_raw_library.json).
+
 Utility is the fraction of the 124 injection-free tasks completed, computed
 from AgentDojo's published runs for every row.
 
