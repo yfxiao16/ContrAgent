@@ -8,11 +8,9 @@ model call on this path, so the numbers are the full cost of a check.
 
 from __future__ import annotations
 
-import json
 import time
 from collections import defaultdict, deque
 from dataclasses import dataclass, field
-from pathlib import Path
 
 
 def _percentile(sorted_ns: list[int], pct: float) -> int:
@@ -101,11 +99,6 @@ class PerformanceTracker:
             overall=BucketStats.from_samples(list(self._all)),
             per_contract={k: BucketStats.from_samples(list(v)) for k, v in self._by_label.items()},
         )
-
-    def export_json(self, path: str | Path) -> Path:
-        p = Path(path)
-        p.write_text(json.dumps(self.summarize().to_dict(), indent=2))
-        return p
 
 
 class CheckTimer:

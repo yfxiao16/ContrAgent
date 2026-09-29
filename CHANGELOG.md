@@ -18,7 +18,18 @@ project uses [semantic versioning](https://semver.org/).
   `finish_session()` reports an owed `F` obligation for them as it
   already did for YAML contracts.
 
+### Removed
+- Dead code, none of it referenced by the package, the tests, the
+  harnesses, or ACORN: the deprecated `contragent.formulas.fol` module,
+  the `Tracer` class of `contragent.tracer` (grounding stays), the
+  duplicate `contracts/sopbench/compile_tree.py` (the SOPBench harness
+  keeps its copy), the unused baseline-diff types of `eval_runner`, and
+  a dozen unreferenced functions and methods (`config_to_guard_kwargs`,
+  `make_contracts`, `render_last_turn`, `register_callback`, ...).
+
 ### Added
+- `tests/test_dead_ends.py` for the static dead-end check whose
+  verdicts on the shipped libraries the results ledger reports.
 - `examples/`: the README quickstart as a script, a supervised
   tool-calling loop, and two recorded traces for `contragent replay`.
 - `CONTRIBUTING.md`, `CODE_OF_CONDUCT.md`, this changelog; CI runs the

@@ -38,7 +38,7 @@ Contracts are versioned in this repository and are never tuned on labels:
 
 | Benchmark | Library |
 |---|---|
-| SOPBench | [`contragent/contracts/sopbench/`](../contragent/contracts/sopbench/) — one `<domain>.yaml` per domain, plus [`compile_tree.py`](../contragent/contracts/sopbench/compile_tree.py) which compiles the public procedure tree into (A, G) pairs |
+| SOPBench | [`contragent/contracts/sopbench/`](../contragent/contracts/sopbench/) — one `<domain>.yaml` per domain, plus [`SOPBench/contragent_eval/compile_tree.py`](SOPBench/contragent_eval/compile_tree.py) which compiles the public procedure tree into (A, G) pairs |
 | AgentDojo | [`contragent/contracts/benchmark/agentdojo.yaml`](../contragent/contracts/benchmark/agentdojo.yaml) |
 | R-Judge | [`contragent/contracts/benchmark/rjudge.yaml`](../contragent/contracts/benchmark/rjudge.yaml) |
 | tau²-bench | [`contragent/contracts/benchmark/tau2_bench.yaml`](../contragent/contracts/benchmark/tau2_bench.yaml) |

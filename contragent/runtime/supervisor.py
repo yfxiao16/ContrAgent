@@ -135,17 +135,6 @@ class Supervisor:
         with self._lock:
             return list(self._turn_spans)
 
-    def render_last_turn(self, colorize: bool = True) -> str:
-        if self._last_turn_span is None:
-            return ""
-        from contragent.models.spans import render_tree
-
-        return render_tree(self._last_turn_span, colorize=colorize)
-
-    def register_callback(self, fn: Callable[[SupervisionEvent], None]) -> None:
-        with self._lock:
-            self._callbacks.append(fn)
-
     def import_trace(self, trace: Trace) -> None:
         """Replace the session trace (used to replay a recorded trace)."""
         with self._lock:

@@ -57,8 +57,6 @@ import os
 from dataclasses import dataclass, field
 from typing import Any
 
-from contragent.formulas.det import DetFormula
-
 logger = logging.getLogger(__name__)
 
 
@@ -151,16 +149,6 @@ def register_atoms(atoms: list[tuple[str, str]] | dict[str, str]) -> None:
     if isinstance(atoms, dict):
         atoms = list(atoms.items())
     _custom_atoms.extend(atoms)
-
-
-def get_custom_atoms() -> list[tuple[str, str]]:
-    """Return a copy of all registered custom atoms."""
-    return list(_custom_atoms)
-
-
-def clear_custom_atoms() -> None:
-    """Remove all registered custom atoms (mainly for testing)."""
-    _custom_atoms.clear()
 
 
 def _build_atom_vocabulary() -> str:
@@ -1030,14 +1018,3 @@ class UnifiedExtractor:
     # -------------------------------------------------------------------
     # Convenience: extract + filter only successful compilations
     # -------------------------------------------------------------------
-
-    def extract_compiled(
-        self,
-        mode: str,
-        content: str,
-        tool_inventory: list[dict] | None = None,
-        min_confidence: float = 0.3,
-    ) -> list[DetFormula]:
-        """Extract and return the compiled formulas that passed validation."""
-        results = self._extract(mode, content, tool_inventory, min_confidence)
-        return [r.compiled for r in results if r.ok]

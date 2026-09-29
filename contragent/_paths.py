@@ -79,21 +79,3 @@ def safe_resolve(
             ) from e
 
     return p
-
-
-def safe_join_segment(base_dir: Path, segment: str) -> Path:
-    """Safely join a single user-controlled ``segment`` onto ``base_dir``.
-
-    Used for things like ``base / agent_id`` where ``agent_id`` is
-    user-supplied and we want to refuse ``..`` / absolute paths /
-    embedded separators.
-
-    Returns the resolved child path. Raises :class:`PathEscapeError`
-    if the segment escapes ``base_dir``.
-    """
-    if not segment or "/" in segment or "\\" in segment or segment in (".", ".."):
-        raise PathEscapeError(
-            f"unsafe path segment: {segment!r} (must be a single name "
-            f"with no separators or parent references)"
-        )
-    return safe_resolve(segment, base_dir=base_dir, safe_root=base_dir)

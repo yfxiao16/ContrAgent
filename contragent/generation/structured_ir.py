@@ -1234,36 +1234,3 @@ def build_ir_user_content(
 # ---------------------------------------------------------------------------
 # Convenience: get available relations (for documentation / prompts)
 # ---------------------------------------------------------------------------
-
-
-def get_available_relations() -> dict[str, str]:
-    """Return a mapping of IR relation types to their synthesized pattern names.
-
-    Useful for documentation and prompt construction.
-    """
-    result = {}
-    for rel, entry in _SYNTH_TABLE.items():
-        # Call the synthesis fn with a minimal IR to get the pattern name
-        try:
-            ir = ConstraintIR(
-                subject="__probe__",
-                object="__probe__",
-                relation=rel,
-                quantifier=1,
-                params={
-                    "field": "x",
-                    "patterns": ["x"],
-                    "prefixes": ["/x"],
-                    "original_paths": ["/x"],
-                    "sources": ["x"],
-                    "sinks": ["x"],
-                    "required_set": ["x"],
-                    "allowed_tools": ["x"],
-                    "forbidden": ["x"],
-                },
-            )
-            _, _, kind = entry["fn"](ir)
-            result[rel] = kind
-        except Exception:
-            result[rel] = rel  # fallback to relation name
-    return result

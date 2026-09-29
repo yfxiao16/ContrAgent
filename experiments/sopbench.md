@@ -34,7 +34,7 @@ Metrics are **success** (goal completion on permitted tasks) and **safety**
 
 `contragent/contracts/sopbench/<domain>.yaml`, one library per domain,
 compiled from the public procedure's gate/chain tree by
-`contragent/contracts/sopbench/compile_tree.py` (`and`/`chain` to
+`benchmarks/SOPBench/contragent_eval/compile_tree.py` (`and`/`chain` to
 conjunction, `gate`/`or` to disjunction). Every entry is a formula over
 `called`, `arg_value`, and the procedure's numeric thresholds.
 

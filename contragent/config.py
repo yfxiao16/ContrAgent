@@ -520,35 +520,6 @@ def load_system(path: str | Path) -> Any:
     return config_to_system(load_config(path))
 
 
-def config_to_guard_kwargs(config: ContrAgentConfig, agent_id: str) -> dict[str, Any]:
-    """Keyword arguments for :class:`~contragent.core.ContrAgent` from one agent block.
-
-    Returns ``{"agent_id": ..., "contracts": [...]}`` where each contract is a
-    mapping with the compiled ``guarantee``, the compiled ``assumption`` (when
-    present) and ``desc``,
-    ready to pass as ``ContrAgent(**kwargs)``. A ``"*"`` block applies to any
-    agent.
-    """
-    block = config.agents.get(agent_id) or config.agents.get("*")
-    if block is None:
-        raise ConfigError(f"agent {agent_id!r} not found in library; have {list(config.agents)}")
-    llm_extractor = build_extractor(config.extractor)
-    tool_inventory = [
-        {"name": t.name, "description": t.description, "params": t.params} for t in config.tools
-    ] or None
-    contracts: list[dict[str, Any]] = []
-    for ce in block.contracts:
-        entry: dict[str, Any] = {
-            "guarantee": _compile_field(ce.guarantee, llm_extractor, tool_inventory),
-            "desc": ce.desc,
-        }
-        assumption = _compile_field(ce.assumption, llm_extractor, tool_inventory)
-        if assumption is not None:
-            entry["assumption"] = assumption
-        contracts.append(entry)
-    return {"agent_id": agent_id, "contracts": contracts}
-
-
 __all__ = [
     "ConfigError",
     "ToolEntry",

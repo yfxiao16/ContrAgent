@@ -1,3 +1,1 @@
-from contragent.tracer.tracer import Tracer
-
-__all__ = ["Tracer"]
+"""Grounding of trace events into predicate valuations (see :mod:`contragent.tracer.grounding`)."""
