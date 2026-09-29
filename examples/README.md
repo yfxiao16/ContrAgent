@@ -1,6 +1,6 @@
 # Examples
 
-All three run without a model or credentials.
+All three run without a model or credentials. To write a library of your own, start with [`docs/authoring.md`](../docs/authoring.md).
 
 | File | Shows |
 |---|---|

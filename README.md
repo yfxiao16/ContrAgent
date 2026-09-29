@@ -123,7 +123,11 @@ an `extractor:` section names a model. Another library is pulled in with
 `include: [contragent:sopbench/bank]`.
 
 The full predicate vocabulary is in
-[`docs/predicates.md`](docs/predicates.md).
+[`docs/predicates.md`](docs/predicates.md), and
+[`docs/authoring.md`](docs/authoring.md) is the guide to turning a policy
+into a library: the four rule shapes, weak versus strong until, which
+side a predicate belongs on, and how to check a library before an agent
+runs under it.
 
 ### Assumptions
 

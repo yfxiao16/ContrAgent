@@ -28,6 +28,9 @@ project uses [semantic versioning](https://semver.org/).
   `make_contracts`, `render_last_turn`, `register_callback`, ...).
 
 ### Added
+- `docs/authoring.md`: how to turn a policy into a library (the four
+  rule shapes, weak versus strong until, which side a predicate belongs
+  on, arguments, and the checks to run before an agent runs under it).
 - `tests/test_dead_ends.py` for the static dead-end check whose
   verdicts on the shipped libraries the results ledger reports.
 - `examples/`: the README quickstart as a script, a supervised
