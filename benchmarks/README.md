@@ -1,6 +1,6 @@
 # Benchmark harnesses
 
-Each directory holds the harness for one benchmark of the paper under
+Each directory holds the harness for one benchmark of the ContrAgent paper under
 `<benchmark>/contragent_eval/`: a converter from the benchmark's native
 format to the ContrAgent trace format, the scoring scripts, and (for
 SOPBench) the live four-condition enforcement experiment.
@@ -74,8 +74,8 @@ condition is stable across them and the model-driven ones are not.
 The domains are not all the same size. `university` has only 6 permitted
 tasks, so a `--limit 40` slice yields 26 tasks there rather than 40, and
 `--limit 0` runs its full pool of 42 (6 permitted, 36 forbidden). The
-paper's `university` cell is from the full pool; the other domains are from
-the balanced 40-task slice.
+`university` cell the paper reports is from the full pool; the other domains
+are from the balanced 40-task slice.
 
 ### AgentDojo
 

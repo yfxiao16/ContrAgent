@@ -1,7 +1,7 @@
 # Interaction predicates
 
 The fixed vocabulary that ALTL<sub>f</sub> formulas are written over. The
-left column is the notation used in the paper, the middle column the
+left column is the notation of the ContrAgent paper, the middle column the
 spelling accepted by the parser.
 
 | Paper | Formula spelling | Meaning |
@@ -63,7 +63,7 @@ over tool calls and results need no extra wiring; `guard_before` and
 
 ## When a predicate has no value
 
-The paper defines an interaction predicate as a total function of the
+ContrAgent defines an interaction predicate as a total function of the
 session state, the event, and its parameter, with the values true and
 false. The implementation keeps that reading. This section states what it
 does with input from which no value can be read, since a contract that

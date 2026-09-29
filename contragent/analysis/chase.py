@@ -22,7 +22,7 @@ predicates carry parameters, so a library is *grounded* at export:
 * every quantity (``count(T)``, ``arg_numeric(T, f)``, ``ArgLength(T, f)``,
   ``CtxValue(k)``) becomes one integer variable; a saturating counter is
   declared with the range ``(0:K)`` where ``K`` exceeds every constant it is
-  compared with, which is exactly the finite expansion the paper uses;
+  compared with, the finite expansion the ContrAgent paper uses;
 * comparisons are emitted as relations inside the formulas.
 
 The library is finite, so the grounding is finite and exact.

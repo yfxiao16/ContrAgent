@@ -1,6 +1,6 @@
 """One spelling of a tool name, shared by contracts and grounding.
 
-The ``Call(T)`` predicate of the paper asks whether tool ``T`` is invoked.
+The ``Call(T)`` predicate (``called(T)`` here) asks whether tool ``T`` is invoked.
 In the implementation a predicate key is a dictionary key, so
 ``called(issue_refund)`` and ``called(Issue_Refund)`` used to be two
 unrelated entries and a contract only ever looked up the spelling its

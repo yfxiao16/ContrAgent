@@ -1,8 +1,10 @@
 # Experiment records
 
-One record per benchmark of the paper. Each record states the claim the
-benchmark supports, the contract library used, how the data is obtained and
-converted, how the harness is run, and the numbers reported in the paper.
+One record per benchmark in the ContrAgent paper
+([arXiv:2609.18128](https://arxiv.org/abs/2609.18128)). Each record states
+the claim the benchmark supports, the contract library used, how the data is
+obtained and converted, how the harness is run, and the numbers the paper
+reports.
 
 | Benchmark | Role | Record |
 |---|---|---|

@@ -217,7 +217,7 @@ checking (`contragent export-chase`); see [`docs/chase.md`](docs/chase.md).
 
 ## Experiments
 
-The paper evaluates both roles on four benchmarks. Libraries ship under
+The ContrAgent paper evaluates both roles on four benchmarks. Libraries ship under
 `contragent/contracts/`, the harnesses that convert each benchmark's data and
 score the results under `benchmarks/`, and the experiment records under
 `experiments/`. Third-party datasets are not redistributed;

@@ -175,7 +175,7 @@ _NAMESPACED_TOOL_RE = re.compile(r"^[A-Za-z_][\w-]*:[A-Za-z_][\w-]*$")
 # ── Grounding misses ───────────────────────────────────────────────
 # A predicate over a call's arguments that some loaded contract reads
 # could not be evaluated on an event: the call carried no arguments at
-# all, or a numeric field was absent or held no number. The paper
+# all, or a numeric field was absent or held no number. ContrAgent
 # defines every interaction predicate as a total function into
 # {true, false}; these are the inputs on which the implementation has
 # no value to give. A pattern predicate over a field that is absent is

@@ -360,7 +360,7 @@ class ContrAgent:
     def _args_unevaluable(self, tool_name: str, args: dict | None) -> str | None:
         """Why the contracts cannot be evaluated on this call, or ``None``.
 
-        The paper defines an interaction predicate as a total function of
+        ContrAgent defines an interaction predicate as a total function of
         the state, the event, and its parameter. An adapter that loses the
         arguments, a partial streamed call, or an amount written as text a
         numeric predicate cannot read leave the implementation with no
