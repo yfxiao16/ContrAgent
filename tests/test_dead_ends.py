@@ -6,6 +6,7 @@ ledger reports."""
 from __future__ import annotations
 
 from pathlib import Path
+from types import SimpleNamespace
 
 from contragent.analysis.dead_ends import check_dead_ends
 from contragent.config import load_system
@@ -15,7 +16,9 @@ ROOT = Path(__file__).resolve().parent.parent
 
 
 def _library(*formulas: str):
-    return [parse_repr(f) for f in formulas]
+    # The check reads ``guarantee``/``desc`` (ContrAgent contracts) or
+    # ``formula``/``name`` (control-layer contracts); a bare formula is skipped.
+    return [SimpleNamespace(formula=parse_repr(f), name=f"c{i}") for i, f in enumerate(formulas)]
 
 
 def test_rate_limited_obligation_is_a_dead_end():
@@ -28,7 +31,7 @@ def test_rate_limited_obligation_is_a_dead_end():
     assert not report.ok
     assert [o.tool for o in report.rate_limited] == ["freeze_account"]
     assert report.bounded_tools == {"freeze_account": 1}
-    assert "freeze_account" in report.summary()
+    assert "rate-limited" in report.summary()
 
 
 def test_competing_next_obligations_are_a_dead_end():
