@@ -1,0 +1,7 @@
+# Library for the recorded traces under examples/traces/.
+version: "1"
+agents:
+  "*":
+    contracts:
+      - desc: "a refund is issued only after the policy check"
+        G: {ltl: "(!(called('issue_refund')) U called('check_policy')) | G(!(called('issue_refund')))"}

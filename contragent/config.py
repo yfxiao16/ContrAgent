@@ -339,8 +339,13 @@ def load_config(path: str | Path) -> ContrAgentConfig:
 # ----------------------------------------------------------------------
 
 
-def _compile_ltl(entry: ConstraintEntry) -> Any:
-    """Parse a formula string into a :class:`DetFormula`."""
+def _compile_ltl(entry: ConstraintEntry, fallback_desc: str | None = None) -> Any:
+    """Parse a formula string into a :class:`DetFormula`.
+
+    ``fallback_desc`` is the enclosing contract's ``desc``: a formula
+    without a description of its own is reported under it, so a refusal
+    tells the model "identity must be verified before funds move" rather
+    than echoing the formula."""
     from contragent.formulas.det import DetFormula
     from contragent.formulas.parser import ParseError, parse_formula, parse_repr
     from contragent.formulas.regex_check import RegexValidationError, check_regexes
@@ -362,7 +367,7 @@ def _compile_ltl(entry: ConstraintEntry) -> Any:
         raise ConfigError(f"Invalid regex in formula {entry.ltl!r}: {e}") from e
     return DetFormula(
         formula=formula,
-        desc=entry.desc or entry.ltl,
+        desc=entry.desc or fallback_desc or entry.ltl,
         kind="ltl",
         liveness=has_pending_obligation(formula),
     )
@@ -412,7 +417,10 @@ def has_pending_obligation(formula: Any) -> bool:
 
 
 def _compile_nl(
-    entry: ConstraintEntry, llm_extractor: Any, tool_inventory: list[dict] | None
+    entry: ConstraintEntry,
+    llm_extractor: Any,
+    tool_inventory: list[dict] | None,
+    fallback_desc: str | None = None,
 ) -> Any:
     """Lift a natural-language requirement to a formula through the extractor."""
     if llm_extractor is None:
@@ -426,10 +434,10 @@ def _compile_nl(
         errors = "; ".join(r.error for r in results if r.error) or "no constraint produced"
         raise ConfigError(f"Could not formulate {entry.nl!r}: {errors}")
     compiled = ok[0].compiled
-    if entry.desc:
+    if entry.desc or fallback_desc:
         from dataclasses import replace
 
-        compiled = replace(compiled, desc=entry.desc)
+        compiled = replace(compiled, desc=entry.desc or fallback_desc)
     return compiled
 
 
@@ -437,22 +445,24 @@ def _compile_single(
     entry: ConstraintEntry,
     llm_extractor: Any = None,
     tool_inventory: list[dict] | None = None,
+    fallback_desc: str | None = None,
 ) -> Any:
     if entry.is_ltl:
-        return _compile_ltl(entry)
-    return _compile_nl(entry, llm_extractor, tool_inventory)
+        return _compile_ltl(entry, fallback_desc)
+    return _compile_nl(entry, llm_extractor, tool_inventory, fallback_desc)
 
 
 def _compile_field(
     value: ConstraintEntry | list[ConstraintEntry] | None,
     llm_extractor: Any = None,
     tool_inventory: list[dict] | None = None,
+    fallback_desc: str | None = None,
 ) -> Any:
     if value is None:
         return None
     if isinstance(value, list):
-        return [_compile_single(v, llm_extractor, tool_inventory) for v in value]
-    return _compile_single(value, llm_extractor, tool_inventory)
+        return [_compile_single(v, llm_extractor, tool_inventory, fallback_desc) for v in value]
+    return _compile_single(value, llm_extractor, tool_inventory, fallback_desc)
 
 
 def build_extractor(section: ExtractorSection) -> Any:
@@ -490,8 +500,8 @@ def config_to_system(
     for agent_id, ac in config.agents.items():
         agent = Agent(id=agent_id)
         for ce in ac.contracts:
-            g = _compile_field(ce.guarantee, llm_extractor, tool_inventory)
-            a = _compile_field(ce.assumption, llm_extractor, tool_inventory)
+            g = _compile_field(ce.guarantee, llm_extractor, tool_inventory, ce.desc)
+            a = _compile_field(ce.assumption, llm_extractor, tool_inventory, ce.desc)
             contracts.append(
                 Contract(
                     agent=agent,

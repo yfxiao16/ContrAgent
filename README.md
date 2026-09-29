@@ -2,7 +2,7 @@
 
 **Symbolic temporal supervision of LLM agents using assume-guarantee contracts.**
 
-[![License: BSD-3-Clause](https://img.shields.io/badge/License-BSD_3--Clause-blue.svg)](LICENSE)
+[![License: Apache-2.0](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](LICENSE)
 [![Python 3.10+](https://img.shields.io/badge/python-3.10+-blue.svg)](https://www.python.org/downloads/)
 [![arXiv](https://img.shields.io/badge/arXiv-2609.18128-b31b1b.svg)](https://arxiv.org/abs/2609.18128)
 
@@ -80,6 +80,20 @@ The same contracts check a recorded trace from the command line:
 
 ```bash
 contragent replay trace.json --config bank.yaml
+```
+
+## Examples
+
+Three runnable programs under [`examples/`](examples/), none needing a
+model or credentials: the quickstart above as a script, a supervised
+tool-calling loop (`guard_before` in front of each call, `guard_after`
+behind it, refusals fed back to the model), and two recorded traces to
+replay:
+
+```bash
+python3 examples/quickstart.py
+python3 examples/agent_loop.py
+contragent replay examples/traces/refund_without_check.json --config examples/refund.yaml
 ```
 
 ## Writing contracts
@@ -249,6 +263,7 @@ contragent/
   eval_runner.py  offline evaluation of trace directories
   core.py       the ContrAgent supervisor
   cli.py        eval, replay, conflicts, export-chase
+examples/       runnable programs: quickstart, a supervised agent loop, traces to replay
 ```
 
 ## Tests
@@ -256,6 +271,8 @@ contragent/
 ```bash
 pytest
 ```
+
+See [CONTRIBUTING.md](CONTRIBUTING.md) for the development workflow.
 
 ## Citation
 
@@ -270,4 +287,4 @@ pytest
 
 ## License
 
-BSD 3-Clause. See [`LICENSE`](LICENSE).
+Apache-2.0. Copyright 2026 Yifeng Xiao. See [`LICENSE`](LICENSE).

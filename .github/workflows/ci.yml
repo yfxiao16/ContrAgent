@@ -17,6 +17,12 @@ jobs:
         with:
           python-version: ${{ matrix.python-version }}
       - run: pip install -e ".[dev]"
-      - run: ruff check contragent tests benchmarks
-      - run: ruff format --check contragent tests benchmarks
+      - run: ruff check contragent tests benchmarks examples
+      - run: ruff format --check contragent tests benchmarks examples
       - run: pytest
+      - name: Run the credential-free examples
+        run: |
+          python examples/quickstart.py > /dev/null
+          python examples/agent_loop.py > /dev/null
+          contragent replay examples/traces/refund_after_check.json --config examples/refund.yaml > /dev/null
+          ! contragent replay examples/traces/refund_without_check.json --config examples/refund.yaml --json | grep -q '"PASS"'

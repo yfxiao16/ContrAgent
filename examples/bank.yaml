@@ -1,0 +1,13 @@
+# The smallest contract library: two rules for a bank agent.
+#
+# Formulas are ALTLf over the interaction predicates (docs/predicates.md).
+# `G` is the guarantee (what the agent must keep); an optional `A` is the
+# assumption (what the environment must keep, see README "Assumptions").
+version: "1"
+agents:
+  "*":
+    contracts:
+      - desc: "identity must be verified before funds move"
+        G: {ltl: "(!(called('transfer_funds')) U called('verify_identity')) | G(!(called('transfer_funds')))"}
+      - desc: "every transfer is eventually receipted"
+        G: {ltl: "G(called('transfer_funds') -> F(called('send_receipt')))"}

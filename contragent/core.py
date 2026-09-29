@@ -164,18 +164,30 @@ class ContrAgent:
     # ------------------------------------------------------------------
 
     @staticmethod
-    def _as_constraint(value: Any) -> Any:
-        """Accept a formula, a ``DetFormula``, a formula string, or a list of those."""
-        from contragent.config import ConstraintEntry, _compile_ltl
+    def _as_constraint(value: Any, desc: str | None = None) -> Any:
+        """Accept a formula, a ``DetFormula``, a formula string, or a list of those.
+
+        A raw formula is wrapped exactly as a YAML one is: it is reported
+        under ``desc`` (the contract's description) and its unbounded
+        eventualities are flagged, so :meth:`finish_session` decides them.
+        """
+        from contragent.config import ConstraintEntry, _compile_ltl, has_pending_obligation
         from contragent.formulas.det import DetFormula
         from contragent.formulas.formula import FormulaMixin
 
         if isinstance(value, list):
-            return [ContrAgent._as_constraint(v) for v in value]
-        if isinstance(value, (DetFormula, FormulaMixin)):
+            return [ContrAgent._as_constraint(v, desc) for v in value]
+        if isinstance(value, DetFormula):
             return value
+        if isinstance(value, FormulaMixin):
+            return DetFormula(
+                formula=value,
+                desc=desc or str(value),
+                kind="ltl",
+                liveness=has_pending_obligation(value),
+            )
         if isinstance(value, str):
-            return _compile_ltl(ConstraintEntry(ltl=value))
+            return _compile_ltl(ConstraintEntry(ltl=value), desc)
         raise TypeError(
             f"Contract constraints must be formulas or formula strings, got {type(value).__name__}"
         )
@@ -196,11 +208,11 @@ class ContrAgent:
                 out.append(
                     Contract(
                         agent=agent,
-                        guarantee=cls._as_constraint(entry["guarantee"]),
+                        guarantee=cls._as_constraint(entry["guarantee"], entry.get("desc")),
                         assumption=(
                             None
                             if entry.get("assumption") is None
-                            else cls._as_constraint(entry["assumption"])
+                            else cls._as_constraint(entry["assumption"], entry.get("desc"))
                         ),
                         desc=entry.get("desc"),
                     )

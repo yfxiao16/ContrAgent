@@ -3,7 +3,7 @@ message: "If you use ContrAgent, please cite the paper below."
 title: "ContrAgent: symbolic temporal supervision of LLM agents using contracts"
 type: software
 version: 1.0.0
-license: BSD-3-Clause
+license: Apache-2.0
 repository-code: "https://github.com/yfxiao16/ContrAgent"
 authors:
   - family-names: Xiao

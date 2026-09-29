@@ -75,9 +75,10 @@ class OutcomeBuilder:
         rule = _rule_id_from_violation(violation)
         desc = violation.desc or violation.kind
         message = f"BLOCKED: {context.agent_id}.{context.action}. contract violated: {desc}"
+        policy = f"({rule}): {desc}" if rule != desc else f": {desc}"
         agent_msg = (
-            f"The action `{context.action}` was rejected by policy "
-            f"({rule}): {desc}. Choose a different approach."
+            f"The action `{context.action}` was rejected by policy{policy}. "
+            "Choose a different approach."
         )
         return EnforcementResult(
             action="blocked",

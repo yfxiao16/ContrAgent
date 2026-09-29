@@ -1,0 +1,8 @@
+{
+  "metadata": {"note": "issue_refund before check_policy: violates examples/refund.yaml"},
+  "events": [
+    {"ts": 0, "agent": "agent", "type": "tool_call", "tool": "lookup_order", "args": {"order_id": "o1"}},
+    {"ts": 1, "agent": "agent", "type": "tool_call", "tool": "issue_refund", "args": {"order_id": "o1", "amount": 40}},
+    {"ts": 2, "agent": "agent", "type": "tool_call", "tool": "check_policy", "args": {"order_id": "o1"}}
+  ]
+}
