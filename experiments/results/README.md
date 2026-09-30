@@ -18,5 +18,7 @@ June 2026: `final_<domain>.json` for the first seed of every condition,
 reruns after the enforcement fixes, whose three-seed mean is the 89–90 /
 96–98 reported in [`benchmarks/README.md`](../../benchmarks/README.md)
 under "What to expect"). They contain the benchmark's task text and are
-kept outside the repository; `aggregate_seeds.py` pools them when they
-are present.
+kept outside the repository. To regenerate them, place the release as
+[`benchmarks/README.md`](../../benchmarks/README.md) describes, run
+`live/sweep_final.sh` (a model key in `.env`; one sweep is seven domains
+by four conditions), and pool repeated sweeps with `aggregate_seeds.py`.

@@ -113,18 +113,21 @@ reports precision, recall, and false-positive rate per contract;
 
 ## Experiments
 
-Both roles are evaluated on four benchmarks. Libraries ship under
-`contragent/contracts/`, the harnesses under `benchmarks/`, and the
-experiment records under `experiments/`. Third-party datasets are not
-redistributed; [`benchmarks/README.md`](benchmarks/README.md) says where
-to obtain each and how to rerun it.
+Both roles are evaluated on four benchmarks with the libraries under
+`contragent/contracts/`. Success and safety are in percent; ASR is the
+attack success rate.
 
-| Benchmark | Role | Library | Harness |
-|---|---|---|---|
-| SOPBench | online enforcement | `contracts/sopbench/*.yaml` | `benchmarks/SOPBench/contragent_eval/` |
-| AgentDojo | online enforcement | `contracts/benchmark/agentdojo.yaml` | `benchmarks/AgentDojo/contragent_eval/` |
-| R-Judge | offline evaluation | `contracts/benchmark/rjudge.yaml` | `benchmarks/R-Judge/contragent_eval/` |
-| tau²-bench | offline evaluation | `contracts/benchmark/tau2_bench.yaml` | `benchmarks/tau2/contragent_eval/` |
+| Benchmark | Role | Result |
+|---|---|---|
+| SOPBench (7 domains, gemini-2.5-flash) | online enforcement | success / safety 91 / 32 unguarded, 64 / 94 with the procedure in the prompt, 24 / 98 with an LLM judge, **90 / 98 with ContrAgent** at +0.14 s per task |
+| AgentDojo (gpt-4o, `important_instructions`) | online enforcement | ASR 47.7% → **11.1%** with no injection detector and **0.79%** with the recorded injection as the untrusted span, utility unchanged at 72.6%, 0.16 ms per call |
+| R-Judge (571 records) | offline evaluation | precision **97.0%**, recall **87.0%**, F₁ 91.8%; the misses are semantic, not procedural |
+| tau²-bench (4,464 traces) | offline evaluation | the strongest model passes 25–60% of tasks by outcome but **0%** without a procedural violation, decided at 0.83 ms per call |
+
+Each number's record, with the command that produced it and the summary
+file behind it, is under [`experiments/`](experiments/). Third-party
+datasets are not redistributed; [`benchmarks/README.md`](benchmarks/README.md)
+says where to place each one and how to rerun.
 
 ## Citation
 

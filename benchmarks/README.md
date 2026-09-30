@@ -13,24 +13,37 @@ contracts we used.
 
 ## Obtaining the data
 
-| Benchmark | Upstream release | Place under |
-|---|---|---|
-| SOPBench | <https://github.com/Leezekun/SOPBench> | `SOPBench/` |
-| AgentDojo | <https://github.com/ethz-spylab/agentdojo> | `AgentDojo/` |
-| R-Judge | <https://github.com/Lordog/R-Judge> | `R-Judge/` |
-| tau²-bench | <https://github.com/sierra-research/tau2-bench> | `tau2/` |
+Each harness reads the upstream release from a fixed path under its own
+directory and writes its outputs next to itself. Paths are relative to
+`benchmarks/`.
 
-Clone into the matching directory, keeping the upstream layout:
+| Benchmark | Upstream release | The harness reads | The harness writes |
+|---|---|---|---|
+| SOPBench | <https://github.com/Leezekun/SOPBench> | `SOPBench/data/<domain>_tasks.json` (tasks, for the live run) and `SOPBench/output/<domain>/<model>.json` (recorded trajectories, for the replay): the release's `data/` and `output/` directories | `SOPBench/contragent_eval/traces/<domain>/` (converted traces), `SOPBench/contragent_eval/live/results/*.json` (live runs) |
+| AgentDojo | <https://github.com/ethz-spylab/agentdojo> | `AgentDojo/runs/<model>/<suite>/<user_task>/<attack>/*.json`: the recorded runs the AgentDojo project publishes | `AgentDojo/contragent_eval/results.json`, `results_dataflow.json` |
+| R-Judge | <https://github.com/Lordog/R-Judge> | `R-Judge/data/<Category>/...`: the release's `data/` directory | `R-Judge/contragent_eval/traces/` (converted traces); the scores print to the terminal, `contragent eval --json` saves them |
+| tau²-bench | <https://github.com/sierra-research/tau2-bench> | `tau2/data/tau2/results/final/`: the published simulation runs, in the release's layout | `tau2/contragent_eval/proc_eval_results.json` |
+
+Clone each release next to its harness and point the expected path at it
+(a symlink or a copy, either works):
 
 ```bash
-git clone https://github.com/Leezekun/SOPBench.git       benchmarks/SOPBench/upstream
-git clone https://github.com/ethz-spylab/agentdojo.git   benchmarks/AgentDojo/upstream
-git clone https://github.com/Lordog/R-Judge.git          benchmarks/R-Judge/upstream
-git clone https://github.com/sierra-research/tau2-bench.git benchmarks/tau2/upstream
+cd benchmarks
+git clone https://github.com/Leezekun/SOPBench.git SOPBench/upstream
+ln -s upstream/data   SOPBench/data
+ln -s upstream/output SOPBench/output
+git clone https://github.com/ethz-spylab/agentdojo.git AgentDojo/upstream
+ln -s upstream/runs   AgentDojo/runs
+git clone https://github.com/Lordog/R-Judge.git R-Judge/upstream
+ln -s upstream/data   R-Judge/data
+git clone https://github.com/sierra-research/tau2-bench.git tau2/upstream
+ln -s upstream/data   tau2/data
 ```
 
-Each converter's module docstring states the exact paths it reads; see also
-the per-benchmark records under [`../experiments/`](../experiments/).
+Everything under these paths, and everything the harnesses write, is
+ignored by git. The per-benchmark records under
+[`../experiments/`](../experiments/) state which command produced each
+reported number.
 
 ## Contract libraries
 
