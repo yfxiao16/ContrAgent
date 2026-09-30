@@ -31,52 +31,35 @@ pip install -e ".[dev]"       # plus pytest, ruff, and z3
 
 ## Quick start
 
-A library is a YAML file. Each contract has a guarantee `G`, what the
-agent must keep, and optionally an assumption `A`, what the environment
-must keep. A guarantee can order calls, bound a count, constrain an
-argument, or demand a follow-up:
+A contract is a guarantee `G`, what the agent must keep, with an optional
+assumption `A`, what the environment must keep. Two from
+[`examples/bank.yaml`](examples/bank.yaml):
 
 ```yaml
-version: "1"
-agents:
-  "*":
-    contracts:
-      - desc: "identity must be verified before funds move"
-        G: {ltl: "(!(called('transfer_funds')) U called('verify_identity')) | G(!(called('transfer_funds')))"}
-      - desc: "at most three transfers per session"
-        G: {ltl: "G((Var('count', 'transfer_funds') <= 3))"}
-      - desc: "every transfer is eventually receipted"
-        G: {ltl: "G((called('transfer_funds') -> F(called('send_receipt'))))"}
-      - desc: "file reads carry no credential"
-        A: {ltl: "G(!(output_has('read_file', 'BEGIN PRIVATE KEY')))"}
-        G: {ltl: "G((called('send_email') -> called('read_file')))"}
+- desc: "identity must be verified before funds move"
+  G: {ltl: "(!(called('transfer_funds')) U called('verify_identity')) | G(!(called('transfer_funds')))"}
+- desc: "file reads carry no credential"
+  A: {ltl: "G(!(output_has('read_file', 'BEGIN PRIVATE KEY')))"}
+  G: {ltl: "G((called('send_email') -> called('read_file')))"}
 ```
 
-Gate the agent's calls with it:
+Gate the agent's calls with the library:
 
 ```python
 from contragent import ContrAgent
 
 guard = ContrAgent(agent_id="bank_agent", config="bank.yaml")
 
-result = guard.guard_before("transfer_funds", {"amount": 500})
-print(result.blocked)     # True
-print(result.feedback)    # The action `transfer_funds` was rejected by policy:
-                          # identity must be verified before funds move. Choose a different approach.
-
+guard.guard_before("transfer_funds", {"amount": 500}).blocked   # True: identity not verified
 guard.guard_before("verify_identity", {})
 guard.guard_after("verify_identity", {"ok": True})
-print(guard.guard_before("transfer_funds", {"amount": 500}).blocked)   # False
-
-guard.finish_session()    # reports eventualities still owed, such as the receipt
+guard.guard_before("transfer_funds", {"amount": 500}).blocked   # False
 ```
 
-A blocked call never reaches the tool; `result.feedback` goes back to the
+A blocked call never reaches the tool; its `.feedback` ("rejected by
+policy: identity must be verified before funds move") goes back to the
 model as the tool result. A tool result that would falsify an assumption
-is suppressed the same way: withheld from the model, and the session
-state does not advance on it.
-
-The same library checks a recorded trace from the command line:
+is withheld the same way. The same library replays a recorded trace:
 
 ```bash
 contragent replay trace.json --config bank.yaml
