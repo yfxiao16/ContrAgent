@@ -241,6 +241,14 @@ guard = ContrAgent(agent_id="assistant", contracts=library)
 Both forms compile to the same monitors and are reported under the same
 `desc`.
 
+To put the contracts around your tools, wrap them: `@guard.wrap` on a
+function, or `guard.wrap({"name": fn, ...})` on a tool table. Every call
+then passes `guard_before` on the way in (a refused call returns the
+refusal text without running, or raises `ContractViolation` with
+`on_block="raise"`) and `guard_after` on the way out (a withheld result
+is replaced the same way). A loop that executes tools elsewhere calls
+the two hooks itself.
+
 ## 10. A worked example
 
 Policy text, from a refund desk SOP:

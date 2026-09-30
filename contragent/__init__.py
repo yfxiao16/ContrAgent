@@ -13,7 +13,7 @@ the agent.
 from contragent.analysis import ConflictReport, check_conflicts
 from contragent.config import ConfigError, ContrAgentConfig, load_config, load_system
 from contragent.contract import ContractBuilder, contract
-from contragent.core import CheckResult, ContrAgent
+from contragent.core import CheckResult, ContractViolation, ContrAgent
 from contragent.formulas.det import DetFormula
 from contragent.formulas.parser import parse_formula, parse_repr
 from contragent.models.agent import Agent
@@ -27,6 +27,7 @@ __version__ = "1.0.0"
 __all__ = [
     "ContrAgent",
     "CheckResult",
+    "ContractViolation",
     "Supervisor",
     "TraceVerifier",
     "Block",

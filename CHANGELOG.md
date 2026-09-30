@@ -30,6 +30,9 @@ project uses [semantic versioning](https://semver.org/).
   `make_contracts`, `render_last_turn`, `register_callback`, ...).
 
 ### Added
+- `ContrAgent.wrap`: a decorator or a tool-table wrapper that puts
+  `guard_before` and `guard_after` around every call; a refused call
+  returns the refusal text or raises `ContractViolation`.
 - `docs/authoring.md`: how to turn a policy into a library (the four
   rule shapes, weak versus strong until, which side a predicate belongs
   on, arguments, and the checks to run before an agent runs under it).

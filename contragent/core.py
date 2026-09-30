@@ -11,9 +11,12 @@ a recorded trace offline through ``evaluate_trace``.
 
 from __future__ import annotations
 
+import functools
+import inspect
 import os
 import re
 import threading
+from collections.abc import Callable, Iterable, Mapping
 from dataclasses import dataclass, field
 from typing import Any
 
@@ -28,6 +31,17 @@ from contragent.runtime.verifier import Verdict
 _VALID_MODES = ("gate", "flag")
 # Pre-rename spellings, accepted so existing scripts and configs keep working.
 _MODE_ALIASES = {"enforce": "gate", "observe": "flag"}
+
+
+class ContractViolation(Exception):
+    """Raised by a tool wrapped with ``on_block="raise"`` when a contract
+    refuses the call or withholds its result. ``feedback`` is the text the
+    model would otherwise receive; ``result`` is the :class:`CheckResult`."""
+
+    def __init__(self, feedback: str, result: CheckResult) -> None:
+        super().__init__(feedback)
+        self.feedback = feedback
+        self.result = result
 
 
 @dataclass
@@ -225,6 +239,75 @@ class ContrAgent:
                 continue
             out.append(Contract(agent=agent, guarantee=cls._as_constraint(entry)))
         return out
+
+    # ------------------------------------------------------------------
+    # Wrapping tools
+    # ------------------------------------------------------------------
+
+    def wrap(
+        self,
+        target: Callable | Mapping[str, Callable] | Iterable[Callable] | None = None,
+        *,
+        name: str | None = None,
+        on_block: str = "return",
+    ) -> Any:
+        """Put both hooks around a tool so every call is supervised.
+
+        Works as a decorator (``@guard.wrap``), on one callable
+        (``guard.wrap(fn)``), on a ``{name: fn}`` mapping, or on a list of
+        callables; a mapping or list comes back in the same shape with
+        every tool wrapped. The contract name of a tool is ``name`` or the
+        function's ``__name__``.
+
+        Each call runs :meth:`guard_before` on the bound arguments, then
+        the tool, then :meth:`guard_after` on its result. A refused call
+        never runs the tool; with ``on_block="return"`` (default) the
+        wrapper returns the refusal text, which is what goes back to the
+        model as the tool result, and with ``on_block="raise"`` it raises
+        :class:`ContractViolation`. A result the contracts withhold is
+        replaced the same way.
+        """
+        if on_block not in ("return", "raise"):
+            raise ValueError(f"on_block must be 'return' or 'raise', got {on_block!r}")
+        if target is None:
+            return lambda fn: self.wrap(fn, name=name, on_block=on_block)
+        if isinstance(target, Mapping):
+            return {k: self.wrap(fn, name=k, on_block=on_block) for k, fn in target.items()}
+        if not callable(target):
+            return [self.wrap(fn, on_block=on_block) for fn in target]
+
+        fn = target
+        tool_name = name or getattr(fn, "__name__", None) or repr(fn)
+        try:
+            signature: inspect.Signature | None = inspect.signature(fn)
+        except (TypeError, ValueError):
+            signature = None
+
+        def _fail(check: CheckResult) -> Any:
+            if on_block == "raise":
+                raise ContractViolation(check.feedback, check)
+            return check.feedback
+
+        @functools.wraps(fn)
+        def guarded(*args: Any, **kwargs: Any) -> Any:
+            if signature is not None:
+                try:
+                    bound = signature.bind_partial(*args, **kwargs).arguments
+                except TypeError:
+                    bound = dict(kwargs)
+            else:
+                bound = dict(kwargs)
+            before = self.guard_before(tool_name, dict(bound))
+            if before.stop_original:
+                return _fail(before)
+            result = fn(*args, **kwargs)
+            after = self.guard_after(tool_name, result)
+            if after.suppressed:
+                return _fail(after)
+            return result
+
+        guarded.contragent_tool = tool_name  # type: ignore[attr-defined]
+        return guarded
 
     # ------------------------------------------------------------------
     # Online hooks

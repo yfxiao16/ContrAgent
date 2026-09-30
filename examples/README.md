@@ -5,7 +5,7 @@ All three run without a model or credentials. To write a library of your own, st
 | File | Shows |
 |---|---|
 | [`quickstart.py`](quickstart.py) | The README program: load [`bank.yaml`](bank.yaml), refuse a premature transfer, admit it after verification, report the receipt still owed at session end. |
-| [`agent_loop.py`](agent_loop.py) | The integration shape: your own tool-calling loop with `guard_before` in front of each call and `guard_after` behind it, refusals fed back to the model, contracts written with the fluent helper. |
+| [`agent_loop.py`](agent_loop.py) | The integration shape: your own tool-calling loop with the tools wrapped by `guard.wrap`, refusals fed back to the model, contracts written with the fluent helper. |
 | [`traces/`](traces/) | Two recorded traces for the offline role: replay them against [`refund.yaml`](refund.yaml). |
 
 ```bash

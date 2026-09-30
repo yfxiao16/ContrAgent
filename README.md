@@ -31,51 +31,47 @@ pip install -e ".[dev]"       # plus pytest, ruff, and z3
 
 ## Quick start
 
-A contract is a guarantee `G`, what the agent must keep, with an optional
-assumption `A`, what the environment must keep. Two from
-[`examples/bank.yaml`](examples/bank.yaml):
+A contract is a rule over the order, count, and arguments of tool calls.
+Two from [`examples/bank.yaml`](examples/bank.yaml):
 
 ```yaml
 - desc: "identity must be verified before funds move"
   G: {ltl: "(!(called('transfer_funds')) U called('verify_identity')) | G(!(called('transfer_funds')))"}
-- desc: "no private key reaches the model or leaves in an email"
-  A: {ltl: "G(!(output_has('read_file', 'BEGIN PRIVATE KEY')))"}
-  G: {ltl: "G(!(arg_field_has('send_email', 'body', 'BEGIN PRIVATE KEY')))"}
+- desc: "no email after a file read"
+  G: {ltl: "G((called('read_file') -> G(!(called('send_email')))))"}
 ```
 
-The first refuses a transfer until identity was verified. The second
-works on both sides of the agent: if a file read returns a private key,
-the result is withheld from the model (the assumption is kept for it);
-if the agent tries to email one anyway, the call is refused (the
-guarantee).
-
-ContrAgent is not a loop. It is two hooks around whatever executes your
-tools, in any framework:
+Both are about the shape of the trace, not its content: the first refuses
+a transfer until an identity check has happened, the second refuses any
+email once a file has been read, whatever the email says. Wrap your tools
+and every call is checked:
 
 ```python
 from contragent import ContrAgent
 
 guard = ContrAgent(agent_id="bank_agent", config="bank.yaml")
 
-for name, args in agent.tool_calls():            # your loop
-    check = guard.guard_before(name, args)       # before the call: may refuse it
-    if check.blocked:
-        agent.observe(check.feedback)            # "rejected by policy: identity must be verified ..."
-        continue
-    result = tools[name](**args)
-    seen = guard.guard_after(name, result)       # after the call: records it, may withhold the result
-    agent.observe(check.feedback if seen.suppressed else result)
-guard.finish_session()                           # obligations still owed at the end
+@guard.wrap
+def transfer_funds(amount: float, to: str) -> dict:
+    ...
+
+transfer_funds(500, "ACME")
+# -> "The action `transfer_funds` was rejected by policy: identity must be
+#     verified before funds move. Choose a different approach."
 ```
 
-`guard_before` runs the monitors on the proposed call and decides;
-`guard_after` feeds the result to the monitors so later decisions see it.
-The runnable version is [`examples/agent_loop.py`](examples/agent_loop.py).
-The same library replays a recorded trace:
+A refused call never runs; the wrapper returns the refusal text, which is
+what goes back to the model as the tool result (`on_block="raise"` raises
+instead). `guard.wrap({...})` wraps a whole tool table, and loops that
+execute tools elsewhere call the two hooks, `guard_before` and
+`guard_after`, themselves. The same library replays a recorded trace:
 
 ```bash
 contragent replay trace.json --config bank.yaml
 ```
+
+[`examples/`](examples/) has a supervised tool-calling loop and traces to
+replay; nothing there needs a model or credentials.
 
 ## Documentation
 

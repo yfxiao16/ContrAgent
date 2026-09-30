@@ -1,4 +1,5 @@
-# The library from the README: four guarantees and one assumption.
+# The library from the README, plus a count bound, an obligation, and one
+# assume-guarantee contract.
 #
 # Formulas are ALTLf over the interaction predicates (docs/predicates.md);
 # docs/authoring.md explains how to write them.
@@ -8,6 +9,8 @@ agents:
     contracts:
       - desc: "identity must be verified before funds move"
         G: {ltl: "(!(called('transfer_funds')) U called('verify_identity')) | G(!(called('transfer_funds')))"}
+      - desc: "no email after a file read"
+        G: {ltl: "G((called('read_file') -> G(!(called('send_email')))))"}
       - desc: "at most three transfers per session"
         G: {ltl: "G((Var('count', 'transfer_funds') <= 3))"}
       - desc: "every transfer is eventually receipted"
