@@ -95,7 +95,7 @@ def model(messages: list[dict]) -> tuple[str, dict] | None:
 # The loop. Two lines of supervision around each call.
 # ---------------------------------------------------------------------------
 
-guard = ContrAgent(agent_id="bank_agent", contracts=LIBRARY)
+guard = ContrAgent(agent_id="bank_agent", contracts=LIBRARY, verbose=True)
 tools = guard.wrap(TOOLS)  # every call now passes guard_before and guard_after
 messages: list[dict] = [{"role": "user", "content": "Send $250 to ACME for customer C-1024."}]
 
@@ -106,12 +106,7 @@ while True:
     name, args = proposal
 
     output = tools[name](**args)  # a refused call returns the refusal text instead
-    if isinstance(output, str):
-        print(f"REFUSED  {name}({args})\n         {output}")
-    else:
-        print(f"ran      {name}({args}) -> {output}")
     messages.append({"role": "tool", "name": name, "content": str(output)})
 
-pending = guard.finish_session()  # eventualities still owed are violations
-print("\nsession end:", "clean" if not pending else [v.desc for v in pending])
-print("account:", ACCOUNT)
+guard.finish_session()  # eventualities still owed are reported here
+print("\naccount:", ACCOUNT)

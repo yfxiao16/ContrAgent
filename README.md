@@ -64,7 +64,31 @@ A refused call never runs; the wrapper returns the refusal text, which is
 what goes back to the model as the tool result (`on_block="raise"` raises
 instead). `guard.wrap({...})` wraps a whole tool table, and loops that
 execute tools elsewhere call the two hooks, `guard_before` and
-`guard_after`, themselves. The same library replays a recorded trace:
+`guard_after`, themselves. With `verbose=True` the session prints as a
+timeline as it happens, and `trace_path=` writes it, at
+`finish_session()`, as a trace file that `contragent replay` reads back:
+
+```text
+bank.yaml · 5 contracts · agent bank_agent · mode gate
+│
+⊘ transfer_funds(amount=500, to="ACME")
+│   identity must be verified before funds move
+│
+● verify_identity(user_id="u1")
+│
+● transfer_funds(amount=500, to="ACME")
+│
+● read_file(path="id_rsa")
+│   ◐ result withheld · no private key reaches the model or leaves in an email
+│
+⊘ send_email(to="x", body="hi")
+│   no email after a file read
+│
+■ session end · 5 calls · 2 refused · 1 withheld · 1 obligation pending
+    ◌ every transfer is eventually receipted
+```
+
+The same library replays a recorded trace:
 
 ```bash
 contragent replay trace.json --config bank.yaml

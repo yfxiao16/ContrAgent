@@ -174,7 +174,10 @@ contragent replay traces/refund_without_check.json  --config policy.yaml   # exp
 
 A trace is `{"events": [{"ts": 0, "agent": "agent", "type":
 "tool_call", "tool": "check_policy", "args": {...}}, ...]}`; see
-[../examples/traces/](../examples/traces/). `contragent eval DIR
+[../examples/traces/](../examples/traces/). A supervised session writes
+one itself when constructed with `trace_path=` (or on
+`guard.save_trace(path)`): the committed events, plus `metadata` listing
+every refusal and withheld result with the contract that decided it. `contragent eval DIR
 --config policy.yaml` scores a whole directory of `safe_*.json` /
 `unsafe_*.json` traces and reports precision and recall per contract.
 
@@ -214,6 +217,11 @@ from contragent import ContrAgent, Redirect
 guard = ContrAgent(agent_id="assistant", config="policy.yaml",
                    policy={"no recursive deletion from the shell": Redirect("safe_rm")})
 ```
+
+`ContrAgent(verbose=True)` prints the session as a timeline as it
+happens: a node per call (`●` ran, `⊘` refused with the contract
+underneath, `◐` result withheld) and a `■ session end` line with the
+counts and any obligation still owed.
 
 `ContrAgent(mode="flag")` records every decision without gating the
 agent: run a new library in this mode over real sessions first, read

@@ -30,6 +30,11 @@ project uses [semantic versioning](https://semver.org/).
   `make_contracts`, `render_last_turn`, `register_callback`, ...).
 
 ### Added
+- `ContrAgent(verbose=True)`: the session printed as a timeline as it
+  happens (`contragent.console`).
+- `ContrAgent(trace_path=...)` / `save_trace(path)`: the session written
+  as a trace file `contragent replay` reads back, with every refusal and
+  withheld result recorded in its metadata.
 - `ContrAgent.wrap`: a decorator or a tool-table wrapper that puts
   `guard_before` and `guard_after` around every call; a refused call
   returns the refusal text or raises `ContractViolation`.

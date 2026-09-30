@@ -13,6 +13,7 @@ from __future__ import annotations
 
 import functools
 import inspect
+import json
 import os
 import re
 import threading
@@ -131,7 +132,12 @@ class ContrAgent:
         policy: dict[str, EnforcementStrategy] | None = None,
         mode: str | None = None,
         conflict_check: bool = False,
+        verbose: bool = False,
+        trace_path: str | os.PathLike | None = None,
     ) -> None:
+        library_label = (
+            os.path.basename(os.fspath(config)) if config is not None else "inline contracts"
+        )
         if sum(x is not None for x in (contracts, config, system)) > 1:
             raise ValueError("Pass exactly one of 'contracts', 'config', or 'system'.")
         if config is not None:
@@ -157,6 +163,23 @@ class ContrAgent:
         self.agent_id = agent_id
         self._system = system
         self._mode = _resolve_mode(mode)
+        self._console = None
+        self._stats = {"calls": 0, "refused": 0, "withheld": 0}
+        self._library_label = library_label
+        self._trace_path = os.fspath(trace_path) if trace_path is not None else None
+        self._decisions: list[dict] = []
+        if verbose:
+            from contragent import __version__
+            from contragent.console import Console
+
+            self._console = Console()
+            self._console.banner(
+                library=library_label,
+                contracts=len(system.contracts),
+                agent_id=agent_id,
+                mode=self._mode,
+                version=__version__,
+            )
         self._supervisor = Supervisor(system, policy=policy, mode=self._mode)
         self._lock = threading.RLock()
         self._violations: list[dict] = []
@@ -314,6 +337,88 @@ class ContrAgent:
     # ------------------------------------------------------------------
 
     def guard_before(self, tool_name: str, args: dict | None = None) -> CheckResult:
+        """Check the contracts before ``tool_name`` runs; see :meth:`_guard_before`."""
+        result = self._guard_before(tool_name, args)
+        self._stats["calls"] += 1
+        if result.stop_original:
+            self._stats["refused"] += 1
+        if result.stop_original or result.escalated:
+            self._decisions.append(
+                {
+                    "tool": tool_name,
+                    "args": dict(args or {}),
+                    "decision": "redirected"
+                    if result.redirected
+                    else ("escalated" if result.escalated else "refused"),
+                    "contracts": [v.rule_id for v in result.violations if v.rule_id],
+                    "feedback": result.feedback,
+                }
+            )
+        if self._console is not None:
+            self._console.call(tool_name, args, result)
+        return result
+
+    def guard_after(self, tool_name: str, output: Any) -> CheckResult:
+        """Attach the tool result to its call and re-check the contracts;
+        see :meth:`_guard_after`."""
+        result = self._guard_after(tool_name, output)
+        if result.suppressed:
+            self._stats["withheld"] += 1
+            self._decisions.append(
+                {
+                    "tool": tool_name,
+                    "decision": "withheld",
+                    "contracts": [v.rule_id for v in result.violations if v.rule_id],
+                    "feedback": result.feedback,
+                }
+            )
+        if self._console is not None:
+            self._console.result(tool_name, result)
+        return result
+
+    def finish_session(self) -> list[Verdict]:
+        """Decide the pending liveness guarantees on the completed trace;
+        see :meth:`_finish_session`."""
+        already = self._pending_liveness is not None
+        failures = self._finish_session()
+        saved = None
+        if self._trace_path is not None and not already:
+            saved = self.save_trace(self._trace_path)
+        if self._console is not None and not already:
+            self._console.summary(
+                calls=self._stats["calls"],
+                refused=self._stats["refused"],
+                withheld=self._stats["withheld"],
+                pending=[v.desc for v in failures],
+                saved=saved,
+            )
+        return failures
+
+    def save_trace(self, path: str | os.PathLike) -> str:
+        """Write the session to ``path`` as a trace file.
+
+        The file is the native trace format `contragent replay` reads:
+        the committed events (a refused call never happened, so it is not
+        one), plus ``metadata`` with the agent, the library, every
+        refusal and withheld result with the contract that decided it,
+        and the obligations still owed if the session has ended.
+        """
+        data = self.trace.to_dict()
+        pending = [] if self._pending_liveness is None else [v.desc for v in self._pending_liveness]
+        data["metadata"] = {
+            **(data.get("metadata") or {}),
+            "agent": self.agent_id,
+            "library": self._library_label,
+            "mode": self._mode,
+            "decisions": list(self._decisions),
+            "pending_obligations": pending,
+        }
+        path = os.fspath(path)
+        with open(path, "w", encoding="utf-8") as fh:
+            json.dump(data, fh, indent=2, default=str)
+        return path
+
+    def _guard_before(self, tool_name: str, args: dict | None = None) -> CheckResult:
         """Check the contracts before ``tool_name`` runs.
 
         The call is appended to the trace and every contract is advanced.
@@ -487,7 +592,7 @@ class ContrAgent:
             return f"was called without the argument {f!r}, which a contract reads"
         return None
 
-    def guard_after(self, tool_name: str, output: Any) -> CheckResult:
+    def _guard_after(self, tool_name: str, output: Any) -> CheckResult:
         """Attach the tool result to its call and re-check the contracts.
 
         The result has to be attached before the contracts are checked,
@@ -651,7 +756,7 @@ class ContrAgent:
             facts["approval.scope"] = scope
         self.observe_context(facts)
 
-    def finish_session(self) -> list[Verdict]:
+    def _finish_session(self) -> list[Verdict]:
         """Decide the pending liveness guarantees on the completed trace.
 
         Unbounded eventualities cannot be refuted mid-session; once the
