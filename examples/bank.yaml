@@ -12,6 +12,6 @@ agents:
         G: {ltl: "G((Var('count', 'transfer_funds') <= 3))"}
       - desc: "every transfer is eventually receipted"
         G: {ltl: "G((called('transfer_funds') -> F(called('send_receipt'))))"}
-      - desc: "file reads carry no credential"
+      - desc: "no private key reaches the model or leaves in an email"
         A: {ltl: "G(!(output_has('read_file', 'BEGIN PRIVATE KEY')))"}
-        G: {ltl: "G((called('send_email') -> called('read_file')))"}
+        G: {ltl: "G(!(arg_field_has('send_email', 'body', 'BEGIN PRIVATE KEY')))"}

@@ -6,6 +6,8 @@
 [![Python 3.10+](https://img.shields.io/badge/python-3.10+-blue.svg)](https://www.python.org/downloads/)
 [![arXiv](https://img.shields.io/badge/arXiv-2609.18128-b31b1b.svg)](https://arxiv.org/abs/2609.18128)
 
+![ContrAgent: contracts are compiled once into DFA monitors, which gate tool calls online and replay recorded traces offline](docs/figures/framework.png)
+
 Write rules about what an agent may call, and when. ContrAgent checks
 every tool call against them before it runs, in microseconds, with no
 model in the loop.
@@ -19,8 +21,6 @@ escalates a violating call. **Offline**, it replays a recorded trace and
 returns a verdict with the first violating event. A library is
 independent of the agent's model, transfers across agents that share a
 tool interface, and is checked for conflicts when loaded.
-
-![ContrAgent: contracts are compiled once into DFA monitors, which gate tool calls online and replay recorded traces offline](docs/figures/framework.png)
 
 ## Installation
 
@@ -38,35 +38,44 @@ assumption `A`, what the environment must keep. Two from
 ```yaml
 - desc: "identity must be verified before funds move"
   G: {ltl: "(!(called('transfer_funds')) U called('verify_identity')) | G(!(called('transfer_funds')))"}
-- desc: "file reads carry no credential"
+- desc: "no private key reaches the model or leaves in an email"
   A: {ltl: "G(!(output_has('read_file', 'BEGIN PRIVATE KEY')))"}
-  G: {ltl: "G((called('send_email') -> called('read_file')))"}
+  G: {ltl: "G(!(arg_field_has('send_email', 'body', 'BEGIN PRIVATE KEY')))"}
 ```
 
-Gate the agent's calls with the library:
+The first refuses a transfer until identity was verified. The second
+works on both sides of the agent: if a file read returns a private key,
+the result is withheld from the model (the assumption is kept for it);
+if the agent tries to email one anyway, the call is refused (the
+guarantee).
+
+ContrAgent is not a loop. It is two hooks around whatever executes your
+tools, in any framework:
 
 ```python
 from contragent import ContrAgent
 
 guard = ContrAgent(agent_id="bank_agent", config="bank.yaml")
 
-guard.guard_before("transfer_funds", {"amount": 500}).blocked   # True: identity not verified
-guard.guard_before("verify_identity", {})
-guard.guard_after("verify_identity", {"ok": True})
-guard.guard_before("transfer_funds", {"amount": 500}).blocked   # False
+for name, args in agent.tool_calls():            # your loop
+    check = guard.guard_before(name, args)       # before the call: may refuse it
+    if check.blocked:
+        agent.observe(check.feedback)            # "rejected by policy: identity must be verified ..."
+        continue
+    result = tools[name](**args)
+    seen = guard.guard_after(name, result)       # after the call: records it, may withhold the result
+    agent.observe(check.feedback if seen.suppressed else result)
+guard.finish_session()                           # obligations still owed at the end
 ```
 
-A blocked call never reaches the tool; its `.feedback` ("rejected by
-policy: identity must be verified before funds move") goes back to the
-model as the tool result. A tool result that would falsify an assumption
-is withheld the same way. The same library replays a recorded trace:
+`guard_before` runs the monitors on the proposed call and decides;
+`guard_after` feeds the result to the monitors so later decisions see it.
+The runnable version is [`examples/agent_loop.py`](examples/agent_loop.py).
+The same library replays a recorded trace:
 
 ```bash
 contragent replay trace.json --config bank.yaml
 ```
-
-[`examples/`](examples/) has this program, a supervised tool-calling
-loop, and traces to replay; none needs a model or credentials.
 
 ## Documentation
 
