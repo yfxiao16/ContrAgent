@@ -37,6 +37,7 @@ from collections.abc import Iterable, Sequence
 from dataclasses import dataclass, field
 from typing import Any
 
+from contragent.formulas.det import DetFormula
 from contragent.formulas.formula import (
     And,
     Atom,
@@ -160,7 +161,8 @@ def _normalise(contracts: Iterable[Any]) -> list[tuple[str, Any]]:
     ContrAgent contracts carry ``guarantee``/``desc``; the agent-side
     contracts of the control layer carry ``formula``/``name``.  Taking
     both keeps the check usable from either side without importing one
-    into the other.
+    into the other. Unwrap ``DetFormula`` guarantees produced by the
+    YAML loader before traversing their formula ASTs.
     """
     out: list[tuple[str, Any]] = []
     for index, contract in enumerate(contracts):
@@ -175,6 +177,8 @@ def _normalise(contracts: Iterable[Any]) -> list[tuple[str, Any]]:
             or f"contract[{index}]"
         )
         for part in formula if isinstance(formula, (list, tuple)) else [formula]:
+            if isinstance(part, DetFormula):
+                part = part.formula
             out.append((str(label), part))
     return out
 
