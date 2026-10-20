@@ -1,0 +1,10 @@
+{
+  "model_id": "deepseek-ai/DeepSeek-V4-Flash",
+  "display_name": "DeepSeek V4 Flash",
+  "candidate_formula": "",
+  "parse_error": "ParseError: Empty formula",
+  "evaluation_semantics": "complete finite traces (include_liveness=True)",
+  "pair_check": "UNPARSEABLE",
+  "prompt_path": "admin-auth-order-miner-prompt-v3-scoped-gate.txt",
+  "dataset_path": "admin-auth-order-mining-dataset-v2-20-per-class.json"
+}

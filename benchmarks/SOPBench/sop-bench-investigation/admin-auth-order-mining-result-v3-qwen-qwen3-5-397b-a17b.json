@@ -1,0 +1,27 @@
+{
+  "provider": "GMI Cloud",
+  "model_id": "Qwen/Qwen3.5-397B-A17B",
+  "display_name": "Qwen3.5 397B A17B",
+  "prompt_file": "admin-auth-order-miner-prompt-v3-scoped-gate.txt",
+  "dataset_file": "admin-auth-order-mining-dataset-v2-20-per-class.json",
+  "training_examples": 40,
+  "heldout_sent_to_model": false,
+  "request": {
+    "temperature": 0,
+    "max_tokens": 2048
+  },
+  "candidate_raw": "G: (!(arg_value(transfer_funds, succeeded) >= 1)) U (arg_value(authenticate_admin_password, succeeded) >= 1) | G(!(arg_value(transfer_funds, succeeded) >= 1))",
+  "usage": {
+    "prompt_tokens": 5436,
+    "completion_tokens": 9010,
+    "total_tokens": 14446,
+    "prompt_tokens_details": {
+      "text_tokens": 5436
+    },
+    "completion_tokens_details": {
+      "reasoning_tokens": 8958,
+      "text_tokens": 9010
+    }
+  },
+  "finish_reason": "stop"
+}

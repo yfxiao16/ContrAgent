@@ -1,0 +1,7 @@
+{
+  "model_id": "openai/gpt-oss-120b",
+  "display_name": "GPT OSS 120B",
+  "status": "error",
+  "error": "HTTPError: HTTP Error 429: Too Many Requests",
+  "elapsed_seconds": 61.9
+}

@@ -1,0 +1,88 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1680" height="1249" viewBox="0 0 1680 1249">
+<rect width="100%" height="100%" fill="#f7f8fa"/>
+<rect x="0" y="0" width="1680" height="12" fill="#4263eb"/>
+<text x="55" y="60" font-family="Inter,Segoe UI,Arial,sans-serif" font-size="30" fill="#142433" font-weight="700">Can models recover the admin-auth ordering rule?</text>
+<text x="55" y="96" font-family="Inter,Segoe UI,Arial,sans-serif" font-size="17" fill="#526170" font-weight="400">Model output quality on the synthetic bank trace-mining pilot</text>
+<rect x="55" y="120" width="1570" height="75" rx="12" fill="#eaf0ff"/>
+<text x="78" y="151" font-family="Inter,Segoe UI,Arial,sans-serif" font-size="16" fill="#18356d" font-weight="600">Read scores as active-gate trace classification. The contract applies only when the SOP gate requires admin auth.</text>
+<text x="78" y="178" font-family="Inter,Segoe UI,Arial,sans-serif" font-size="15" fill="#18356d" font-weight="400">“Gate guard” means the formula itself checks that context; all v2 training examples had the gate active.</text>
+<rect x="45" y="230" width="1590" height="46" rx="8" fill="#243b53"/>
+<text x="55" y="259" font-family="Inter,Segoe UI,Arial,sans-serif" font-size="15" fill="#ffffff" font-weight="700">Model</text>
+<text x="320" y="259" font-family="Inter,Segoe UI,Arial,sans-serif" font-size="15" fill="#ffffff" font-weight="700">Run / training set</text>
+<text x="565" y="259" font-family="Inter,Segoe UI,Arial,sans-serif" font-size="15" fill="#ffffff" font-weight="700">Active-gate holdout</text>
+<text x="740" y="259" font-family="Inter,Segoe UI,Arial,sans-serif" font-size="15" fill="#ffffff" font-weight="700">What it got</text>
+<text x="1170" y="259" font-family="Inter,Segoe UI,Arial,sans-serif" font-size="15" fill="#ffffff" font-weight="700">What it missed / status</text>
+<rect x="45" y="276" width="1590" height="91" fill="#ffffff"/>
+<line x1="45" y1="367" x2="1635" y2="367" stroke="#d7dde4"/>
+<text x="55" y="305" font-family="Inter,Segoe UI,Arial,sans-serif" font-size="15" fill="#172b3a" font-weight="700">Qwen2.5 0.5B</text>
+<text x="320" y="305" font-family="Inter,Segoe UI,Arial,sans-serif" font-size="14" fill="#526170" font-weight="400">Local · v1 · 10+10 train</text>
+<text x="565" y="306" font-family="Inter,Segoe UI,Arial,sans-serif" font-size="15" fill="#a55a00" font-weight="700">3/10 · 30%</text>
+<text x="740" y="300" font-family="Inter,Segoe UI,Arial,sans-serif" font-size="14" fill="#263746" font-weight="400">Learned a same-trace auth → transfer</text>
+<text x="740" y="320" font-family="Inter,Segoe UI,Arial,sans-serif" font-size="14" fill="#263746" font-weight="400">implication.</text>
+<text x="1170" y="300" font-family="Inter,Segoe UI,Arial,sans-serif" font-size="14" fill="#263746" font-weight="400">No temporal order; missed all 5 violating holdouts;</text>
+<text x="1170" y="320" font-family="Inter,Segoe UI,Arial,sans-serif" font-size="14" fill="#263746" font-weight="400">rejected 2 conforming traces.</text>
+<rect x="45" y="367" width="1590" height="91" fill="#f0f3f6"/>
+<line x1="45" y1="458" x2="1635" y2="458" stroke="#d7dde4"/>
+<text x="55" y="396" font-family="Inter,Segoe UI,Arial,sans-serif" font-size="15" fill="#172b3a" font-weight="700">Qwen2.5 1.5B</text>
+<text x="320" y="396" font-family="Inter,Segoe UI,Arial,sans-serif" font-size="14" fill="#526170" font-weight="400">Local · v1 · 10+10 train</text>
+<text x="565" y="397" font-family="Inter,Segoe UI,Arial,sans-serif" font-size="15" fill="#a55a00" font-weight="700">5/10 · 50%</text>
+<text x="740" y="391" font-family="Inter,Segoe UI,Arial,sans-serif" font-size="14" fill="#263746" font-weight="400">Returned a parseable Boolean rule.</text>
+<text x="1170" y="391" font-family="Inter,Segoe UI,Arial,sans-serif" font-size="14" fill="#263746" font-weight="400">No temporal order; missed all 5 violating holdouts.</text>
+<rect x="45" y="458" width="1590" height="91" fill="#ffffff"/>
+<line x1="45" y1="549" x2="1635" y2="549" stroke="#d7dde4"/>
+<text x="55" y="487" font-family="Inter,Segoe UI,Arial,sans-serif" font-size="15" fill="#172b3a" font-weight="700">Gemini 3.5 Flash-Lite</text>
+<text x="320" y="487" font-family="Inter,Segoe UI,Arial,sans-serif" font-size="14" fill="#526170" font-weight="400">GMI · v1 · 10+10 train</text>
+<text x="565" y="488" font-family="Inter,Segoe UI,Arial,sans-serif" font-size="15" fill="#a23d3d" font-weight="700">No score</text>
+<text x="740" y="482" font-family="Inter,Segoe UI,Arial,sans-serif" font-size="14" fill="#263746" font-weight="400">Attempted an until rule.</text>
+<text x="1170" y="482" font-family="Inter,Segoe UI,Arial,sans-serif" font-size="14" fill="#263746" font-weight="400">Invented unsupported is_true(...) syntax; formula did not</text>
+<text x="1170" y="502" font-family="Inter,Segoe UI,Arial,sans-serif" font-size="14" fill="#263746" font-weight="400">parse.</text>
+<rect x="45" y="549" width="1590" height="91" fill="#f0f3f6"/>
+<line x1="45" y1="640" x2="1635" y2="640" stroke="#d7dde4"/>
+<text x="55" y="578" font-family="Inter,Segoe UI,Arial,sans-serif" font-size="15" fill="#172b3a" font-weight="700">Gemini 3.8 Flash</text>
+<text x="320" y="578" font-family="Inter,Segoe UI,Arial,sans-serif" font-size="14" fill="#526170" font-weight="400">GMI · v1 · 10+10 train</text>
+<text x="565" y="579" font-family="Inter,Segoe UI,Arial,sans-serif" font-size="15" fill="#137547" font-weight="700">10/10 · 100%</text>
+<text x="740" y="573" font-family="Inter,Segoe UI,Arial,sans-serif" font-size="14" fill="#263746" font-weight="400">Recovered the ordering rule on active-gate</text>
+<text x="740" y="593" font-family="Inter,Segoe UI,Arial,sans-serif" font-size="14" fill="#263746" font-weight="400">traces; accepted the matched order pair.</text>
+<text x="1170" y="573" font-family="Inter,Segoe UI,Arial,sans-serif" font-size="14" fill="#263746" font-weight="400">No gate guard; rejected 4/4 inactive-gate controls.</text>
+<rect x="45" y="640" width="1590" height="91" fill="#ffffff"/>
+<line x1="45" y1="731" x2="1635" y2="731" stroke="#d7dde4"/>
+<text x="55" y="669" font-family="Inter,Segoe UI,Arial,sans-serif" font-size="15" fill="#172b3a" font-weight="700">Qwen3.8 27B</text>
+<text x="320" y="669" font-family="Inter,Segoe UI,Arial,sans-serif" font-size="14" fill="#526170" font-weight="400">GMI · v1</text>
+<text x="565" y="670" font-family="Inter,Segoe UI,Arial,sans-serif" font-size="15" fill="#a23d3d" font-weight="700">No result</text>
+<text x="740" y="664" font-family="Inter,Segoe UI,Arial,sans-serif" font-size="14" fill="#263746" font-weight="400">—</text>
+<text x="1170" y="664" font-family="Inter,Segoe UI,Arial,sans-serif" font-size="14" fill="#263746" font-weight="400">Request timed out before a formula was returned.</text>
+<rect x="45" y="731" width="1590" height="91" fill="#f0f3f6"/>
+<line x1="45" y1="822" x2="1635" y2="822" stroke="#d7dde4"/>
+<text x="55" y="760" font-family="Inter,Segoe UI,Arial,sans-serif" font-size="15" fill="#172b3a" font-weight="700">GPT OSS 120B</text>
+<text x="320" y="760" font-family="Inter,Segoe UI,Arial,sans-serif" font-size="14" fill="#526170" font-weight="400">GMI · v1</text>
+<text x="565" y="761" font-family="Inter,Segoe UI,Arial,sans-serif" font-size="15" fill="#a23d3d" font-weight="700">No result</text>
+<text x="740" y="755" font-family="Inter,Segoe UI,Arial,sans-serif" font-size="14" fill="#263746" font-weight="400">—</text>
+<text x="1170" y="755" font-family="Inter,Segoe UI,Arial,sans-serif" font-size="14" fill="#263746" font-weight="400">Service returned overloaded / rate-limit errors.</text>
+<rect x="45" y="822" width="1590" height="91" fill="#ffffff"/>
+<line x1="45" y1="913" x2="1635" y2="913" stroke="#d7dde4"/>
+<text x="55" y="851" font-family="Inter,Segoe UI,Arial,sans-serif" font-size="15" fill="#172b3a" font-weight="700">Qwen3.5 397B / 17B active</text>
+<text x="320" y="851" font-family="Inter,Segoe UI,Arial,sans-serif" font-size="14" fill="#526170" font-weight="400">GMI · v1</text>
+<text x="565" y="852" font-family="Inter,Segoe UI,Arial,sans-serif" font-size="15" fill="#a23d3d" font-weight="700">No result</text>
+<text x="740" y="846" font-family="Inter,Segoe UI,Arial,sans-serif" font-size="14" fill="#263746" font-weight="400">—</text>
+<text x="1170" y="846" font-family="Inter,Segoe UI,Arial,sans-serif" font-size="14" fill="#263746" font-weight="400">Request timed out before a formula was returned.</text>
+<rect x="45" y="913" width="1590" height="91" fill="#f0f3f6"/>
+<line x1="45" y1="1004" x2="1635" y2="1004" stroke="#d7dde4"/>
+<text x="55" y="942" font-family="Inter,Segoe UI,Arial,sans-serif" font-size="15" fill="#172b3a" font-weight="700">GPT-6 Astra</text>
+<text x="320" y="942" font-family="Inter,Segoe UI,Arial,sans-serif" font-size="14" fill="#526170" font-weight="400">GMI · v2 · 20+20 train</text>
+<text x="565" y="943" font-family="Inter,Segoe UI,Arial,sans-serif" font-size="15" fill="#137547" font-weight="700">20/20 · 100%</text>
+<text x="740" y="937" font-family="Inter,Segoe UI,Arial,sans-serif" font-size="14" fill="#263746" font-weight="400">Recovered ordering on active-gate traces; 40/40</text>
+<text x="740" y="957" font-family="Inter,Segoe UI,Arial,sans-serif" font-size="14" fill="#263746" font-weight="400">training; accepted matched order pair.</text>
+<text x="1170" y="937" font-family="Inter,Segoe UI,Arial,sans-serif" font-size="14" fill="#263746" font-weight="400">No gate guard; rejected 4/4 inactive-gate controls.</text>
+<rect x="45" y="1004" width="1590" height="91" fill="#ffffff"/>
+<line x1="45" y1="1095" x2="1635" y2="1095" stroke="#d7dde4"/>
+<text x="55" y="1033" font-family="Inter,Segoe UI,Arial,sans-serif" font-size="15" fill="#172b3a" font-weight="700">Gemini 3.8 Flash</text>
+<text x="320" y="1033" font-family="Inter,Segoe UI,Arial,sans-serif" font-size="14" fill="#526170" font-weight="400">GMI · v2 · 20+20 train</text>
+<text x="565" y="1034" font-family="Inter,Segoe UI,Arial,sans-serif" font-size="15" fill="#137547" font-weight="700">20/20 · 100%</text>
+<text x="740" y="1028" font-family="Inter,Segoe UI,Arial,sans-serif" font-size="14" fill="#263746" font-weight="400">Recovered ordering on active-gate traces; 40/40</text>
+<text x="740" y="1048" font-family="Inter,Segoe UI,Arial,sans-serif" font-size="14" fill="#263746" font-weight="400">training; accepted matched order pair.</text>
+<text x="1170" y="1028" font-family="Inter,Segoe UI,Arial,sans-serif" font-size="14" fill="#263746" font-weight="400">No gate guard; rejected 4/4 inactive-gate controls.</text>
+<text x="55" y="1117" font-family="Inter,Segoe UI,Arial,sans-serif" font-size="16" fill="#142433" font-weight="700">Evaluation notes</text>
+<text x="55" y="1143" font-family="Inter,Segoe UI,Arial,sans-serif" font-size="13" fill="#526170" font-weight="400">• Complete-trace finite semantics used for all parseable candidates. Earlier v1 Gemini 3.8 score was corrected from 5/10 to 10/10 after fixing the evaluator.</text>
+<text x="55" y="1172" font-family="Inter,Segoe UI,Arial,sans-serif" font-size="13" fill="#526170" font-weight="400">• The v2 models each scored 40/40 on training and 20/20 on a fresh active-gate holdout; both failed all four inactive-gate controls.</text>
+<text x="55" y="1201" font-family="Inter,Segoe UI,Arial,sans-serif" font-size="13" fill="#526170" font-weight="400">• No holdout traces were sent to the models. Results are exploratory; v1 holdout had been seen during prompt development. v2 prompt omitted a gate predicate.</text>
+</svg>

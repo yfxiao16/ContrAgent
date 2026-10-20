@@ -1,0 +1,33 @@
+{
+  "model_id": "Qwen/Qwen3.5-27B",
+  "display_name": "Qwen3.5 27B",
+  "candidate_formula": "(arg_value(transfer_funds, gate_authenticated_admin_password_active) >= 1 & called(transfer_funds) & arg_value(transfer_funds, succeeded) >= 1) -> ((called(authenticate_admin_password) & arg_value(authenticate_admin_password, succeeded) >= 1) U (called(transfer_funds) & arg_value(transfer_funds, succeeded) >= 1))",
+  "evaluation_semantics": "complete finite traces (include_liveness=True)",
+  "training_metrics": {
+    "n": 40,
+    "correct": 20,
+    "accuracy": 0.5,
+    "true_violations": 0,
+    "false_rejections": 0,
+    "missed_violations": 20,
+    "true_conforms": 20
+  },
+  "heldout_active_gate_metrics": {
+    "n": 20,
+    "correct": 10,
+    "accuracy": 0.5,
+    "true_violations": 0,
+    "false_rejections": 0,
+    "missed_violations": 10,
+    "true_conforms": 10
+  },
+  "inactive_gate_control_pass_rate": 1.0,
+  "active_gate_control_pass_rate": 1.0,
+  "pair_check": "FAIL",
+  "pair_and_control_checks": {
+    "auth_before_transfer_accepted": false,
+    "inactive_gate_controls_accepted": true
+  },
+  "prompt_path": "admin-auth-order-miner-prompt-v3-scoped-gate.txt",
+  "dataset_path": "admin-auth-order-mining-dataset-v2-20-per-class.json"
+}

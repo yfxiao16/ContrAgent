@@ -1,0 +1,168 @@
+{
+  "provider": "GMI Cloud plus previous local-model pilot",
+  "training_set": "20 active-gate traces: 10 conforming, 10 violating",
+  "prompt_file": "admin-auth-order-miner-prompt.txt",
+  "evaluation_caveat": "The active-gate heldout set was used during earlier prompt tuning; all metrics are exploratory development results, not a clean final test. GMI model calls used max_tokens caps between 256 and 1024; interrupted/overloaded calls may not have comparable service latency.",
+  "comparison": [
+    {
+      "model": "Qwen2.5-0.5B-Instruct",
+      "size": "0.5B",
+      "status": "candidate",
+      "candidate_raw": "G: (called(authenticate_admin_password) & arg_value(authenticate_admin_password, succeeded) >= 1) -> called(transfer_funds).",
+      "candidate_formula": "(called(authenticate_admin_password) & arg_value(authenticate_admin_password, succeeded) >= 1) -> called(transfer_funds).",
+      "usage": null,
+      "note": null,
+      "parse_error": null,
+      "training_metrics": {
+        "n": 20,
+        "correct": 7,
+        "accuracy": 0.35,
+        "true_violations": 0,
+        "false_rejections": 3,
+        "missed_violations": 10,
+        "true_conforms": 7
+      },
+      "heldout_active_gate_metrics": {
+        "n": 10,
+        "correct": 3,
+        "accuracy": 0.3,
+        "true_violations": 0,
+        "false_rejections": 2,
+        "missed_violations": 5,
+        "true_conforms": 3
+      },
+      "inactive_gate_control_pass_rate": 1.0,
+      "active_gate_no_transfer_control_pass_rate": 0.5,
+      "order_pair_pass": false
+    },
+    {
+      "model": "Qwen2.5-1.5B-Instruct",
+      "size": "1.5B",
+      "status": "candidate",
+      "candidate_raw": "G: (called(authenticate_admin_password) & called(transfer_funds)) -> (called(get_account_balance) & called(internal_check_username_exist) & called(transfer_funds))",
+      "candidate_formula": "(called(authenticate_admin_password) & called(transfer_funds)) -> (called(get_account_balance) & called(internal_check_username_exist) & called(transfer_funds))",
+      "usage": null,
+      "note": null,
+      "parse_error": null,
+      "training_metrics": {
+        "n": 20,
+        "correct": 10,
+        "accuracy": 0.5,
+        "true_violations": 0,
+        "false_rejections": 0,
+        "missed_violations": 10,
+        "true_conforms": 10
+      },
+      "heldout_active_gate_metrics": {
+        "n": 10,
+        "correct": 5,
+        "accuracy": 0.5,
+        "true_violations": 0,
+        "false_rejections": 0,
+        "missed_violations": 5,
+        "true_conforms": 5
+      },
+      "inactive_gate_control_pass_rate": 1.0,
+      "active_gate_no_transfer_control_pass_rate": 1.0,
+      "order_pair_pass": false
+    },
+    {
+      "model": "Gemini 3.5 Flash-Lite",
+      "size": "hosted; parameter count undisclosed",
+      "status": "candidate",
+      "candidate_raw": "G: (!called(transfer_funds) | (is_true(arg_value(authenticate_admin_password, succeeded) >= 1) U called(authenticate_admin_password)))",
+      "candidate_formula": "(!called(transfer_funds) | (is_true(arg_value(authenticate_admin_password, succeeded) >= 1) U called(authenticate_admin_password)))",
+      "usage": {
+        "prompt_tokens": 3105,
+        "completion_tokens": 40,
+        "total_tokens": 3145
+      },
+      "note": null,
+      "parse_error": "Formula parse failed: ParseError: Unexpected tokens after position 25: [')']"
+    },
+    {
+      "model": "Gemini 3.8 Flash",
+      "size": "hosted; parameter count undisclosed",
+      "status": "candidate",
+      "candidate_raw": "G: !called(transfer_funds) U (called(authenticate_admin_password) & arg_value(authenticate_admin_password, succeeded) >= 1)",
+      "candidate_formula": "!called(transfer_funds) U (called(authenticate_admin_password) & arg_value(authenticate_admin_password, succeeded) >= 1)",
+      "usage": {
+        "prompt_tokens": 3105,
+        "completion_tokens": 1016,
+        "total_tokens": 4121
+      },
+      "note": null,
+      "parse_error": null,
+      "training_metrics": {
+        "n": 20,
+        "correct": 10,
+        "accuracy": 0.5,
+        "true_violations": 0,
+        "false_rejections": 0,
+        "missed_violations": 10,
+        "true_conforms": 10
+      },
+      "heldout_active_gate_metrics": {
+        "n": 10,
+        "correct": 5,
+        "accuracy": 0.5,
+        "true_violations": 0,
+        "false_rejections": 0,
+        "missed_violations": 5,
+        "true_conforms": 5
+      },
+      "inactive_gate_control_pass_rate": 1.0,
+      "active_gate_no_transfer_control_pass_rate": 1.0,
+      "order_pair_pass": false
+    },
+    {
+      "model": "Qwen3.8 27B",
+      "size": "27B",
+      "status": "timeout",
+      "candidate_raw": "",
+      "candidate_formula": "",
+      "note": "GMI request timed out after 120 seconds; no response/usage returned."
+    },
+    {
+      "model": "GPT OSS 120b",
+      "size": "120B",
+      "status": "overloaded",
+      "candidate_raw": "",
+      "candidate_formula": "",
+      "note": "GMI returned HTTP 429 service_unavailable/rate_limit_exceeded, including one serial retry."
+    },
+    {
+      "model": "Qwen3.5 397B A17B",
+      "size": "397B total / 17B active",
+      "status": "timeout",
+      "candidate_raw": "",
+      "candidate_formula": "",
+      "note": "GMI request timed out after 75 seconds; no response/usage returned."
+    }
+  ],
+  "additional_attempts": [
+    {
+      "model_id": "deepseek-ai/DeepSeek-V4-Flash",
+      "display_name": "DeepSeek V4 Flash",
+      "size_class": "flash; parameter count undisclosed",
+      "status": "ok",
+      "candidate_raw": "",
+      "usage": {
+        "prompt_tokens": 2731,
+        "completion_tokens": 256,
+        "total_tokens": 2987
+      },
+      "finish_reason": "length",
+      "elapsed_seconds": 4.4,
+      "estimated_cost_usd": 0.000454
+    },
+    {
+      "model_id": "Qwen/Qwen3.8-Max",
+      "display_name": "Qwen3.8 Max",
+      "size_class": "hosted max; parameter count undisclosed",
+      "status": "timeout",
+      "error": "TimeoutError: The read operation timed out",
+      "elapsed_seconds": 77.2
+    }
+  ]
+}

@@ -1,0 +1,26 @@
+{
+  "provider": "GMI Cloud",
+  "model_id": "zai-org/GLM-5.3-Flash",
+  "display_name": "GLM-5.3 Flash",
+  "prompt_file": "admin-auth-order-miner-prompt-v3-scoped-gate.txt",
+  "dataset_file": "admin-auth-order-mining-dataset-v2-20-per-class.json",
+  "training_examples": 40,
+  "heldout_sent_to_model": false,
+  "request": {
+    "temperature": 0,
+    "max_tokens": 2048
+  },
+  "candidate_raw": "",
+  "usage": {
+    "completion_tokens": 2048,
+    "completion_tokens_details": {
+      "reasoning_tokens": 2044
+    },
+    "prompt_tokens": 4752,
+    "prompt_tokens_details": {
+      "cached_tokens": 3757
+    },
+    "total_tokens": 6800
+  },
+  "finish_reason": "length"
+}

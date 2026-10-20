@@ -1,0 +1,5 @@
+{
+  "model_id": "openai/gpt-oss-120b",
+  "status": "http_error",
+  "error": "HTTP 429: {\"error\":{\"message\":\"Service temporarily unavailable. All endpoints are currently overloaded. Please try again later.\",\"type\":\"service_unavailable\",\"code\":\"rate_limit_exceeded\"}}"
+}

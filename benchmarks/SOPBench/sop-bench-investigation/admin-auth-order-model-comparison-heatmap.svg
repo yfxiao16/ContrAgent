@@ -1,0 +1,140 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1700" height="1764" viewBox="0 0 1700 1764">
+<title>Admin-auth rule recovery by model</title>
+<desc>Comparison of held-out ordering recovery and gate-scope recovery.</desc>
+<rect width="1700" height="1764" fill="#ffffff"/>
+<line x1="50" y1="34" x2="1650" y2="34" stroke="#667580" stroke-width="1.5"/>
+<text x="68" y="78" text-anchor="start" font-family="Inter,Segoe UI,Arial,sans-serif" font-size="24px" fill="#263746" font-weight="700">Model</text>
+<text x="350" y="78" text-anchor="start" font-family="Inter,Segoe UI,Arial,sans-serif" font-size="24px" fill="#263746" font-weight="700">Training</text>
+<text x="550" y="78" text-anchor="start" font-family="Inter,Segoe UI,Arial,sans-serif" font-size="24px" fill="#263746" font-weight="700">Holdout</text>
+<text x="750" y="78" text-anchor="start" font-family="Inter,Segoe UI,Arial,sans-serif" font-size="24px" fill="#263746" font-weight="700">Order recovered?</text>
+<text x="990" y="78" text-anchor="start" font-family="Inter,Segoe UI,Arial,sans-serif" font-size="24px" fill="#263746" font-weight="700">Gate scope?</text>
+<text x="1230" y="78" text-anchor="start" font-family="Inter,Segoe UI,Arial,sans-serif" font-size="24px" fill="#263746" font-weight="700">Notes / misses</text>
+<line x1="50" y1="114" x2="1650" y2="114" stroke="#667580" stroke-width="1.5"/>
+<text x="68" y="156" text-anchor="start" font-family="Inter,Segoe UI,Arial,sans-serif" font-size="27px" fill="#172b3a" font-weight="700">GPT-5.4 Nano</text>
+<text x="350" y="163" text-anchor="start" font-family="Inter,Segoe UI,Arial,sans-serif" font-size="24px" fill="#526170" font-weight="500">GMI · v3 · 20+20</text>
+<text x="550" y="163" text-anchor="start" font-family="Inter,Segoe UI,Arial,sans-serif" font-size="27px" fill="#263746" font-weight="700">10/20 · 50%</text>
+<rect x="750" y="126" width="210" height="100" fill="#f8dfdc"/>
+<text x="855" y="176" text-anchor="middle" dominant-baseline="middle" font-family="Inter,Segoe UI,Arial,sans-serif" font-size="25px" fill="#9e2c2c" font-weight="700">NOT RECOVERED</text>
+<rect x="990" y="126" width="210" height="100" fill="#fff0c9"/>
+<text x="1095" y="176" text-anchor="middle" dominant-baseline="middle" font-family="Inter,Segoe UI,Arial,sans-serif" font-size="25px" fill="#815600" font-weight="700">UNCLEAR</text>
+<text x="1230" y="151" text-anchor="start" font-family="Inter,Segoe UI,Arial,sans-serif" font-size="25px" fill="#344554" font-weight="400">Missed all 10 violations; inactive</text>
+<text x="1230" y="183" text-anchor="start" font-family="Inter,Segoe UI,Arial,sans-serif" font-size="25px" fill="#344554" font-weight="400">controls passed vacuously. Matched</text>
+<text x="1230" y="215" text-anchor="start" font-family="Inter,Segoe UI,Arial,sans-serif" font-size="25px" fill="#344554" font-weight="400">order pair failed.</text>
+<line x1="50" y1="250" x2="1650" y2="250" stroke="#d2d9de" stroke-width="1"/>
+<text x="68" y="292" text-anchor="start" font-family="Inter,Segoe UI,Arial,sans-serif" font-size="27px" fill="#172b3a" font-weight="700">Qwen3.5 27B</text>
+<text x="350" y="299" text-anchor="start" font-family="Inter,Segoe UI,Arial,sans-serif" font-size="24px" fill="#526170" font-weight="500">GMI · v3 · 20+20</text>
+<text x="550" y="299" text-anchor="start" font-family="Inter,Segoe UI,Arial,sans-serif" font-size="27px" fill="#263746" font-weight="700">10/20 · 50%</text>
+<rect x="750" y="262" width="210" height="100" fill="#f8dfdc"/>
+<text x="855" y="312" text-anchor="middle" dominant-baseline="middle" font-family="Inter,Segoe UI,Arial,sans-serif" font-size="25px" fill="#9e2c2c" font-weight="700">NOT RECOVERED</text>
+<rect x="990" y="262" width="210" height="100" fill="#fff0c9"/>
+<text x="1095" y="312" text-anchor="middle" dominant-baseline="middle" font-family="Inter,Segoe UI,Arial,sans-serif" font-size="25px" fill="#815600" font-weight="700">UNCLEAR</text>
+<text x="1230" y="287" text-anchor="start" font-family="Inter,Segoe UI,Arial,sans-serif" font-size="25px" fill="#344554" font-weight="400">Missed all 10 violations; inactive</text>
+<text x="1230" y="319" text-anchor="start" font-family="Inter,Segoe UI,Arial,sans-serif" font-size="25px" fill="#344554" font-weight="400">controls passed vacuously. Matched</text>
+<text x="1230" y="351" text-anchor="start" font-family="Inter,Segoe UI,Arial,sans-serif" font-size="25px" fill="#344554" font-weight="400">order pair failed.</text>
+<line x1="50" y1="386" x2="1650" y2="386" stroke="#d2d9de" stroke-width="1"/>
+<text x="68" y="428" text-anchor="start" font-family="Inter,Segoe UI,Arial,sans-serif" font-size="27px" fill="#172b3a" font-weight="700">Gemini 3.5</text>
+<text x="68" y="461" text-anchor="start" font-family="Inter,Segoe UI,Arial,sans-serif" font-size="27px" fill="#172b3a" font-weight="700">Flash-Lite</text>
+<text x="350" y="435" text-anchor="start" font-family="Inter,Segoe UI,Arial,sans-serif" font-size="24px" fill="#526170" font-weight="500">GMI · v3 · 20+20</text>
+<text x="550" y="435" text-anchor="start" font-family="Inter,Segoe UI,Arial,sans-serif" font-size="27px" fill="#263746" font-weight="700">11/20 · 55%</text>
+<rect x="750" y="398" width="210" height="100" fill="#fff0c9"/>
+<text x="855" y="448" text-anchor="middle" dominant-baseline="middle" font-family="Inter,Segoe UI,Arial,sans-serif" font-size="25px" fill="#815600" font-weight="700">UNCLEAR</text>
+<rect x="990" y="398" width="210" height="100" fill="#fff0c9"/>
+<text x="1095" y="448" text-anchor="middle" dominant-baseline="middle" font-family="Inter,Segoe UI,Arial,sans-serif" font-size="25px" fill="#815600" font-weight="700">UNCLEAR</text>
+<text x="1230" y="423" text-anchor="start" font-family="Inter,Segoe UI,Arial,sans-serif" font-size="25px" fill="#344554" font-weight="400">Matched order pair, but missed 9/10</text>
+<text x="1230" y="455" text-anchor="start" font-family="Inter,Segoe UI,Arial,sans-serif" font-size="25px" fill="#344554" font-weight="400">violations. Inactive controls</text>
+<text x="1230" y="487" text-anchor="start" font-family="Inter,Segoe UI,Arial,sans-serif" font-size="25px" fill="#344554" font-weight="400">passed; overall rule is too weak.</text>
+<line x1="50" y1="522" x2="1650" y2="522" stroke="#d2d9de" stroke-width="1"/>
+<text x="68" y="564" text-anchor="start" font-family="Inter,Segoe UI,Arial,sans-serif" font-size="27px" fill="#172b3a" font-weight="700">GPT-5.6 Terra</text>
+<text x="350" y="571" text-anchor="start" font-family="Inter,Segoe UI,Arial,sans-serif" font-size="24px" fill="#526170" font-weight="500">GMI · v3 · 20+20</text>
+<text x="550" y="571" text-anchor="start" font-family="Inter,Segoe UI,Arial,sans-serif" font-size="27px" fill="#263746" font-weight="700">20/20 · 100%</text>
+<rect x="750" y="534" width="210" height="100" fill="#dcefe3"/>
+<text x="855" y="584" text-anchor="middle" dominant-baseline="middle" font-family="Inter,Segoe UI,Arial,sans-serif" font-size="25px" fill="#176b3a" font-weight="700">RECOVERED</text>
+<rect x="990" y="534" width="210" height="100" fill="#dcefe3"/>
+<text x="1095" y="584" text-anchor="middle" dominant-baseline="middle" font-family="Inter,Segoe UI,Arial,sans-serif" font-size="25px" fill="#176b3a" font-weight="700">RECOVERED</text>
+<text x="1230" y="559" text-anchor="start" font-family="Inter,Segoe UI,Arial,sans-serif" font-size="25px" fill="#344554" font-weight="400">Recovered active ordering; accepted</text>
+<text x="1230" y="591" text-anchor="start" font-family="Inter,Segoe UI,Arial,sans-serif" font-size="25px" fill="#344554" font-weight="400">all 4 inactive controls and all</text>
+<text x="1230" y="623" text-anchor="start" font-family="Inter,Segoe UI,Arial,sans-serif" font-size="25px" fill="#344554" font-weight="400">active controls.</text>
+<line x1="50" y1="658" x2="1650" y2="658" stroke="#d2d9de" stroke-width="1"/>
+<text x="68" y="700" text-anchor="start" font-family="Inter,Segoe UI,Arial,sans-serif" font-size="27px" fill="#172b3a" font-weight="700">GPT-6 Astra</text>
+<text x="350" y="707" text-anchor="start" font-family="Inter,Segoe UI,Arial,sans-serif" font-size="24px" fill="#526170" font-weight="500">GMI · v3 · 20+20</text>
+<text x="550" y="707" text-anchor="start" font-family="Inter,Segoe UI,Arial,sans-serif" font-size="27px" fill="#263746" font-weight="700">20/20 · 100%</text>
+<rect x="750" y="670" width="210" height="100" fill="#dcefe3"/>
+<text x="855" y="720" text-anchor="middle" dominant-baseline="middle" font-family="Inter,Segoe UI,Arial,sans-serif" font-size="25px" fill="#176b3a" font-weight="700">RECOVERED</text>
+<rect x="990" y="670" width="210" height="100" fill="#dcefe3"/>
+<text x="1095" y="720" text-anchor="middle" dominant-baseline="middle" font-family="Inter,Segoe UI,Arial,sans-serif" font-size="25px" fill="#176b3a" font-weight="700">RECOVERED</text>
+<text x="1230" y="695" text-anchor="start" font-family="Inter,Segoe UI,Arial,sans-serif" font-size="25px" fill="#344554" font-weight="400">Recovered active ordering; accepted</text>
+<text x="1230" y="727" text-anchor="start" font-family="Inter,Segoe UI,Arial,sans-serif" font-size="25px" fill="#344554" font-weight="400">all 4 inactive controls and all</text>
+<text x="1230" y="759" text-anchor="start" font-family="Inter,Segoe UI,Arial,sans-serif" font-size="25px" fill="#344554" font-weight="400">active controls.</text>
+<line x1="50" y1="794" x2="1650" y2="794" stroke="#d2d9de" stroke-width="1"/>
+<text x="68" y="836" text-anchor="start" font-family="Inter,Segoe UI,Arial,sans-serif" font-size="27px" fill="#172b3a" font-weight="700">Grok 4.5</text>
+<text x="350" y="843" text-anchor="start" font-family="Inter,Segoe UI,Arial,sans-serif" font-size="24px" fill="#526170" font-weight="500">GMI · v3 · 20+20</text>
+<text x="550" y="843" text-anchor="start" font-family="Inter,Segoe UI,Arial,sans-serif" font-size="27px" fill="#263746" font-weight="700">20/20 · 100%</text>
+<rect x="750" y="806" width="210" height="100" fill="#dcefe3"/>
+<text x="855" y="856" text-anchor="middle" dominant-baseline="middle" font-family="Inter,Segoe UI,Arial,sans-serif" font-size="25px" fill="#176b3a" font-weight="700">RECOVERED</text>
+<rect x="990" y="806" width="210" height="100" fill="#dcefe3"/>
+<text x="1095" y="856" text-anchor="middle" dominant-baseline="middle" font-family="Inter,Segoe UI,Arial,sans-serif" font-size="25px" fill="#176b3a" font-weight="700">RECOVERED</text>
+<text x="1230" y="831" text-anchor="start" font-family="Inter,Segoe UI,Arial,sans-serif" font-size="25px" fill="#344554" font-weight="400">Recovered active ordering; accepted</text>
+<text x="1230" y="863" text-anchor="start" font-family="Inter,Segoe UI,Arial,sans-serif" font-size="25px" fill="#344554" font-weight="400">all 4 inactive controls and all</text>
+<text x="1230" y="895" text-anchor="start" font-family="Inter,Segoe UI,Arial,sans-serif" font-size="25px" fill="#344554" font-weight="400">active controls.</text>
+<line x1="50" y1="930" x2="1650" y2="930" stroke="#d2d9de" stroke-width="1"/>
+<text x="68" y="972" text-anchor="start" font-family="Inter,Segoe UI,Arial,sans-serif" font-size="27px" fill="#172b3a" font-weight="700">Qwen3.5 397B A17B</text>
+<text x="350" y="979" text-anchor="start" font-family="Inter,Segoe UI,Arial,sans-serif" font-size="24px" fill="#526170" font-weight="500">GMI · v3 · 20+20</text>
+<text x="550" y="979" text-anchor="start" font-family="Inter,Segoe UI,Arial,sans-serif" font-size="27px" fill="#263746" font-weight="700">20/20 · 100%</text>
+<rect x="750" y="942" width="210" height="100" fill="#dcefe3"/>
+<text x="855" y="992" text-anchor="middle" dominant-baseline="middle" font-family="Inter,Segoe UI,Arial,sans-serif" font-size="25px" fill="#176b3a" font-weight="700">RECOVERED</text>
+<rect x="990" y="942" width="210" height="100" fill="#f8dfdc"/>
+<text x="1095" y="992" text-anchor="middle" dominant-baseline="middle" font-family="Inter,Segoe UI,Arial,sans-serif" font-size="25px" fill="#9e2c2c" font-weight="700">NOT RECOVERED</text>
+<text x="1230" y="967" text-anchor="start" font-family="Inter,Segoe UI,Arial,sans-serif" font-size="25px" fill="#344554" font-weight="400">Recovered active ordering but</text>
+<text x="1230" y="999" text-anchor="start" font-family="Inter,Segoe UI,Arial,sans-serif" font-size="25px" fill="#344554" font-weight="400">ignored gate scope; rejected all 4</text>
+<text x="1230" y="1031" text-anchor="start" font-family="Inter,Segoe UI,Arial,sans-serif" font-size="25px" fill="#344554" font-weight="400">inactive controls.</text>
+<line x1="50" y1="1066" x2="1650" y2="1066" stroke="#d2d9de" stroke-width="1"/>
+<text x="68" y="1108" text-anchor="start" font-family="Inter,Segoe UI,Arial,sans-serif" font-size="27px" fill="#172b3a" font-weight="700">Qwen3.8 Max</text>
+<text x="350" y="1115" text-anchor="start" font-family="Inter,Segoe UI,Arial,sans-serif" font-size="24px" fill="#526170" font-weight="500">GMI · v3 · 20+20</text>
+<text x="550" y="1115" text-anchor="start" font-family="Inter,Segoe UI,Arial,sans-serif" font-size="27px" fill="#263746" font-weight="700">20/20 · 100%</text>
+<rect x="750" y="1078" width="210" height="100" fill="#dcefe3"/>
+<text x="855" y="1128" text-anchor="middle" dominant-baseline="middle" font-family="Inter,Segoe UI,Arial,sans-serif" font-size="25px" fill="#176b3a" font-weight="700">RECOVERED</text>
+<rect x="990" y="1078" width="210" height="100" fill="#dcefe3"/>
+<text x="1095" y="1128" text-anchor="middle" dominant-baseline="middle" font-family="Inter,Segoe UI,Arial,sans-serif" font-size="25px" fill="#176b3a" font-weight="700">RECOVERED</text>
+<text x="1230" y="1103" text-anchor="start" font-family="Inter,Segoe UI,Arial,sans-serif" font-size="25px" fill="#344554" font-weight="400">Retry returned a parseable scoped</text>
+<text x="1230" y="1135" text-anchor="start" font-family="Inter,Segoe UI,Arial,sans-serif" font-size="25px" fill="#344554" font-weight="400">rule; accepted all active and</text>
+<text x="1230" y="1167" text-anchor="start" font-family="Inter,Segoe UI,Arial,sans-serif" font-size="25px" fill="#344554" font-weight="400">inactive controls.</text>
+<line x1="50" y1="1202" x2="1650" y2="1202" stroke="#d2d9de" stroke-width="1"/>
+<text x="68" y="1244" text-anchor="start" font-family="Inter,Segoe UI,Arial,sans-serif" font-size="27px" fill="#172b3a" font-weight="700">Step-3.7 Flash</text>
+<text x="350" y="1251" text-anchor="start" font-family="Inter,Segoe UI,Arial,sans-serif" font-size="24px" fill="#526170" font-weight="500">GMI · v3 · 20+20</text>
+<text x="550" y="1251" text-anchor="start" font-family="Inter,Segoe UI,Arial,sans-serif" font-size="27px" fill="#263746" font-weight="700">Unparseable</text>
+<rect x="750" y="1214" width="210" height="100" fill="#e5e7e9"/>
+<text x="855" y="1264" text-anchor="middle" dominant-baseline="middle" font-family="Inter,Segoe UI,Arial,sans-serif" font-size="25px" fill="#4b5560" font-weight="700">UNPARSEABLE</text>
+<rect x="990" y="1214" width="210" height="100" fill="#e5e7e9"/>
+<text x="1095" y="1264" text-anchor="middle" dominant-baseline="middle" font-family="Inter,Segoe UI,Arial,sans-serif" font-size="25px" fill="#4b5560" font-weight="700">UNPARSEABLE</text>
+<text x="1230" y="1239" text-anchor="start" font-family="Inter,Segoe UI,Arial,sans-serif" font-size="25px" fill="#344554" font-weight="400">Returned text, but it did not</text>
+<text x="1230" y="1271" text-anchor="start" font-family="Inter,Segoe UI,Arial,sans-serif" font-size="25px" fill="#344554" font-weight="400">contain a parseable formula.</text>
+<line x1="50" y1="1338" x2="1650" y2="1338" stroke="#d2d9de" stroke-width="1"/>
+<text x="68" y="1380" text-anchor="start" font-family="Inter,Segoe UI,Arial,sans-serif" font-size="27px" fill="#172b3a" font-weight="700">GLM-5.3 Flash</text>
+<text x="350" y="1387" text-anchor="start" font-family="Inter,Segoe UI,Arial,sans-serif" font-size="24px" fill="#526170" font-weight="500">GMI · v3 · 20+20</text>
+<text x="550" y="1387" text-anchor="start" font-family="Inter,Segoe UI,Arial,sans-serif" font-size="27px" fill="#263746" font-weight="700">Unparseable</text>
+<rect x="750" y="1350" width="210" height="100" fill="#e5e7e9"/>
+<text x="855" y="1400" text-anchor="middle" dominant-baseline="middle" font-family="Inter,Segoe UI,Arial,sans-serif" font-size="25px" fill="#4b5560" font-weight="700">UNPARSEABLE</text>
+<rect x="990" y="1350" width="210" height="100" fill="#e5e7e9"/>
+<text x="1095" y="1400" text-anchor="middle" dominant-baseline="middle" font-family="Inter,Segoe UI,Arial,sans-serif" font-size="25px" fill="#4b5560" font-weight="700">UNPARSEABLE</text>
+<text x="1230" y="1375" text-anchor="start" font-family="Inter,Segoe UI,Arial,sans-serif" font-size="25px" fill="#344554" font-weight="400">Returned text, but it did not</text>
+<text x="1230" y="1407" text-anchor="start" font-family="Inter,Segoe UI,Arial,sans-serif" font-size="25px" fill="#344554" font-weight="400">contain a parseable formula.</text>
+<line x1="50" y1="1474" x2="1650" y2="1474" stroke="#d2d9de" stroke-width="1"/>
+<text x="68" y="1516" text-anchor="start" font-family="Inter,Segoe UI,Arial,sans-serif" font-size="27px" fill="#172b3a" font-weight="700">DeepSeek V4 Flash</text>
+<text x="350" y="1523" text-anchor="start" font-family="Inter,Segoe UI,Arial,sans-serif" font-size="24px" fill="#526170" font-weight="500">GMI · v3 · 20+20</text>
+<text x="550" y="1523" text-anchor="start" font-family="Inter,Segoe UI,Arial,sans-serif" font-size="27px" fill="#263746" font-weight="700">Unparseable</text>
+<rect x="750" y="1486" width="210" height="100" fill="#e5e7e9"/>
+<text x="855" y="1536" text-anchor="middle" dominant-baseline="middle" font-family="Inter,Segoe UI,Arial,sans-serif" font-size="25px" fill="#4b5560" font-weight="700">UNPARSEABLE</text>
+<rect x="990" y="1486" width="210" height="100" fill="#e5e7e9"/>
+<text x="1095" y="1536" text-anchor="middle" dominant-baseline="middle" font-family="Inter,Segoe UI,Arial,sans-serif" font-size="25px" fill="#4b5560" font-weight="700">UNPARSEABLE</text>
+<text x="1230" y="1511" text-anchor="start" font-family="Inter,Segoe UI,Arial,sans-serif" font-size="25px" fill="#344554" font-weight="400">Returned no parseable formula.</text>
+<line x1="50" y1="1610" x2="1650" y2="1610" stroke="#d2d9de" stroke-width="1"/>
+<text x="68" y="1652" text-anchor="start" font-family="Inter,Segoe UI,Arial,sans-serif" font-size="27px" fill="#172b3a" font-weight="700">DeepSeek V4 Pro</text>
+<text x="350" y="1659" text-anchor="start" font-family="Inter,Segoe UI,Arial,sans-serif" font-size="24px" fill="#526170" font-weight="500">GMI · v3 · 20+20</text>
+<text x="550" y="1659" text-anchor="start" font-family="Inter,Segoe UI,Arial,sans-serif" font-size="27px" fill="#263746" font-weight="700">Unparseable</text>
+<rect x="750" y="1622" width="210" height="100" fill="#e5e7e9"/>
+<text x="855" y="1672" text-anchor="middle" dominant-baseline="middle" font-family="Inter,Segoe UI,Arial,sans-serif" font-size="25px" fill="#4b5560" font-weight="700">UNPARSEABLE</text>
+<rect x="990" y="1622" width="210" height="100" fill="#e5e7e9"/>
+<text x="1095" y="1672" text-anchor="middle" dominant-baseline="middle" font-family="Inter,Segoe UI,Arial,sans-serif" font-size="25px" fill="#4b5560" font-weight="700">UNPARSEABLE</text>
+<text x="1230" y="1647" text-anchor="start" font-family="Inter,Segoe UI,Arial,sans-serif" font-size="25px" fill="#344554" font-weight="400">Returned no parseable formula.</text>
+<line x1="50" y1="1746" x2="1650" y2="1746" stroke="#d2d9de" stroke-width="1"/>
+</svg>

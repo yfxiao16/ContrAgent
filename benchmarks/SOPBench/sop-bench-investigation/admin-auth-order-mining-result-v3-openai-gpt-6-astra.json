@@ -1,0 +1,41 @@
+{
+  "provider": "GMI Cloud",
+  "model_id": "openai/gpt-6-astra",
+  "display_name": "GPT-6 Astra",
+  "prompt_file": "admin-auth-order-miner-prompt-v3-scoped-gate.txt",
+  "dataset_file": "admin-auth-order-mining-dataset-v2-20-per-class.json",
+  "training_examples": 40,
+  "heldout_sent_to_model": false,
+  "request": {
+    "temperature": 0,
+    "max_tokens": 2048
+  },
+  "candidate_raw": "G: !((!(called(authenticate_admin_password) & arg_value(authenticate_admin_password, succeeded) >= 1)) U (called(transfer_funds) & arg_value(transfer_funds, succeeded) >= 1 & arg_value(transfer_funds, gate_authenticated_admin_password_active) >= 1))",
+  "usage": {
+    "completion_tokens": 180,
+    "completion_tokens_details": {
+      "accepted_prediction_tokens": 0,
+      "audio_tokens": 0,
+      "reasoning_tokens": 107,
+      "rejected_prediction_tokens": 0
+    },
+    "latency_checkpoint": {
+      "engine_tbt_ms": 20,
+      "engine_ttft_ms": 456,
+      "engine_ttlt_ms": 4058,
+      "pre_inference_ms": 184,
+      "service_tbt_ms": 20,
+      "service_ttft_ms": 917,
+      "service_ttlt_ms": 4515,
+      "user_visible_ttft_ms": 733
+    },
+    "prompt_tokens": 4803,
+    "prompt_tokens_details": {
+      "audio_tokens": 0,
+      "cache_write_tokens": 4800,
+      "cached_tokens": 0
+    },
+    "total_tokens": 4983
+  },
+  "finish_reason": "stop"
+}

@@ -1,0 +1,942 @@
+{
+  "dataset_type": "synthetic controlled trace-mining pilot",
+  "target_rule_description": "If the admin-auth gate is active, a successful transfer must be preceded by successful admin-password authentication.",
+  "label_definition": "Labels indicate conformance to the target rule, not whether the task itself is permitted or the bank action should succeed.",
+  "trace_schema": {
+    "tool": "tool-call name",
+    "succeeded": "Boolean tool result",
+    "gate_active": "task-level SOP context; active on every miner example"
+  },
+  "training": [
+    {
+      "trace_id": "train_conforms_01",
+      "gate_active": true,
+      "label": "conforms",
+      "events": [
+        {
+          "tool": "authenticate_admin_password",
+          "succeeded": true
+        },
+        {
+          "tool": "transfer_funds",
+          "succeeded": true
+        },
+        {
+          "tool": "exit_conversation",
+          "succeeded": true
+        }
+      ]
+    },
+    {
+      "trace_id": "train_conforms_02",
+      "gate_active": true,
+      "label": "conforms",
+      "events": [
+        {
+          "tool": "internal_check_username_exist",
+          "succeeded": true
+        },
+        {
+          "tool": "authenticate_admin_password",
+          "succeeded": true
+        },
+        {
+          "tool": "transfer_funds",
+          "succeeded": true
+        },
+        {
+          "tool": "exit_conversation",
+          "succeeded": true
+        }
+      ]
+    },
+    {
+      "trace_id": "train_conforms_03",
+      "gate_active": true,
+      "label": "conforms",
+      "events": [
+        {
+          "tool": "authenticate_admin_password",
+          "succeeded": false
+        },
+        {
+          "tool": "authenticate_admin_password",
+          "succeeded": true
+        },
+        {
+          "tool": "get_account_balance",
+          "succeeded": true
+        },
+        {
+          "tool": "transfer_funds",
+          "succeeded": true
+        },
+        {
+          "tool": "exit_conversation",
+          "succeeded": true
+        }
+      ]
+    },
+    {
+      "trace_id": "train_conforms_04",
+      "gate_active": true,
+      "label": "conforms",
+      "events": [
+        {
+          "tool": "login_user",
+          "succeeded": true
+        },
+        {
+          "tool": "authenticate_admin_password",
+          "succeeded": true
+        },
+        {
+          "tool": "transfer_funds",
+          "succeeded": true
+        },
+        {
+          "tool": "send_receipt",
+          "succeeded": true
+        },
+        {
+          "tool": "exit_conversation",
+          "succeeded": true
+        }
+      ]
+    },
+    {
+      "trace_id": "train_conforms_05",
+      "gate_active": true,
+      "label": "conforms",
+      "events": [
+        {
+          "tool": "get_account_balance",
+          "succeeded": true
+        },
+        {
+          "tool": "authenticate_admin_password",
+          "succeeded": true
+        },
+        {
+          "tool": "internal_check_username_exist",
+          "succeeded": true
+        },
+        {
+          "tool": "transfer_funds",
+          "succeeded": true
+        },
+        {
+          "tool": "exit_conversation",
+          "succeeded": true
+        }
+      ]
+    },
+    {
+      "trace_id": "train_conforms_06",
+      "gate_active": true,
+      "label": "conforms",
+      "events": [
+        {
+          "tool": "authenticate_admin_password",
+          "succeeded": true
+        },
+        {
+          "tool": "login_user",
+          "succeeded": true
+        },
+        {
+          "tool": "transfer_funds",
+          "succeeded": true
+        },
+        {
+          "tool": "exit_conversation",
+          "succeeded": true
+        }
+      ]
+    },
+    {
+      "trace_id": "train_conforms_07",
+      "gate_active": true,
+      "label": "conforms",
+      "events": [
+        {
+          "tool": "internal_check_username_exist",
+          "succeeded": true
+        },
+        {
+          "tool": "get_account_balance",
+          "succeeded": true
+        },
+        {
+          "tool": "authenticate_admin_password",
+          "succeeded": true
+        },
+        {
+          "tool": "transfer_funds",
+          "succeeded": true
+        },
+        {
+          "tool": "exit_conversation",
+          "succeeded": true
+        }
+      ]
+    },
+    {
+      "trace_id": "train_conforms_08",
+      "gate_active": true,
+      "label": "conforms",
+      "events": [
+        {
+          "tool": "authenticate_admin_password",
+          "succeeded": false
+        },
+        {
+          "tool": "login_user",
+          "succeeded": true
+        },
+        {
+          "tool": "authenticate_admin_password",
+          "succeeded": true
+        },
+        {
+          "tool": "transfer_funds",
+          "succeeded": true
+        },
+        {
+          "tool": "exit_conversation",
+          "succeeded": true
+        }
+      ]
+    },
+    {
+      "trace_id": "train_conforms_09",
+      "gate_active": true,
+      "label": "conforms",
+      "events": [
+        {
+          "tool": "login_user",
+          "succeeded": true
+        },
+        {
+          "tool": "get_account_balance",
+          "succeeded": true
+        },
+        {
+          "tool": "authenticate_admin_password",
+          "succeeded": true
+        },
+        {
+          "tool": "send_receipt",
+          "succeeded": true
+        },
+        {
+          "tool": "transfer_funds",
+          "succeeded": true
+        },
+        {
+          "tool": "exit_conversation",
+          "succeeded": true
+        }
+      ]
+    },
+    {
+      "trace_id": "train_conforms_10",
+      "gate_active": true,
+      "label": "conforms",
+      "events": [
+        {
+          "tool": "authenticate_admin_password",
+          "succeeded": true
+        },
+        {
+          "tool": "internal_check_username_exist",
+          "succeeded": true
+        },
+        {
+          "tool": "get_account_balance",
+          "succeeded": true
+        },
+        {
+          "tool": "transfer_funds",
+          "succeeded": true
+        },
+        {
+          "tool": "exit_conversation",
+          "succeeded": true
+        }
+      ]
+    },
+    {
+      "trace_id": "train_violates_01",
+      "gate_active": true,
+      "label": "violates",
+      "events": [
+        {
+          "tool": "transfer_funds",
+          "succeeded": true
+        },
+        {
+          "tool": "authenticate_admin_password",
+          "succeeded": true
+        },
+        {
+          "tool": "exit_conversation",
+          "succeeded": true
+        }
+      ]
+    },
+    {
+      "trace_id": "train_violates_02",
+      "gate_active": true,
+      "label": "violates",
+      "events": [
+        {
+          "tool": "get_account_balance",
+          "succeeded": true
+        },
+        {
+          "tool": "transfer_funds",
+          "succeeded": true
+        },
+        {
+          "tool": "authenticate_admin_password",
+          "succeeded": true
+        },
+        {
+          "tool": "exit_conversation",
+          "succeeded": true
+        }
+      ]
+    },
+    {
+      "trace_id": "train_violates_03",
+      "gate_active": true,
+      "label": "violates",
+      "events": [
+        {
+          "tool": "authenticate_admin_password",
+          "succeeded": false
+        },
+        {
+          "tool": "transfer_funds",
+          "succeeded": true
+        },
+        {
+          "tool": "authenticate_admin_password",
+          "succeeded": true
+        },
+        {
+          "tool": "exit_conversation",
+          "succeeded": true
+        }
+      ]
+    },
+    {
+      "trace_id": "train_violates_04",
+      "gate_active": true,
+      "label": "violates",
+      "events": [
+        {
+          "tool": "login_user",
+          "succeeded": true
+        },
+        {
+          "tool": "transfer_funds",
+          "succeeded": true
+        },
+        {
+          "tool": "get_account_balance",
+          "succeeded": true
+        },
+        {
+          "tool": "authenticate_admin_password",
+          "succeeded": true
+        },
+        {
+          "tool": "exit_conversation",
+          "succeeded": true
+        }
+      ]
+    },
+    {
+      "trace_id": "train_violates_05",
+      "gate_active": true,
+      "label": "violates",
+      "events": [
+        {
+          "tool": "internal_check_username_exist",
+          "succeeded": true
+        },
+        {
+          "tool": "authenticate_admin_password",
+          "succeeded": false
+        },
+        {
+          "tool": "transfer_funds",
+          "succeeded": true
+        },
+        {
+          "tool": "authenticate_admin_password",
+          "succeeded": true
+        },
+        {
+          "tool": "exit_conversation",
+          "succeeded": true
+        }
+      ]
+    },
+    {
+      "trace_id": "train_violates_06",
+      "gate_active": true,
+      "label": "violates",
+      "events": [
+        {
+          "tool": "get_account_balance",
+          "succeeded": true
+        },
+        {
+          "tool": "login_user",
+          "succeeded": true
+        },
+        {
+          "tool": "transfer_funds",
+          "succeeded": true
+        },
+        {
+          "tool": "send_receipt",
+          "succeeded": true
+        },
+        {
+          "tool": "authenticate_admin_password",
+          "succeeded": true
+        },
+        {
+          "tool": "exit_conversation",
+          "succeeded": true
+        }
+      ]
+    },
+    {
+      "trace_id": "train_violates_07",
+      "gate_active": true,
+      "label": "violates",
+      "events": [
+        {
+          "tool": "authenticate_admin_password",
+          "succeeded": false
+        },
+        {
+          "tool": "login_user",
+          "succeeded": true
+        },
+        {
+          "tool": "get_account_balance",
+          "succeeded": true
+        },
+        {
+          "tool": "transfer_funds",
+          "succeeded": true
+        },
+        {
+          "tool": "authenticate_admin_password",
+          "succeeded": true
+        },
+        {
+          "tool": "exit_conversation",
+          "succeeded": true
+        }
+      ]
+    },
+    {
+      "trace_id": "train_violates_08",
+      "gate_active": true,
+      "label": "violates",
+      "events": [
+        {
+          "tool": "send_receipt",
+          "succeeded": true
+        },
+        {
+          "tool": "transfer_funds",
+          "succeeded": true
+        },
+        {
+          "tool": "internal_check_username_exist",
+          "succeeded": true
+        },
+        {
+          "tool": "authenticate_admin_password",
+          "succeeded": true
+        },
+        {
+          "tool": "exit_conversation",
+          "succeeded": true
+        }
+      ]
+    },
+    {
+      "trace_id": "train_violates_09",
+      "gate_active": true,
+      "label": "violates",
+      "events": [
+        {
+          "tool": "login_user",
+          "succeeded": true
+        },
+        {
+          "tool": "authenticate_admin_password",
+          "succeeded": false
+        },
+        {
+          "tool": "transfer_funds",
+          "succeeded": true
+        },
+        {
+          "tool": "get_account_balance",
+          "succeeded": true
+        },
+        {
+          "tool": "authenticate_admin_password",
+          "succeeded": true
+        },
+        {
+          "tool": "exit_conversation",
+          "succeeded": true
+        }
+      ]
+    },
+    {
+      "trace_id": "train_violates_10",
+      "gate_active": true,
+      "label": "violates",
+      "events": [
+        {
+          "tool": "get_account_balance",
+          "succeeded": true
+        },
+        {
+          "tool": "internal_check_username_exist",
+          "succeeded": true
+        },
+        {
+          "tool": "transfer_funds",
+          "succeeded": true
+        },
+        {
+          "tool": "authenticate_admin_password",
+          "succeeded": true
+        },
+        {
+          "tool": "send_receipt",
+          "succeeded": true
+        },
+        {
+          "tool": "exit_conversation",
+          "succeeded": true
+        }
+      ]
+    }
+  ],
+  "heldout_active_gate": [
+    {
+      "trace_id": "heldout_conforms_01",
+      "gate_active": true,
+      "label": "conforms",
+      "events": [
+        {
+          "tool": "authenticate_admin_password",
+          "succeeded": true
+        },
+        {
+          "tool": "authenticate_admin_password",
+          "succeeded": false
+        },
+        {
+          "tool": "transfer_funds",
+          "succeeded": true
+        },
+        {
+          "tool": "exit_conversation",
+          "succeeded": true
+        }
+      ]
+    },
+    {
+      "trace_id": "heldout_conforms_02",
+      "gate_active": true,
+      "label": "conforms",
+      "events": [
+        {
+          "tool": "get_account_balance",
+          "succeeded": true
+        },
+        {
+          "tool": "authenticate_admin_password",
+          "succeeded": false
+        },
+        {
+          "tool": "authenticate_admin_password",
+          "succeeded": true
+        },
+        {
+          "tool": "send_receipt",
+          "succeeded": true
+        },
+        {
+          "tool": "transfer_funds",
+          "succeeded": true
+        },
+        {
+          "tool": "exit_conversation",
+          "succeeded": true
+        }
+      ]
+    },
+    {
+      "trace_id": "heldout_conforms_03",
+      "gate_active": true,
+      "label": "conforms",
+      "events": [
+        {
+          "tool": "login_user",
+          "succeeded": true
+        },
+        {
+          "tool": "internal_check_username_exist",
+          "succeeded": true
+        },
+        {
+          "tool": "authenticate_admin_password",
+          "succeeded": true
+        },
+        {
+          "tool": "get_account_balance",
+          "succeeded": true
+        },
+        {
+          "tool": "transfer_funds",
+          "succeeded": true
+        },
+        {
+          "tool": "exit_conversation",
+          "succeeded": true
+        }
+      ]
+    },
+    {
+      "trace_id": "heldout_conforms_04",
+      "gate_active": true,
+      "label": "conforms",
+      "events": [
+        {
+          "tool": "authenticate_admin_password",
+          "succeeded": true
+        },
+        {
+          "tool": "send_receipt",
+          "succeeded": true
+        },
+        {
+          "tool": "login_user",
+          "succeeded": true
+        },
+        {
+          "tool": "transfer_funds",
+          "succeeded": true
+        },
+        {
+          "tool": "exit_conversation",
+          "succeeded": true
+        }
+      ]
+    },
+    {
+      "trace_id": "heldout_conforms_05",
+      "gate_active": true,
+      "label": "conforms",
+      "events": [
+        {
+          "tool": "get_account_balance",
+          "succeeded": true
+        },
+        {
+          "tool": "authenticate_admin_password",
+          "succeeded": true
+        },
+        {
+          "tool": "send_receipt",
+          "succeeded": true
+        },
+        {
+          "tool": "internal_check_username_exist",
+          "succeeded": true
+        },
+        {
+          "tool": "transfer_funds",
+          "succeeded": true
+        },
+        {
+          "tool": "exit_conversation",
+          "succeeded": true
+        }
+      ]
+    },
+    {
+      "trace_id": "heldout_violates_01",
+      "gate_active": true,
+      "label": "violates",
+      "events": [
+        {
+          "tool": "transfer_funds",
+          "succeeded": true
+        },
+        {
+          "tool": "send_receipt",
+          "succeeded": true
+        },
+        {
+          "tool": "authenticate_admin_password",
+          "succeeded": true
+        },
+        {
+          "tool": "exit_conversation",
+          "succeeded": true
+        }
+      ]
+    },
+    {
+      "trace_id": "heldout_violates_02",
+      "gate_active": true,
+      "label": "violates",
+      "events": [
+        {
+          "tool": "authenticate_admin_password",
+          "succeeded": false
+        },
+        {
+          "tool": "get_account_balance",
+          "succeeded": true
+        },
+        {
+          "tool": "transfer_funds",
+          "succeeded": true
+        },
+        {
+          "tool": "login_user",
+          "succeeded": true
+        },
+        {
+          "tool": "authenticate_admin_password",
+          "succeeded": true
+        },
+        {
+          "tool": "exit_conversation",
+          "succeeded": true
+        }
+      ]
+    },
+    {
+      "trace_id": "heldout_violates_03",
+      "gate_active": true,
+      "label": "violates",
+      "events": [
+        {
+          "tool": "login_user",
+          "succeeded": true
+        },
+        {
+          "tool": "transfer_funds",
+          "succeeded": true
+        },
+        {
+          "tool": "authenticate_admin_password",
+          "succeeded": false
+        },
+        {
+          "tool": "authenticate_admin_password",
+          "succeeded": true
+        },
+        {
+          "tool": "exit_conversation",
+          "succeeded": true
+        }
+      ]
+    },
+    {
+      "trace_id": "heldout_violates_04",
+      "gate_active": true,
+      "label": "violates",
+      "events": [
+        {
+          "tool": "internal_check_username_exist",
+          "succeeded": true
+        },
+        {
+          "tool": "get_account_balance",
+          "succeeded": true
+        },
+        {
+          "tool": "transfer_funds",
+          "succeeded": true
+        },
+        {
+          "tool": "authenticate_admin_password",
+          "succeeded": true
+        },
+        {
+          "tool": "exit_conversation",
+          "succeeded": true
+        }
+      ]
+    },
+    {
+      "trace_id": "heldout_violates_05",
+      "gate_active": true,
+      "label": "violates",
+      "events": [
+        {
+          "tool": "send_receipt",
+          "succeeded": true
+        },
+        {
+          "tool": "transfer_funds",
+          "succeeded": true
+        },
+        {
+          "tool": "authenticate_admin_password",
+          "succeeded": false
+        },
+        {
+          "tool": "authenticate_admin_password",
+          "succeeded": true
+        },
+        {
+          "tool": "exit_conversation",
+          "succeeded": true
+        }
+      ]
+    }
+  ],
+  "heldout_inactive_gate_controls": [
+    {
+      "trace_id": "inactive_no_auth_1",
+      "gate_active": false,
+      "label": "conforms",
+      "events": [
+        {
+          "tool": "transfer_funds",
+          "succeeded": true
+        },
+        {
+          "tool": "exit_conversation",
+          "succeeded": true
+        }
+      ]
+    },
+    {
+      "trace_id": "inactive_no_auth_2",
+      "gate_active": false,
+      "label": "conforms",
+      "events": [
+        {
+          "tool": "get_account_balance",
+          "succeeded": true
+        },
+        {
+          "tool": "transfer_funds",
+          "succeeded": true
+        },
+        {
+          "tool": "exit_conversation",
+          "succeeded": true
+        }
+      ]
+    },
+    {
+      "trace_id": "inactive_auth_after_1",
+      "gate_active": false,
+      "label": "conforms",
+      "events": [
+        {
+          "tool": "transfer_funds",
+          "succeeded": true
+        },
+        {
+          "tool": "authenticate_admin_password",
+          "succeeded": true
+        },
+        {
+          "tool": "exit_conversation",
+          "succeeded": true
+        }
+      ]
+    },
+    {
+      "trace_id": "inactive_auth_after_2",
+      "gate_active": false,
+      "label": "conforms",
+      "events": [
+        {
+          "tool": "send_receipt",
+          "succeeded": true
+        },
+        {
+          "tool": "transfer_funds",
+          "succeeded": true
+        },
+        {
+          "tool": "authenticate_admin_password",
+          "succeeded": true
+        },
+        {
+          "tool": "exit_conversation",
+          "succeeded": true
+        }
+      ]
+    }
+  ],
+  "heldout_active_gate_no_transfer_controls": [
+    {
+      "trace_id": "active_no_transfer_1",
+      "gate_active": true,
+      "label": "conforms",
+      "events": [
+        {
+          "tool": "get_account_balance",
+          "succeeded": true
+        },
+        {
+          "tool": "exit_conversation",
+          "succeeded": true
+        }
+      ]
+    },
+    {
+      "trace_id": "active_no_transfer_2",
+      "gate_active": true,
+      "label": "conforms",
+      "events": [
+        {
+          "tool": "authenticate_admin_password",
+          "succeeded": true
+        },
+        {
+          "tool": "exit_conversation",
+          "succeeded": true
+        }
+      ]
+    }
+  ],
+  "counts": {
+    "training": {
+      "conforms": 10,
+      "violates": 10
+    },
+    "heldout_active_gate": {
+      "conforms": 5,
+      "violates": 5
+    },
+    "heldout_inactive_gate_controls": 4,
+    "heldout_active_gate_no_transfer_controls": 2
+  }
+}

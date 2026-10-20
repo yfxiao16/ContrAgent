@@ -1,0 +1,7 @@
+{
+  "model_id": "moonshotai/Kimi-K2.6",
+  "display_name": "Kimi K2.6",
+  "status": "error",
+  "error": "HTTPError: HTTP Error 429: Too Many Requests",
+  "elapsed_seconds": 61.0
+}

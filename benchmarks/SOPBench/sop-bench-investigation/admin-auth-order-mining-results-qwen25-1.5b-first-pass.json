@@ -1,0 +1,11 @@
+{
+  "model_id": "Qwen/Qwen2.5-1.5B-Instruct",
+  "dtype": "float16",
+  "candidate_raw": "G: !(gate_authenticated_admin_password_active=1) & (authenticate_admin_password -> succeed) & (transfer_funds -> succeed) & (get_account_balance -> succeed) & (internal_check_username_exist -> succeed) & (login_user -> succeed) & (send_receipt -> succeed)",
+  "candidate_formula": "!(gate_authenticated_admin_password_active=1) & (authenticate_admin_password -> succeed) & (transfer_funds -> succeed) & (get_account_balance -> succeed) & (internal_check_username_exist -> succeed) & (login_user -> succeed) & (send_receipt -> succeed)",
+  "parse_error": "Formula parse failed: ParseError: Expected ')' at position 3, got '1'",
+  "pair_check": "UNPARSEABLE",
+  "prompt_path": "admin-auth-order-miner-prompt.txt",
+  "dataset_path": "admin-auth-order-mining-dataset.json",
+  "reference_formula_used_only_for_evaluation": "(!(called(transfer_funds) & arg_value(transfer_funds, succeeded) >= 1 & arg_value(transfer_funds, gate_authenticated_admin_password_active) >= 1) U (called(authenticate_admin_password) & arg_value(authenticate_admin_password, succeeded) >= 1)) | G(!(called(transfer_funds) & arg_value(transfer_funds, succeeded) >= 1 & arg_value(transfer_funds, gate_authenticated_admin_password_active) >= 1))"
+}

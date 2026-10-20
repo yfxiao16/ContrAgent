@@ -1,0 +1,453 @@
+Infer one concise LTLf contract from these labeled traces. Each trace is from a task whose authenticated_admin_password gate is active. Labels mean whether the trace conforms to the hidden rule. Tool events are ordered; each has a tool name and a Boolean succeeded result. Each JSON trace omits the explicit exit_conversation marker and ends after its final listed event. Ignore unrelated calls unless they affect the rule. Write a contract that generalizes beyond these exact sequences. The contract language supports called(tool), arg_value(tool, field), comparisons such as >= 1, Boolean operators !, &, |, ->, and temporal operators G, F, U. The transfer call carries gate_authenticated_admin_password_active=1 when its gate is active. Syntax example only (an unrelated rule): G((called(send_receipt) & arg_value(send_receipt, succeeded) >= 1) -> called(get_order_details)). Use called(tool) and arg_value(tool, field) predicates; do not use bare tool names, assignments with =, or the word 'succeed' as a predicate. Ignore unrelated calls that vary independently of the labels. Return exactly one line in this form: G: <formula>. Do not include explanation or code fences.
+
+Training examples (JSON):
+[
+  {
+    "gate_active": true,
+    "label": "conforms",
+    "events": [
+      {
+        "tool": "authenticate_admin_password",
+        "succeeded": true
+      },
+      {
+        "tool": "transfer_funds",
+        "succeeded": true
+      }
+    ],
+    "trace_ends_after_last_event": true
+  },
+  {
+    "gate_active": true,
+    "label": "conforms",
+    "events": [
+      {
+        "tool": "internal_check_username_exist",
+        "succeeded": true
+      },
+      {
+        "tool": "authenticate_admin_password",
+        "succeeded": true
+      },
+      {
+        "tool": "transfer_funds",
+        "succeeded": true
+      }
+    ],
+    "trace_ends_after_last_event": true
+  },
+  {
+    "gate_active": true,
+    "label": "conforms",
+    "events": [
+      {
+        "tool": "authenticate_admin_password",
+        "succeeded": false
+      },
+      {
+        "tool": "authenticate_admin_password",
+        "succeeded": true
+      },
+      {
+        "tool": "get_account_balance",
+        "succeeded": true
+      },
+      {
+        "tool": "transfer_funds",
+        "succeeded": true
+      }
+    ],
+    "trace_ends_after_last_event": true
+  },
+  {
+    "gate_active": true,
+    "label": "conforms",
+    "events": [
+      {
+        "tool": "login_user",
+        "succeeded": true
+      },
+      {
+        "tool": "authenticate_admin_password",
+        "succeeded": true
+      },
+      {
+        "tool": "transfer_funds",
+        "succeeded": true
+      },
+      {
+        "tool": "send_receipt",
+        "succeeded": true
+      }
+    ],
+    "trace_ends_after_last_event": true
+  },
+  {
+    "gate_active": true,
+    "label": "conforms",
+    "events": [
+      {
+        "tool": "get_account_balance",
+        "succeeded": true
+      },
+      {
+        "tool": "authenticate_admin_password",
+        "succeeded": true
+      },
+      {
+        "tool": "internal_check_username_exist",
+        "succeeded": true
+      },
+      {
+        "tool": "transfer_funds",
+        "succeeded": true
+      }
+    ],
+    "trace_ends_after_last_event": true
+  },
+  {
+    "gate_active": true,
+    "label": "conforms",
+    "events": [
+      {
+        "tool": "authenticate_admin_password",
+        "succeeded": true
+      },
+      {
+        "tool": "login_user",
+        "succeeded": true
+      },
+      {
+        "tool": "transfer_funds",
+        "succeeded": true
+      }
+    ],
+    "trace_ends_after_last_event": true
+  },
+  {
+    "gate_active": true,
+    "label": "conforms",
+    "events": [
+      {
+        "tool": "internal_check_username_exist",
+        "succeeded": true
+      },
+      {
+        "tool": "get_account_balance",
+        "succeeded": true
+      },
+      {
+        "tool": "authenticate_admin_password",
+        "succeeded": true
+      },
+      {
+        "tool": "transfer_funds",
+        "succeeded": true
+      }
+    ],
+    "trace_ends_after_last_event": true
+  },
+  {
+    "gate_active": true,
+    "label": "conforms",
+    "events": [
+      {
+        "tool": "authenticate_admin_password",
+        "succeeded": false
+      },
+      {
+        "tool": "login_user",
+        "succeeded": true
+      },
+      {
+        "tool": "authenticate_admin_password",
+        "succeeded": true
+      },
+      {
+        "tool": "transfer_funds",
+        "succeeded": true
+      }
+    ],
+    "trace_ends_after_last_event": true
+  },
+  {
+    "gate_active": true,
+    "label": "conforms",
+    "events": [
+      {
+        "tool": "login_user",
+        "succeeded": true
+      },
+      {
+        "tool": "get_account_balance",
+        "succeeded": true
+      },
+      {
+        "tool": "authenticate_admin_password",
+        "succeeded": true
+      },
+      {
+        "tool": "send_receipt",
+        "succeeded": true
+      },
+      {
+        "tool": "transfer_funds",
+        "succeeded": true
+      }
+    ],
+    "trace_ends_after_last_event": true
+  },
+  {
+    "gate_active": true,
+    "label": "conforms",
+    "events": [
+      {
+        "tool": "authenticate_admin_password",
+        "succeeded": true
+      },
+      {
+        "tool": "internal_check_username_exist",
+        "succeeded": true
+      },
+      {
+        "tool": "get_account_balance",
+        "succeeded": true
+      },
+      {
+        "tool": "transfer_funds",
+        "succeeded": true
+      }
+    ],
+    "trace_ends_after_last_event": true
+  },
+  {
+    "gate_active": true,
+    "label": "violates",
+    "events": [
+      {
+        "tool": "transfer_funds",
+        "succeeded": true
+      },
+      {
+        "tool": "authenticate_admin_password",
+        "succeeded": true
+      }
+    ],
+    "trace_ends_after_last_event": true
+  },
+  {
+    "gate_active": true,
+    "label": "violates",
+    "events": [
+      {
+        "tool": "get_account_balance",
+        "succeeded": true
+      },
+      {
+        "tool": "transfer_funds",
+        "succeeded": true
+      },
+      {
+        "tool": "authenticate_admin_password",
+        "succeeded": true
+      }
+    ],
+    "trace_ends_after_last_event": true
+  },
+  {
+    "gate_active": true,
+    "label": "violates",
+    "events": [
+      {
+        "tool": "authenticate_admin_password",
+        "succeeded": false
+      },
+      {
+        "tool": "transfer_funds",
+        "succeeded": true
+      },
+      {
+        "tool": "authenticate_admin_password",
+        "succeeded": true
+      }
+    ],
+    "trace_ends_after_last_event": true
+  },
+  {
+    "gate_active": true,
+    "label": "violates",
+    "events": [
+      {
+        "tool": "login_user",
+        "succeeded": true
+      },
+      {
+        "tool": "transfer_funds",
+        "succeeded": true
+      },
+      {
+        "tool": "get_account_balance",
+        "succeeded": true
+      },
+      {
+        "tool": "authenticate_admin_password",
+        "succeeded": true
+      }
+    ],
+    "trace_ends_after_last_event": true
+  },
+  {
+    "gate_active": true,
+    "label": "violates",
+    "events": [
+      {
+        "tool": "internal_check_username_exist",
+        "succeeded": true
+      },
+      {
+        "tool": "authenticate_admin_password",
+        "succeeded": false
+      },
+      {
+        "tool": "transfer_funds",
+        "succeeded": true
+      },
+      {
+        "tool": "authenticate_admin_password",
+        "succeeded": true
+      }
+    ],
+    "trace_ends_after_last_event": true
+  },
+  {
+    "gate_active": true,
+    "label": "violates",
+    "events": [
+      {
+        "tool": "get_account_balance",
+        "succeeded": true
+      },
+      {
+        "tool": "login_user",
+        "succeeded": true
+      },
+      {
+        "tool": "transfer_funds",
+        "succeeded": true
+      },
+      {
+        "tool": "send_receipt",
+        "succeeded": true
+      },
+      {
+        "tool": "authenticate_admin_password",
+        "succeeded": true
+      }
+    ],
+    "trace_ends_after_last_event": true
+  },
+  {
+    "gate_active": true,
+    "label": "violates",
+    "events": [
+      {
+        "tool": "authenticate_admin_password",
+        "succeeded": false
+      },
+      {
+        "tool": "login_user",
+        "succeeded": true
+      },
+      {
+        "tool": "get_account_balance",
+        "succeeded": true
+      },
+      {
+        "tool": "transfer_funds",
+        "succeeded": true
+      },
+      {
+        "tool": "authenticate_admin_password",
+        "succeeded": true
+      }
+    ],
+    "trace_ends_after_last_event": true
+  },
+  {
+    "gate_active": true,
+    "label": "violates",
+    "events": [
+      {
+        "tool": "send_receipt",
+        "succeeded": true
+      },
+      {
+        "tool": "transfer_funds",
+        "succeeded": true
+      },
+      {
+        "tool": "internal_check_username_exist",
+        "succeeded": true
+      },
+      {
+        "tool": "authenticate_admin_password",
+        "succeeded": true
+      }
+    ],
+    "trace_ends_after_last_event": true
+  },
+  {
+    "gate_active": true,
+    "label": "violates",
+    "events": [
+      {
+        "tool": "login_user",
+        "succeeded": true
+      },
+      {
+        "tool": "authenticate_admin_password",
+        "succeeded": false
+      },
+      {
+        "tool": "transfer_funds",
+        "succeeded": true
+      },
+      {
+        "tool": "get_account_balance",
+        "succeeded": true
+      },
+      {
+        "tool": "authenticate_admin_password",
+        "succeeded": true
+      }
+    ],
+    "trace_ends_after_last_event": true
+  },
+  {
+    "gate_active": true,
+    "label": "violates",
+    "events": [
+      {
+        "tool": "get_account_balance",
+        "succeeded": true
+      },
+      {
+        "tool": "internal_check_username_exist",
+        "succeeded": true
+      },
+      {
+        "tool": "transfer_funds",
+        "succeeded": true
+      },
+      {
+        "tool": "authenticate_admin_password",
+        "succeeded": true
+      },
+      {
+        "tool": "send_receipt",
+        "succeeded": true
+      }
+    ],
+    "trace_ends_after_last_event": true
+  }
+]

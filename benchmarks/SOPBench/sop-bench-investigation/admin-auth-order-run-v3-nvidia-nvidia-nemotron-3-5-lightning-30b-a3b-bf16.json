@@ -1,0 +1,7 @@
+{
+  "model_id": "nvidia/NVIDIA-Nemotron-3.5-Lightning-30B-A3B-BF16",
+  "display_name": "Nemotron 3.5 Lightning 30B A3B",
+  "status": "error",
+  "error": "HTTPError: HTTP Error 504: Gateway Timeout",
+  "elapsed_seconds": 61.8
+}

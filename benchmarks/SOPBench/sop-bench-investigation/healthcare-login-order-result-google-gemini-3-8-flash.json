@@ -1,0 +1,931 @@
+{
+  "domain": "healthcare",
+  "provider": "GMI Cloud",
+  "model_id": "google/gemini-3.8-flash",
+  "display_name": "Gemini 3.8 Flash",
+  "prompt_file": "healthcare-login-order-miner-prompt.txt",
+  "dataset_file": "healthcare-login-order-dataset.json",
+  "training_examples": 40,
+  "heldout_sent_to_model": false,
+  "request": {
+    "temperature": 0,
+    "max_tokens": 8192
+  },
+  "candidate_raw": "G: (!(called(update_policy) & arg_value(update_policy, gate_logged_in_user_active) >= 1) U (called(login_user) & arg_value(login_user, succeeded) >= 1))",
+  "candidate_formula": "(!(called(update_policy) & arg_value(update_policy, gate_logged_in_user_active) >= 1) U (called(login_user) & arg_value(login_user, succeeded) >= 1))",
+  "usage": {
+    "prompt_tokens": 5967,
+    "completion_tokens": 5760,
+    "total_tokens": 11727,
+    "billing_usage": {
+      "source": "gemini_chat",
+      "semantic": "gemini",
+      "gemini_usage_metadata": {
+        "promptTokenCount": 5967,
+        "toolUsePromptTokenCount": 0,
+        "candidatesTokenCount": 55,
+        "totalTokenCount": 11727,
+        "thoughtsTokenCount": 5705,
+        "cachedContentTokenCount": 0,
+        "promptTokensDetails": [
+          {
+            "modality": "TEXT",
+            "tokenCount": 5967
+          }
+        ],
+        "toolUsePromptTokensDetails": [],
+        "candidatesTokensDetails": [
+          {
+            "modality": "TEXT",
+            "tokenCount": 55
+          }
+        ]
+      }
+    },
+    "prompt_tokens_details": {
+      "cached_tokens": 0,
+      "text_tokens": 5967,
+      "audio_tokens": 0,
+      "image_tokens": 0
+    },
+    "completion_tokens_details": {
+      "text_tokens": 55,
+      "audio_tokens": 0,
+      "image_tokens": 0,
+      "reasoning_tokens": 5705
+    },
+    "input_tokens": 0,
+    "output_tokens": 0,
+    "input_tokens_details": null,
+    "claude_cache_creation_5_m_tokens": 0,
+    "claude_cache_creation_1_h_tokens": 0
+  },
+  "finish_reason": "stop",
+  "elapsed_seconds": 44.2,
+  "evaluation": {
+    "candidate_formula": "(!(called(update_policy) & arg_value(update_policy, gate_logged_in_user_active) >= 1) U (called(login_user) & arg_value(login_user, succeeded) >= 1))",
+    "evaluated_sets": {
+      "training": {
+        "metrics": {
+          "n": 40,
+          "correct": 33,
+          "accuracy": 0.825,
+          "true_violations": 20,
+          "false_rejections": 7,
+          "missed_violations": 0,
+          "true_conforms": 13
+        },
+        "rows": [
+          {
+            "trace_id": "train_conforms_01",
+            "expected": "conforms",
+            "predicted": "conforms",
+            "verdict": "PASS",
+            "correct": true,
+            "gate_active": true,
+            "violations": []
+          },
+          {
+            "trace_id": "train_conforms_02",
+            "expected": "conforms",
+            "predicted": "violates",
+            "verdict": "FAIL",
+            "correct": false,
+            "gate_active": true,
+            "violations": [
+              {
+                "contract": "candidate trace-mined ordering rule",
+                "guarantee": "candidate trace-mined ordering rule"
+              }
+            ]
+          },
+          {
+            "trace_id": "train_conforms_03",
+            "expected": "conforms",
+            "predicted": "conforms",
+            "verdict": "PASS",
+            "correct": true,
+            "gate_active": true,
+            "violations": []
+          },
+          {
+            "trace_id": "train_conforms_04",
+            "expected": "conforms",
+            "predicted": "conforms",
+            "verdict": "PASS",
+            "correct": true,
+            "gate_active": true,
+            "violations": []
+          },
+          {
+            "trace_id": "train_conforms_05",
+            "expected": "conforms",
+            "predicted": "conforms",
+            "verdict": "PASS",
+            "correct": true,
+            "gate_active": true,
+            "violations": []
+          },
+          {
+            "trace_id": "train_conforms_06",
+            "expected": "conforms",
+            "predicted": "conforms",
+            "verdict": "PASS",
+            "correct": true,
+            "gate_active": true,
+            "violations": []
+          },
+          {
+            "trace_id": "train_conforms_07",
+            "expected": "conforms",
+            "predicted": "violates",
+            "verdict": "FAIL",
+            "correct": false,
+            "gate_active": true,
+            "violations": [
+              {
+                "contract": "candidate trace-mined ordering rule",
+                "guarantee": "candidate trace-mined ordering rule"
+              }
+            ]
+          },
+          {
+            "trace_id": "train_conforms_08",
+            "expected": "conforms",
+            "predicted": "conforms",
+            "verdict": "PASS",
+            "correct": true,
+            "gate_active": true,
+            "violations": []
+          },
+          {
+            "trace_id": "train_conforms_09",
+            "expected": "conforms",
+            "predicted": "violates",
+            "verdict": "FAIL",
+            "correct": false,
+            "gate_active": true,
+            "violations": [
+              {
+                "contract": "candidate trace-mined ordering rule",
+                "guarantee": "candidate trace-mined ordering rule"
+              }
+            ]
+          },
+          {
+            "trace_id": "train_conforms_10",
+            "expected": "conforms",
+            "predicted": "conforms",
+            "verdict": "PASS",
+            "correct": true,
+            "gate_active": true,
+            "violations": []
+          },
+          {
+            "trace_id": "train_conforms_11",
+            "expected": "conforms",
+            "predicted": "conforms",
+            "verdict": "PASS",
+            "correct": true,
+            "gate_active": true,
+            "violations": []
+          },
+          {
+            "trace_id": "train_conforms_12",
+            "expected": "conforms",
+            "predicted": "violates",
+            "verdict": "FAIL",
+            "correct": false,
+            "gate_active": true,
+            "violations": [
+              {
+                "contract": "candidate trace-mined ordering rule",
+                "guarantee": "candidate trace-mined ordering rule"
+              }
+            ]
+          },
+          {
+            "trace_id": "train_conforms_13",
+            "expected": "conforms",
+            "predicted": "violates",
+            "verdict": "FAIL",
+            "correct": false,
+            "gate_active": true,
+            "violations": [
+              {
+                "contract": "candidate trace-mined ordering rule",
+                "guarantee": "candidate trace-mined ordering rule"
+              }
+            ]
+          },
+          {
+            "trace_id": "train_conforms_14",
+            "expected": "conforms",
+            "predicted": "conforms",
+            "verdict": "PASS",
+            "correct": true,
+            "gate_active": true,
+            "violations": []
+          },
+          {
+            "trace_id": "train_conforms_15",
+            "expected": "conforms",
+            "predicted": "violates",
+            "verdict": "FAIL",
+            "correct": false,
+            "gate_active": true,
+            "violations": [
+              {
+                "contract": "candidate trace-mined ordering rule",
+                "guarantee": "candidate trace-mined ordering rule"
+              }
+            ]
+          },
+          {
+            "trace_id": "train_conforms_16",
+            "expected": "conforms",
+            "predicted": "conforms",
+            "verdict": "PASS",
+            "correct": true,
+            "gate_active": true,
+            "violations": []
+          },
+          {
+            "trace_id": "train_conforms_17",
+            "expected": "conforms",
+            "predicted": "violates",
+            "verdict": "FAIL",
+            "correct": false,
+            "gate_active": true,
+            "violations": [
+              {
+                "contract": "candidate trace-mined ordering rule",
+                "guarantee": "candidate trace-mined ordering rule"
+              }
+            ]
+          },
+          {
+            "trace_id": "train_conforms_18",
+            "expected": "conforms",
+            "predicted": "conforms",
+            "verdict": "PASS",
+            "correct": true,
+            "gate_active": true,
+            "violations": []
+          },
+          {
+            "trace_id": "train_conforms_19",
+            "expected": "conforms",
+            "predicted": "conforms",
+            "verdict": "PASS",
+            "correct": true,
+            "gate_active": true,
+            "violations": []
+          },
+          {
+            "trace_id": "train_conforms_20",
+            "expected": "conforms",
+            "predicted": "conforms",
+            "verdict": "PASS",
+            "correct": true,
+            "gate_active": true,
+            "violations": []
+          },
+          {
+            "trace_id": "train_violates_01",
+            "expected": "violates",
+            "predicted": "violates",
+            "verdict": "FAIL",
+            "correct": true,
+            "gate_active": true,
+            "violations": [
+              {
+                "contract": "candidate trace-mined ordering rule",
+                "guarantee": "candidate trace-mined ordering rule"
+              }
+            ]
+          },
+          {
+            "trace_id": "train_violates_02",
+            "expected": "violates",
+            "predicted": "violates",
+            "verdict": "FAIL",
+            "correct": true,
+            "gate_active": true,
+            "violations": [
+              {
+                "contract": "candidate trace-mined ordering rule",
+                "guarantee": "candidate trace-mined ordering rule"
+              }
+            ]
+          },
+          {
+            "trace_id": "train_violates_03",
+            "expected": "violates",
+            "predicted": "violates",
+            "verdict": "FAIL",
+            "correct": true,
+            "gate_active": true,
+            "violations": [
+              {
+                "contract": "candidate trace-mined ordering rule",
+                "guarantee": "candidate trace-mined ordering rule"
+              }
+            ]
+          },
+          {
+            "trace_id": "train_violates_04",
+            "expected": "violates",
+            "predicted": "violates",
+            "verdict": "FAIL",
+            "correct": true,
+            "gate_active": true,
+            "violations": [
+              {
+                "contract": "candidate trace-mined ordering rule",
+                "guarantee": "candidate trace-mined ordering rule"
+              }
+            ]
+          },
+          {
+            "trace_id": "train_violates_05",
+            "expected": "violates",
+            "predicted": "violates",
+            "verdict": "FAIL",
+            "correct": true,
+            "gate_active": true,
+            "violations": [
+              {
+                "contract": "candidate trace-mined ordering rule",
+                "guarantee": "candidate trace-mined ordering rule"
+              }
+            ]
+          },
+          {
+            "trace_id": "train_violates_06",
+            "expected": "violates",
+            "predicted": "violates",
+            "verdict": "FAIL",
+            "correct": true,
+            "gate_active": true,
+            "violations": [
+              {
+                "contract": "candidate trace-mined ordering rule",
+                "guarantee": "candidate trace-mined ordering rule"
+              }
+            ]
+          },
+          {
+            "trace_id": "train_violates_07",
+            "expected": "violates",
+            "predicted": "violates",
+            "verdict": "FAIL",
+            "correct": true,
+            "gate_active": true,
+            "violations": [
+              {
+                "contract": "candidate trace-mined ordering rule",
+                "guarantee": "candidate trace-mined ordering rule"
+              }
+            ]
+          },
+          {
+            "trace_id": "train_violates_08",
+            "expected": "violates",
+            "predicted": "violates",
+            "verdict": "FAIL",
+            "correct": true,
+            "gate_active": true,
+            "violations": [
+              {
+                "contract": "candidate trace-mined ordering rule",
+                "guarantee": "candidate trace-mined ordering rule"
+              }
+            ]
+          },
+          {
+            "trace_id": "train_violates_09",
+            "expected": "violates",
+            "predicted": "violates",
+            "verdict": "FAIL",
+            "correct": true,
+            "gate_active": true,
+            "violations": [
+              {
+                "contract": "candidate trace-mined ordering rule",
+                "guarantee": "candidate trace-mined ordering rule"
+              }
+            ]
+          },
+          {
+            "trace_id": "train_violates_10",
+            "expected": "violates",
+            "predicted": "violates",
+            "verdict": "FAIL",
+            "correct": true,
+            "gate_active": true,
+            "violations": [
+              {
+                "contract": "candidate trace-mined ordering rule",
+                "guarantee": "candidate trace-mined ordering rule"
+              }
+            ]
+          },
+          {
+            "trace_id": "train_violates_11",
+            "expected": "violates",
+            "predicted": "violates",
+            "verdict": "FAIL",
+            "correct": true,
+            "gate_active": true,
+            "violations": [
+              {
+                "contract": "candidate trace-mined ordering rule",
+                "guarantee": "candidate trace-mined ordering rule"
+              }
+            ]
+          },
+          {
+            "trace_id": "train_violates_12",
+            "expected": "violates",
+            "predicted": "violates",
+            "verdict": "FAIL",
+            "correct": true,
+            "gate_active": true,
+            "violations": [
+              {
+                "contract": "candidate trace-mined ordering rule",
+                "guarantee": "candidate trace-mined ordering rule"
+              }
+            ]
+          },
+          {
+            "trace_id": "train_violates_13",
+            "expected": "violates",
+            "predicted": "violates",
+            "verdict": "FAIL",
+            "correct": true,
+            "gate_active": true,
+            "violations": [
+              {
+                "contract": "candidate trace-mined ordering rule",
+                "guarantee": "candidate trace-mined ordering rule"
+              }
+            ]
+          },
+          {
+            "trace_id": "train_violates_14",
+            "expected": "violates",
+            "predicted": "violates",
+            "verdict": "FAIL",
+            "correct": true,
+            "gate_active": true,
+            "violations": [
+              {
+                "contract": "candidate trace-mined ordering rule",
+                "guarantee": "candidate trace-mined ordering rule"
+              }
+            ]
+          },
+          {
+            "trace_id": "train_violates_15",
+            "expected": "violates",
+            "predicted": "violates",
+            "verdict": "FAIL",
+            "correct": true,
+            "gate_active": true,
+            "violations": [
+              {
+                "contract": "candidate trace-mined ordering rule",
+                "guarantee": "candidate trace-mined ordering rule"
+              }
+            ]
+          },
+          {
+            "trace_id": "train_violates_16",
+            "expected": "violates",
+            "predicted": "violates",
+            "verdict": "FAIL",
+            "correct": true,
+            "gate_active": true,
+            "violations": [
+              {
+                "contract": "candidate trace-mined ordering rule",
+                "guarantee": "candidate trace-mined ordering rule"
+              }
+            ]
+          },
+          {
+            "trace_id": "train_violates_17",
+            "expected": "violates",
+            "predicted": "violates",
+            "verdict": "FAIL",
+            "correct": true,
+            "gate_active": true,
+            "violations": [
+              {
+                "contract": "candidate trace-mined ordering rule",
+                "guarantee": "candidate trace-mined ordering rule"
+              }
+            ]
+          },
+          {
+            "trace_id": "train_violates_18",
+            "expected": "violates",
+            "predicted": "violates",
+            "verdict": "FAIL",
+            "correct": true,
+            "gate_active": true,
+            "violations": [
+              {
+                "contract": "candidate trace-mined ordering rule",
+                "guarantee": "candidate trace-mined ordering rule"
+              }
+            ]
+          },
+          {
+            "trace_id": "train_violates_19",
+            "expected": "violates",
+            "predicted": "violates",
+            "verdict": "FAIL",
+            "correct": true,
+            "gate_active": true,
+            "violations": [
+              {
+                "contract": "candidate trace-mined ordering rule",
+                "guarantee": "candidate trace-mined ordering rule"
+              }
+            ]
+          },
+          {
+            "trace_id": "train_violates_20",
+            "expected": "violates",
+            "predicted": "violates",
+            "verdict": "FAIL",
+            "correct": true,
+            "gate_active": true,
+            "violations": [
+              {
+                "contract": "candidate trace-mined ordering rule",
+                "guarantee": "candidate trace-mined ordering rule"
+              }
+            ]
+          }
+        ]
+      },
+      "heldout_active_gate": {
+        "metrics": {
+          "n": 20,
+          "correct": 18,
+          "accuracy": 0.9,
+          "true_violations": 10,
+          "false_rejections": 2,
+          "missed_violations": 0,
+          "true_conforms": 8
+        },
+        "rows": [
+          {
+            "trace_id": "heldout_conforms_01",
+            "expected": "conforms",
+            "predicted": "conforms",
+            "verdict": "PASS",
+            "correct": true,
+            "gate_active": true,
+            "violations": []
+          },
+          {
+            "trace_id": "heldout_conforms_02",
+            "expected": "conforms",
+            "predicted": "conforms",
+            "verdict": "PASS",
+            "correct": true,
+            "gate_active": true,
+            "violations": []
+          },
+          {
+            "trace_id": "heldout_conforms_03",
+            "expected": "conforms",
+            "predicted": "violates",
+            "verdict": "FAIL",
+            "correct": false,
+            "gate_active": true,
+            "violations": [
+              {
+                "contract": "candidate trace-mined ordering rule",
+                "guarantee": "candidate trace-mined ordering rule"
+              }
+            ]
+          },
+          {
+            "trace_id": "heldout_conforms_04",
+            "expected": "conforms",
+            "predicted": "conforms",
+            "verdict": "PASS",
+            "correct": true,
+            "gate_active": true,
+            "violations": []
+          },
+          {
+            "trace_id": "heldout_conforms_05",
+            "expected": "conforms",
+            "predicted": "conforms",
+            "verdict": "PASS",
+            "correct": true,
+            "gate_active": true,
+            "violations": []
+          },
+          {
+            "trace_id": "heldout_conforms_06",
+            "expected": "conforms",
+            "predicted": "conforms",
+            "verdict": "PASS",
+            "correct": true,
+            "gate_active": true,
+            "violations": []
+          },
+          {
+            "trace_id": "heldout_conforms_07",
+            "expected": "conforms",
+            "predicted": "conforms",
+            "verdict": "PASS",
+            "correct": true,
+            "gate_active": true,
+            "violations": []
+          },
+          {
+            "trace_id": "heldout_conforms_08",
+            "expected": "conforms",
+            "predicted": "conforms",
+            "verdict": "PASS",
+            "correct": true,
+            "gate_active": true,
+            "violations": []
+          },
+          {
+            "trace_id": "heldout_conforms_09",
+            "expected": "conforms",
+            "predicted": "violates",
+            "verdict": "FAIL",
+            "correct": false,
+            "gate_active": true,
+            "violations": [
+              {
+                "contract": "candidate trace-mined ordering rule",
+                "guarantee": "candidate trace-mined ordering rule"
+              }
+            ]
+          },
+          {
+            "trace_id": "heldout_conforms_10",
+            "expected": "conforms",
+            "predicted": "conforms",
+            "verdict": "PASS",
+            "correct": true,
+            "gate_active": true,
+            "violations": []
+          },
+          {
+            "trace_id": "heldout_violates_01",
+            "expected": "violates",
+            "predicted": "violates",
+            "verdict": "FAIL",
+            "correct": true,
+            "gate_active": true,
+            "violations": [
+              {
+                "contract": "candidate trace-mined ordering rule",
+                "guarantee": "candidate trace-mined ordering rule"
+              }
+            ]
+          },
+          {
+            "trace_id": "heldout_violates_02",
+            "expected": "violates",
+            "predicted": "violates",
+            "verdict": "FAIL",
+            "correct": true,
+            "gate_active": true,
+            "violations": [
+              {
+                "contract": "candidate trace-mined ordering rule",
+                "guarantee": "candidate trace-mined ordering rule"
+              }
+            ]
+          },
+          {
+            "trace_id": "heldout_violates_03",
+            "expected": "violates",
+            "predicted": "violates",
+            "verdict": "FAIL",
+            "correct": true,
+            "gate_active": true,
+            "violations": [
+              {
+                "contract": "candidate trace-mined ordering rule",
+                "guarantee": "candidate trace-mined ordering rule"
+              }
+            ]
+          },
+          {
+            "trace_id": "heldout_violates_04",
+            "expected": "violates",
+            "predicted": "violates",
+            "verdict": "FAIL",
+            "correct": true,
+            "gate_active": true,
+            "violations": [
+              {
+                "contract": "candidate trace-mined ordering rule",
+                "guarantee": "candidate trace-mined ordering rule"
+              }
+            ]
+          },
+          {
+            "trace_id": "heldout_violates_05",
+            "expected": "violates",
+            "predicted": "violates",
+            "verdict": "FAIL",
+            "correct": true,
+            "gate_active": true,
+            "violations": [
+              {
+                "contract": "candidate trace-mined ordering rule",
+                "guarantee": "candidate trace-mined ordering rule"
+              }
+            ]
+          },
+          {
+            "trace_id": "heldout_violates_06",
+            "expected": "violates",
+            "predicted": "violates",
+            "verdict": "FAIL",
+            "correct": true,
+            "gate_active": true,
+            "violations": [
+              {
+                "contract": "candidate trace-mined ordering rule",
+                "guarantee": "candidate trace-mined ordering rule"
+              }
+            ]
+          },
+          {
+            "trace_id": "heldout_violates_07",
+            "expected": "violates",
+            "predicted": "violates",
+            "verdict": "FAIL",
+            "correct": true,
+            "gate_active": true,
+            "violations": [
+              {
+                "contract": "candidate trace-mined ordering rule",
+                "guarantee": "candidate trace-mined ordering rule"
+              }
+            ]
+          },
+          {
+            "trace_id": "heldout_violates_08",
+            "expected": "violates",
+            "predicted": "violates",
+            "verdict": "FAIL",
+            "correct": true,
+            "gate_active": true,
+            "violations": [
+              {
+                "contract": "candidate trace-mined ordering rule",
+                "guarantee": "candidate trace-mined ordering rule"
+              }
+            ]
+          },
+          {
+            "trace_id": "heldout_violates_09",
+            "expected": "violates",
+            "predicted": "violates",
+            "verdict": "FAIL",
+            "correct": true,
+            "gate_active": true,
+            "violations": [
+              {
+                "contract": "candidate trace-mined ordering rule",
+                "guarantee": "candidate trace-mined ordering rule"
+              }
+            ]
+          },
+          {
+            "trace_id": "heldout_violates_10",
+            "expected": "violates",
+            "predicted": "violates",
+            "verdict": "FAIL",
+            "correct": true,
+            "gate_active": true,
+            "violations": [
+              {
+                "contract": "candidate trace-mined ordering rule",
+                "guarantee": "candidate trace-mined ordering rule"
+              }
+            ]
+          }
+        ]
+      },
+      "heldout_controls": {
+        "metrics": {
+          "n": 8,
+          "correct": 5,
+          "accuracy": 0.625,
+          "true_violations": 0,
+          "false_rejections": 3,
+          "missed_violations": 0,
+          "true_conforms": 5
+        },
+        "rows": [
+          {
+            "trace_id": "heldout_no_success_01",
+            "expected": "conforms",
+            "predicted": "conforms",
+            "verdict": "PASS",
+            "correct": true,
+            "gate_active": true,
+            "violations": []
+          },
+          {
+            "trace_id": "heldout_no_success_02",
+            "expected": "conforms",
+            "predicted": "conforms",
+            "verdict": "PASS",
+            "correct": true,
+            "gate_active": true,
+            "violations": []
+          },
+          {
+            "trace_id": "heldout_no_success_03",
+            "expected": "conforms",
+            "predicted": "violates",
+            "verdict": "FAIL",
+            "correct": false,
+            "gate_active": true,
+            "violations": [
+              {
+                "contract": "candidate trace-mined ordering rule",
+                "guarantee": "candidate trace-mined ordering rule"
+              }
+            ]
+          },
+          {
+            "trace_id": "heldout_no_success_04",
+            "expected": "conforms",
+            "predicted": "violates",
+            "verdict": "FAIL",
+            "correct": false,
+            "gate_active": true,
+            "violations": [
+              {
+                "contract": "candidate trace-mined ordering rule",
+                "guarantee": "candidate trace-mined ordering rule"
+              }
+            ]
+          },
+          {
+            "trace_id": "heldout_no_success_05",
+            "expected": "conforms",
+            "predicted": "conforms",
+            "verdict": "PASS",
+            "correct": true,
+            "gate_active": true,
+            "violations": []
+          },
+          {
+            "trace_id": "heldout_no_success_06",
+            "expected": "conforms",
+            "predicted": "conforms",
+            "verdict": "PASS",
+            "correct": true,
+            "gate_active": true,
+            "violations": []
+          },
+          {
+            "trace_id": "heldout_no_success_07",
+            "expected": "conforms",
+            "predicted": "violates",
+            "verdict": "FAIL",
+            "correct": false,
+            "gate_active": true,
+            "violations": [
+              {
+                "contract": "candidate trace-mined ordering rule",
+                "guarantee": "candidate trace-mined ordering rule"
+              }
+            ]
+          },
+          {
+            "trace_id": "heldout_no_success_08",
+            "expected": "conforms",
+            "predicted": "conforms",
+            "verdict": "PASS",
+            "correct": true,
+            "gate_active": true,
+            "violations": []
+          }
+        ]
+      }
+    }
+  }
+}

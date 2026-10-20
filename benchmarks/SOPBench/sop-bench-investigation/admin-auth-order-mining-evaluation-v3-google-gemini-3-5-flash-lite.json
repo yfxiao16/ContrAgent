@@ -1,0 +1,33 @@
+{
+  "model_id": "google/gemini-3.5-flash-lite",
+  "display_name": "Gemini 3.5 Flash-Lite",
+  "candidate_formula": "((arg_value(transfer_funds, gate_authenticated_admin_password_active) >= 1 & (called(transfer_funds) & arg_value(transfer_funds, succeeded) >= 1)) -> (!((called(transfer_funds) & arg_value(transfer_funds, succeeded) >= 1)) U (called(authenticate_admin_password) & arg_value(authenticate_admin_password, succeeded) >= 1)))",
+  "evaluation_semantics": "complete finite traces (include_liveness=True)",
+  "training_metrics": {
+    "n": 40,
+    "correct": 22,
+    "accuracy": 0.55,
+    "true_violations": 2,
+    "false_rejections": 0,
+    "missed_violations": 18,
+    "true_conforms": 20
+  },
+  "heldout_active_gate_metrics": {
+    "n": 20,
+    "correct": 11,
+    "accuracy": 0.55,
+    "true_violations": 1,
+    "false_rejections": 0,
+    "missed_violations": 9,
+    "true_conforms": 10
+  },
+  "inactive_gate_control_pass_rate": 1.0,
+  "active_gate_control_pass_rate": 1.0,
+  "pair_check": "PASS",
+  "pair_and_control_checks": {
+    "auth_before_transfer_accepted": true,
+    "inactive_gate_controls_accepted": true
+  },
+  "prompt_path": "admin-auth-order-miner-prompt-v3-scoped-gate.txt",
+  "dataset_path": "admin-auth-order-mining-dataset-v2-20-per-class.json"
+}

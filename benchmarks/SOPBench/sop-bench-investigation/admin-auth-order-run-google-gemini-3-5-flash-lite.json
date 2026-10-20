@@ -1,0 +1,15 @@
+{
+  "model_id": "google/gemini-3.5-flash-lite",
+  "display_name": "Gemini 3.5 Flash-Lite",
+  "size_class": "hosted small/fast",
+  "status": "ok",
+  "candidate_raw": "G: (!called(transfer_funds) | (is_true(arg_value(authenticate_admin_password, succeeded) >= 1) U called(authenticate_admin_password)))",
+  "usage": {
+    "prompt_tokens": 3105,
+    "completion_tokens": 40,
+    "total_tokens": 3145
+  },
+  "finish_reason": "stop",
+  "elapsed_seconds": 4.5,
+  "estimated_cost_usd": 0.001031
+}

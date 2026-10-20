@@ -1,0 +1,88 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1540" height="1370" viewBox="0 0 1540 1370">
+<defs><marker id="arrow" markerWidth="9" markerHeight="9" refX="7" refY="4.5" orient="auto"><path d="M0,0 L8,4.5 L0,9 Z" fill="#7b8994"/></marker></defs>
+<title>Admin-auth ordering: bank traces and synthetic checks</title>
+<desc>Branching flowchart showing task permission, transfer calls, and authentication order in bank traces, followed by controlled synthetic examples.</desc>
+<rect width="100%" height="100%" fill="#ffffff"/>
+<text x="52" y="57" text-anchor="start" font-family="Inter,Segoe UI,Arial,sans-serif" font-size="34px" fill="#142433" font-weight="700">Admin-auth ordering: bank traces and synthetic checks</text>
+<text x="52" y="91" text-anchor="start" font-family="Inter,Segoe UI,Arial,sans-serif" font-size="19px" fill="#526170" font-weight="400">Read the bank data from left to right. Permission labels and observed tool behavior are separate questions.</text>
+<text x="58" y="151" text-anchor="start" font-family="Inter,Segoe UI,Arial,sans-serif" font-size="21px" fill="#142433" font-weight="700">BANK TRACES · 794 run records · 12 unique task scenarios</text>
+<text x="58" y="187" text-anchor="start" font-family="Inter,Segoe UI,Arial,sans-serif" font-size="17px" fill="#526170" font-weight="700">TASK PERMISSION</text>
+<text x="408" y="187" text-anchor="start" font-family="Inter,Segoe UI,Arial,sans-serif" font-size="17px" fill="#526170" font-weight="700">TRANSFER CALL</text>
+<text x="900" y="187" text-anchor="start" font-family="Inter,Segoe UI,Arial,sans-serif" font-size="17px" fill="#526170" font-weight="700">AUTHENTICATION BEFORE FIRST TRANSFER</text>
+<path d="M280 302 H338 V250 H405" fill="none" stroke="#7b8994" stroke-width="2" marker-end="url(#arrow)"/>
+<path d="M338 302 V402 H405" fill="none" stroke="#7b8994" stroke-width="2" marker-end="url(#arrow)"/>
+<text x="346" y="244" text-anchor="start" font-family="Inter,Segoe UI,Arial,sans-serif" font-size="14px" fill="#526170" font-weight="700">No</text>
+<text x="346" y="421" text-anchor="start" font-family="Inter,Segoe UI,Arial,sans-serif" font-size="14px" fill="#526170" font-weight="700">Yes</text>
+<path d="M690 402 H790 V357 H900" fill="none" stroke="#7b8994" stroke-width="2" marker-end="url(#arrow)"/>
+<path d="M790 402 V462 H900" fill="none" stroke="#7b8994" stroke-width="2" marker-end="url(#arrow)"/>
+<path d="M280 659 H338 V590 H405" fill="none" stroke="#7b8994" stroke-width="2" marker-end="url(#arrow)"/>
+<path d="M338 659 V744 H405" fill="none" stroke="#7b8994" stroke-width="2" marker-end="url(#arrow)"/>
+<text x="346" y="584" text-anchor="start" font-family="Inter,Segoe UI,Arial,sans-serif" font-size="14px" fill="#526170" font-weight="700">No</text>
+<text x="346" y="763" text-anchor="start" font-family="Inter,Segoe UI,Arial,sans-serif" font-size="14px" fill="#526170" font-weight="700">Yes</text>
+<path d="M690 744 H790 V672 H900" fill="none" stroke="#7b8994" stroke-width="2" marker-end="url(#arrow)"/>
+<path d="M790 744 V777 H900" fill="none" stroke="#7b8994" stroke-width="2" marker-end="url(#arrow)"/>
+<path d="M790 777 V882 H900" fill="none" stroke="#7b8994" stroke-width="2" marker-end="url(#arrow)"/>
+<rect x="58" y="250" width="222" height="104" rx="0" fill="#eef7f1" stroke="#cbd4db" stroke-width="1.5"/>
+<text x="74" y="281" text-anchor="start" font-family="Inter,Segoe UI,Arial,sans-serif" font-size="20px" fill="#176b3a" font-weight="700">Permitted · 240</text>
+<text x="74" y="311" text-anchor="start" font-family="Inter,Segoe UI,Arial,sans-serif" font-size="17px" fill="#405260" font-weight="500">4 task scenarios</text>
+<rect x="58" y="607" width="222" height="104" rx="0" fill="#fff5e9" stroke="#cbd4db" stroke-width="1.5"/>
+<text x="74" y="638" text-anchor="start" font-family="Inter,Segoe UI,Arial,sans-serif" font-size="20px" fill="#8b5a16" font-weight="700">Forbidden · 554</text>
+<text x="74" y="668" text-anchor="start" font-family="Inter,Segoe UI,Arial,sans-serif" font-size="17px" fill="#405260" font-weight="500">8 task scenarios</text>
+<rect x="405" y="207" width="285" height="86" rx="0" fill="#f1f3f5" stroke="#cbd4db" stroke-width="1.5"/>
+<text x="421" y="238" text-anchor="start" font-family="Inter,Segoe UI,Arial,sans-serif" font-size="18px" fill="#405260" font-weight="700">No transfer call · 52</text>
+<text x="421" y="268" text-anchor="start" font-family="Inter,Segoe UI,Arial,sans-serif" font-size="17px" fill="#405260" font-weight="500">52 permitted runs</text>
+<rect x="405" y="359" width="285" height="86" rx="0" fill="#edf2ff" stroke="#cbd4db" stroke-width="1.5"/>
+<text x="421" y="390" text-anchor="start" font-family="Inter,Segoe UI,Arial,sans-serif" font-size="18px" fill="#294ca3" font-weight="700">Transfer attempted · 188</text>
+<text x="421" y="420" text-anchor="start" font-family="Inter,Segoe UI,Arial,sans-serif" font-size="17px" fill="#405260" font-weight="500">188 permitted runs</text>
+<rect x="405" y="547" width="285" height="86" rx="0" fill="#f1f3f5" stroke="#cbd4db" stroke-width="1.5"/>
+<text x="421" y="578" text-anchor="start" font-family="Inter,Segoe UI,Arial,sans-serif" font-size="18px" fill="#405260" font-weight="700">No transfer call · 492</text>
+<text x="421" y="608" text-anchor="start" font-family="Inter,Segoe UI,Arial,sans-serif" font-size="17px" fill="#405260" font-weight="500">492 forbidden runs</text>
+<rect x="405" y="701" width="285" height="86" rx="0" fill="#edf2ff" stroke="#cbd4db" stroke-width="1.5"/>
+<text x="421" y="732" text-anchor="start" font-family="Inter,Segoe UI,Arial,sans-serif" font-size="18px" fill="#294ca3" font-weight="700">Transfer attempted · 62</text>
+<text x="421" y="762" text-anchor="start" font-family="Inter,Segoe UI,Arial,sans-serif" font-size="17px" fill="#405260" font-weight="500">62 forbidden runs</text>
+<rect x="900" y="315" width="575" height="84" rx="0" fill="#e5f4ea" stroke="#cbd4db" stroke-width="1.5"/>
+<text x="916" y="346" text-anchor="start" font-family="Inter,Segoe UI,Arial,sans-serif" font-size="19px" fill="#176b3a" font-weight="700">Successful admin auth before transfer · 184</text>
+<text x="916" y="376" text-anchor="start" font-family="Inter,Segoe UI,Arial,sans-serif" font-size="17px" fill="#405260" font-weight="500">184 permitted runs</text>
+<rect x="900" y="420" width="575" height="84" rx="0" fill="#fff4d7" stroke="#cbd4db" stroke-width="1.5"/>
+<text x="916" y="451" text-anchor="start" font-family="Inter,Segoe UI,Arial,sans-serif" font-size="19px" fill="#815600" font-weight="700">No admin-auth call · 4</text>
+<text x="916" y="481" text-anchor="start" font-family="Inter,Segoe UI,Arial,sans-serif" font-size="17px" fill="#405260" font-weight="500">4 permitted runs</text>
+<rect x="900" y="630" width="575" height="84" rx="0" fill="#e5f4ea" stroke="#cbd4db" stroke-width="1.5"/>
+<text x="916" y="661" text-anchor="start" font-family="Inter,Segoe UI,Arial,sans-serif" font-size="19px" fill="#176b3a" font-weight="700">Successful admin auth before transfer · 15</text>
+<text x="916" y="691" text-anchor="start" font-family="Inter,Segoe UI,Arial,sans-serif" font-size="17px" fill="#405260" font-weight="500">15 forbidden runs</text>
+<rect x="900" y="735" width="575" height="84" rx="0" fill="#fdebe8" stroke="#cbd4db" stroke-width="1.5"/>
+<text x="916" y="766" text-anchor="start" font-family="Inter,Segoe UI,Arial,sans-serif" font-size="19px" fill="#9e3c32" font-weight="700">Failed admin auth before transfer · 19</text>
+<text x="916" y="796" text-anchor="start" font-family="Inter,Segoe UI,Arial,sans-serif" font-size="17px" fill="#405260" font-weight="500">19 forbidden runs</text>
+<rect x="900" y="840" width="575" height="84" rx="0" fill="#fff4d7" stroke="#cbd4db" stroke-width="1.5"/>
+<text x="916" y="871" text-anchor="start" font-family="Inter,Segoe UI,Arial,sans-serif" font-size="19px" fill="#815600" font-weight="700">No admin-auth call · 28</text>
+<text x="916" y="901" text-anchor="start" font-family="Inter,Segoe UI,Arial,sans-serif" font-size="17px" fill="#405260" font-weight="500">28 forbidden runs</text>
+<rect x="58" y="950" width="1417" height="82" rx="0" fill="#f7f8fa" stroke="#d7dfe5" stroke-width="1.5"/>
+<text x="78" y="981" text-anchor="start" font-family="Inter,Segoe UI,Arial,sans-serif" font-size="17px" fill="#243746" font-weight="700">Key: ‘forbidden’ describes the task, not the trace.</text>
+<text x="78" y="1009" text-anchor="start" font-family="Inter,Segoe UI,Arial,sans-serif" font-size="15px" fill="#405260" font-weight="400">‘No transfer call’ means no transfer_funds event, not no tool calls at all. Forbidden tasks can still show successful auth (15 do).</text>
+<text x="58" y="1057" text-anchor="start" font-family="Inter,Segoe UI,Arial,sans-serif" font-size="16px" fill="#9e3c32" font-weight="700">No auth-after-transfer counterexamples were observed (0 of 794).</text>
+<line x1="58" y1="1090" x2="1475" y2="1090" stroke="#cbd4db" stroke-width="1.5"/>
+<text x="58" y="1125" text-anchor="start" font-family="Inter,Segoe UI,Arial,sans-serif" font-size="19px" fill="#65449a" font-weight="700">SYNTHETIC CHECKS · constructed traces, not observed bank runs</text>
+<text x="58" y="1153" text-anchor="start" font-family="Inter,Segoe UI,Arial,sans-serif" font-size="14px" fill="#526170" font-weight="400">Same task and active gate; only event order changes.</text>
+<text x="58" y="1198" text-anchor="start" font-family="Inter,Segoe UI,Arial,sans-serif" font-size="18px" fill="#243746" font-weight="700">A</text>
+<rect x="215" y="1170" width="245" height="42" rx="0" fill="#e8f5ec" stroke="#d7dfe5" stroke-width="1.5"/>
+<text x="337.5" y="1197" text-anchor="middle" font-family="Inter,Segoe UI,Arial,sans-serif" font-size="16px" fill="#344554" font-weight="600">Admin auth succeeded</text>
+<path d="M466 1191 H492" fill="none" stroke="#7b8994" stroke-width="2" marker-end="url(#arrow)"/>
+<rect x="500" y="1170" width="245" height="42" rx="0" fill="#e8f5ec" stroke="#d7dfe5" stroke-width="1.5"/>
+<text x="622.5" y="1197" text-anchor="middle" font-family="Inter,Segoe UI,Arial,sans-serif" font-size="16px" fill="#344554" font-weight="600">Transfer succeeded</text>
+<path d="M751 1191 H777" fill="none" stroke="#7b8994" stroke-width="2" marker-end="url(#arrow)"/>
+<rect x="785" y="1170" width="125" height="42" rx="0" fill="#e8f5ec" stroke="#d7dfe5" stroke-width="1.5"/>
+<text x="847.5" y="1197" text-anchor="middle" font-family="Inter,Segoe UI,Arial,sans-serif" font-size="16px" fill="#344554" font-weight="600">End</text>
+<text x="1012" y="1197" text-anchor="start" font-family="Inter,Segoe UI,Arial,sans-serif" font-size="14px" fill="#526170" font-weight="600">Expected: conforms</text>
+<text x="1240" y="1197" text-anchor="start" font-family="Inter,Segoe UI,Arial,sans-serif" font-size="15px" fill="#176b3a" font-weight="700">Contract: PASS</text>
+<text x="58" y="1271" text-anchor="start" font-family="Inter,Segoe UI,Arial,sans-serif" font-size="18px" fill="#243746" font-weight="700">B</text>
+<rect x="215" y="1243" width="245" height="42" rx="0" fill="#fdebe8" stroke="#d7dfe5" stroke-width="1.5"/>
+<text x="337.5" y="1270" text-anchor="middle" font-family="Inter,Segoe UI,Arial,sans-serif" font-size="16px" fill="#344554" font-weight="600">Transfer succeeded</text>
+<path d="M466 1264 H492" fill="none" stroke="#7b8994" stroke-width="2" marker-end="url(#arrow)"/>
+<rect x="500" y="1243" width="245" height="42" rx="0" fill="#fdebe8" stroke="#d7dfe5" stroke-width="1.5"/>
+<text x="622.5" y="1270" text-anchor="middle" font-family="Inter,Segoe UI,Arial,sans-serif" font-size="16px" fill="#344554" font-weight="600">Admin auth succeeded</text>
+<path d="M751 1264 H777" fill="none" stroke="#7b8994" stroke-width="2" marker-end="url(#arrow)"/>
+<rect x="785" y="1243" width="125" height="42" rx="0" fill="#fdebe8" stroke="#d7dfe5" stroke-width="1.5"/>
+<text x="847.5" y="1270" text-anchor="middle" font-family="Inter,Segoe UI,Arial,sans-serif" font-size="16px" fill="#344554" font-weight="600">End</text>
+<text x="1012" y="1270" text-anchor="start" font-family="Inter,Segoe UI,Arial,sans-serif" font-size="14px" fill="#526170" font-weight="600">Expected: violates</text>
+<text x="1240" y="1270" text-anchor="start" font-family="Inter,Segoe UI,Arial,sans-serif" font-size="15px" fill="#9e3c32" font-weight="700">Contract: FAIL</text>
+<text x="58" y="1335" text-anchor="start" font-family="Inter,Segoe UI,Arial,sans-serif" font-size="15px" fill="#526170" font-weight="400">Separate LLM-mining set: 20 conforming + 20 violating train · 10 + 10 active-gate holdout · 8 gate-scope controls. Both v2 models: 20/20 active-gate; 0/4 inactive-gate controls.</text>
+</svg>

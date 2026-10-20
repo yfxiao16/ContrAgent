@@ -1,0 +1,4 @@
+model_id,display_name,status,heldout_correct,heldout_n,heldout_accuracy,candidate_formula,error
+google/gemini-3.8-flash,Gemini 3.8 Flash,completed,18,20,0.9,"(!(called(update_policy) & arg_value(update_policy, gate_logged_in_user_active) >= 1) U (called(login_user) & arg_value(login_user, succeeded) >= 1))",
+openai/gpt-6-astra,GPT-6-Astra,completed,20,20,1.0,"G(!(called(update_policy) & arg_value(update_policy, succeeded) >= 1 & arg_value(update_policy, gate_logged_in_user_active) >= 1)) | (!(called(update_policy) & arg_value(update_policy, succeeded) >= 1 & arg_value(update_policy, gate_logged_in_user_active) >= 1) U (called(login_user) & arg_value(login_user, succeeded) >= 1))",
+Qwen/Qwen3.5-27B,Qwen3.5 27B,completed,18,20,0.9,"(!(called(update_policy) & arg_value(update_policy, succeeded) >= 1) U (called(login_user) & arg_value(login_user, succeeded) >= 1))",

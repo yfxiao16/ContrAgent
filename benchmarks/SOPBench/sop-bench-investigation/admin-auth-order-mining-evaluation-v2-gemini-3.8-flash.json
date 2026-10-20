@@ -1,0 +1,817 @@
+{
+  "model_id": "google/gemini-3.8-flash",
+  "candidate_formula": "!((!called(authenticate_admin_password) | !(arg_value(authenticate_admin_password, succeeded) >= 1)) U (called(transfer_funds) & arg_value(transfer_funds, succeeded) >= 1))",
+  "evaluation_semantics": "complete finite traces (include_liveness=True)",
+  "training_metrics": {
+    "n": 40,
+    "correct": 40,
+    "accuracy": 1.0,
+    "true_violations": 20,
+    "false_rejections": 0,
+    "missed_violations": 0,
+    "true_conforms": 20
+  },
+  "heldout_active_gate_metrics": {
+    "n": 20,
+    "correct": 20,
+    "accuracy": 1.0,
+    "true_violations": 10,
+    "false_rejections": 0,
+    "missed_violations": 0,
+    "true_conforms": 10
+  },
+  "inactive_gate_control_pass_rate": 0.0,
+  "active_gate_control_pass_rate": 1.0,
+  "pair_check": "FAIL",
+  "pair_and_control_checks": {
+    "auth_before_transfer_accepted": true,
+    "inactive_gate_controls_accepted": false
+  },
+  "evaluated_traces": [
+    {
+      "trace_id": "train_conforms_01",
+      "expected": "conforms",
+      "predicted": "conforms",
+      "verdict": "PASS",
+      "correct": true,
+      "gate_active": true,
+      "violations": []
+    },
+    {
+      "trace_id": "train_conforms_02",
+      "expected": "conforms",
+      "predicted": "conforms",
+      "verdict": "PASS",
+      "correct": true,
+      "gate_active": true,
+      "violations": []
+    },
+    {
+      "trace_id": "train_conforms_03",
+      "expected": "conforms",
+      "predicted": "conforms",
+      "verdict": "PASS",
+      "correct": true,
+      "gate_active": true,
+      "violations": []
+    },
+    {
+      "trace_id": "train_conforms_04",
+      "expected": "conforms",
+      "predicted": "conforms",
+      "verdict": "PASS",
+      "correct": true,
+      "gate_active": true,
+      "violations": []
+    },
+    {
+      "trace_id": "train_conforms_05",
+      "expected": "conforms",
+      "predicted": "conforms",
+      "verdict": "PASS",
+      "correct": true,
+      "gate_active": true,
+      "violations": []
+    },
+    {
+      "trace_id": "train_conforms_06",
+      "expected": "conforms",
+      "predicted": "conforms",
+      "verdict": "PASS",
+      "correct": true,
+      "gate_active": true,
+      "violations": []
+    },
+    {
+      "trace_id": "train_conforms_07",
+      "expected": "conforms",
+      "predicted": "conforms",
+      "verdict": "PASS",
+      "correct": true,
+      "gate_active": true,
+      "violations": []
+    },
+    {
+      "trace_id": "train_conforms_08",
+      "expected": "conforms",
+      "predicted": "conforms",
+      "verdict": "PASS",
+      "correct": true,
+      "gate_active": true,
+      "violations": []
+    },
+    {
+      "trace_id": "train_conforms_09",
+      "expected": "conforms",
+      "predicted": "conforms",
+      "verdict": "PASS",
+      "correct": true,
+      "gate_active": true,
+      "violations": []
+    },
+    {
+      "trace_id": "train_conforms_10",
+      "expected": "conforms",
+      "predicted": "conforms",
+      "verdict": "PASS",
+      "correct": true,
+      "gate_active": true,
+      "violations": []
+    },
+    {
+      "trace_id": "train_conforms_11",
+      "expected": "conforms",
+      "predicted": "conforms",
+      "verdict": "PASS",
+      "correct": true,
+      "gate_active": true,
+      "violations": []
+    },
+    {
+      "trace_id": "train_conforms_12",
+      "expected": "conforms",
+      "predicted": "conforms",
+      "verdict": "PASS",
+      "correct": true,
+      "gate_active": true,
+      "violations": []
+    },
+    {
+      "trace_id": "train_conforms_13",
+      "expected": "conforms",
+      "predicted": "conforms",
+      "verdict": "PASS",
+      "correct": true,
+      "gate_active": true,
+      "violations": []
+    },
+    {
+      "trace_id": "train_conforms_14",
+      "expected": "conforms",
+      "predicted": "conforms",
+      "verdict": "PASS",
+      "correct": true,
+      "gate_active": true,
+      "violations": []
+    },
+    {
+      "trace_id": "train_conforms_15",
+      "expected": "conforms",
+      "predicted": "conforms",
+      "verdict": "PASS",
+      "correct": true,
+      "gate_active": true,
+      "violations": []
+    },
+    {
+      "trace_id": "train_conforms_16",
+      "expected": "conforms",
+      "predicted": "conforms",
+      "verdict": "PASS",
+      "correct": true,
+      "gate_active": true,
+      "violations": []
+    },
+    {
+      "trace_id": "train_conforms_17",
+      "expected": "conforms",
+      "predicted": "conforms",
+      "verdict": "PASS",
+      "correct": true,
+      "gate_active": true,
+      "violations": []
+    },
+    {
+      "trace_id": "train_conforms_18",
+      "expected": "conforms",
+      "predicted": "conforms",
+      "verdict": "PASS",
+      "correct": true,
+      "gate_active": true,
+      "violations": []
+    },
+    {
+      "trace_id": "train_conforms_19",
+      "expected": "conforms",
+      "predicted": "conforms",
+      "verdict": "PASS",
+      "correct": true,
+      "gate_active": true,
+      "violations": []
+    },
+    {
+      "trace_id": "train_conforms_20",
+      "expected": "conforms",
+      "predicted": "conforms",
+      "verdict": "PASS",
+      "correct": true,
+      "gate_active": true,
+      "violations": []
+    },
+    {
+      "trace_id": "train_violates_01",
+      "expected": "violates",
+      "predicted": "violates",
+      "verdict": "FAIL",
+      "correct": true,
+      "gate_active": true,
+      "violations": [
+        {
+          "contract": "candidate admin-auth ordering rule",
+          "guarantee": "candidate admin-auth ordering rule"
+        }
+      ]
+    },
+    {
+      "trace_id": "train_violates_02",
+      "expected": "violates",
+      "predicted": "violates",
+      "verdict": "FAIL",
+      "correct": true,
+      "gate_active": true,
+      "violations": [
+        {
+          "contract": "candidate admin-auth ordering rule",
+          "guarantee": "candidate admin-auth ordering rule"
+        }
+      ]
+    },
+    {
+      "trace_id": "train_violates_03",
+      "expected": "violates",
+      "predicted": "violates",
+      "verdict": "FAIL",
+      "correct": true,
+      "gate_active": true,
+      "violations": [
+        {
+          "contract": "candidate admin-auth ordering rule",
+          "guarantee": "candidate admin-auth ordering rule"
+        }
+      ]
+    },
+    {
+      "trace_id": "train_violates_04",
+      "expected": "violates",
+      "predicted": "violates",
+      "verdict": "FAIL",
+      "correct": true,
+      "gate_active": true,
+      "violations": [
+        {
+          "contract": "candidate admin-auth ordering rule",
+          "guarantee": "candidate admin-auth ordering rule"
+        }
+      ]
+    },
+    {
+      "trace_id": "train_violates_05",
+      "expected": "violates",
+      "predicted": "violates",
+      "verdict": "FAIL",
+      "correct": true,
+      "gate_active": true,
+      "violations": [
+        {
+          "contract": "candidate admin-auth ordering rule",
+          "guarantee": "candidate admin-auth ordering rule"
+        }
+      ]
+    },
+    {
+      "trace_id": "train_violates_06",
+      "expected": "violates",
+      "predicted": "violates",
+      "verdict": "FAIL",
+      "correct": true,
+      "gate_active": true,
+      "violations": [
+        {
+          "contract": "candidate admin-auth ordering rule",
+          "guarantee": "candidate admin-auth ordering rule"
+        }
+      ]
+    },
+    {
+      "trace_id": "train_violates_07",
+      "expected": "violates",
+      "predicted": "violates",
+      "verdict": "FAIL",
+      "correct": true,
+      "gate_active": true,
+      "violations": [
+        {
+          "contract": "candidate admin-auth ordering rule",
+          "guarantee": "candidate admin-auth ordering rule"
+        }
+      ]
+    },
+    {
+      "trace_id": "train_violates_08",
+      "expected": "violates",
+      "predicted": "violates",
+      "verdict": "FAIL",
+      "correct": true,
+      "gate_active": true,
+      "violations": [
+        {
+          "contract": "candidate admin-auth ordering rule",
+          "guarantee": "candidate admin-auth ordering rule"
+        }
+      ]
+    },
+    {
+      "trace_id": "train_violates_09",
+      "expected": "violates",
+      "predicted": "violates",
+      "verdict": "FAIL",
+      "correct": true,
+      "gate_active": true,
+      "violations": [
+        {
+          "contract": "candidate admin-auth ordering rule",
+          "guarantee": "candidate admin-auth ordering rule"
+        }
+      ]
+    },
+    {
+      "trace_id": "train_violates_10",
+      "expected": "violates",
+      "predicted": "violates",
+      "verdict": "FAIL",
+      "correct": true,
+      "gate_active": true,
+      "violations": [
+        {
+          "contract": "candidate admin-auth ordering rule",
+          "guarantee": "candidate admin-auth ordering rule"
+        }
+      ]
+    },
+    {
+      "trace_id": "train_violates_11",
+      "expected": "violates",
+      "predicted": "violates",
+      "verdict": "FAIL",
+      "correct": true,
+      "gate_active": true,
+      "violations": [
+        {
+          "contract": "candidate admin-auth ordering rule",
+          "guarantee": "candidate admin-auth ordering rule"
+        }
+      ]
+    },
+    {
+      "trace_id": "train_violates_12",
+      "expected": "violates",
+      "predicted": "violates",
+      "verdict": "FAIL",
+      "correct": true,
+      "gate_active": true,
+      "violations": [
+        {
+          "contract": "candidate admin-auth ordering rule",
+          "guarantee": "candidate admin-auth ordering rule"
+        }
+      ]
+    },
+    {
+      "trace_id": "train_violates_13",
+      "expected": "violates",
+      "predicted": "violates",
+      "verdict": "FAIL",
+      "correct": true,
+      "gate_active": true,
+      "violations": [
+        {
+          "contract": "candidate admin-auth ordering rule",
+          "guarantee": "candidate admin-auth ordering rule"
+        }
+      ]
+    },
+    {
+      "trace_id": "train_violates_14",
+      "expected": "violates",
+      "predicted": "violates",
+      "verdict": "FAIL",
+      "correct": true,
+      "gate_active": true,
+      "violations": [
+        {
+          "contract": "candidate admin-auth ordering rule",
+          "guarantee": "candidate admin-auth ordering rule"
+        }
+      ]
+    },
+    {
+      "trace_id": "train_violates_15",
+      "expected": "violates",
+      "predicted": "violates",
+      "verdict": "FAIL",
+      "correct": true,
+      "gate_active": true,
+      "violations": [
+        {
+          "contract": "candidate admin-auth ordering rule",
+          "guarantee": "candidate admin-auth ordering rule"
+        }
+      ]
+    },
+    {
+      "trace_id": "train_violates_16",
+      "expected": "violates",
+      "predicted": "violates",
+      "verdict": "FAIL",
+      "correct": true,
+      "gate_active": true,
+      "violations": [
+        {
+          "contract": "candidate admin-auth ordering rule",
+          "guarantee": "candidate admin-auth ordering rule"
+        }
+      ]
+    },
+    {
+      "trace_id": "train_violates_17",
+      "expected": "violates",
+      "predicted": "violates",
+      "verdict": "FAIL",
+      "correct": true,
+      "gate_active": true,
+      "violations": [
+        {
+          "contract": "candidate admin-auth ordering rule",
+          "guarantee": "candidate admin-auth ordering rule"
+        }
+      ]
+    },
+    {
+      "trace_id": "train_violates_18",
+      "expected": "violates",
+      "predicted": "violates",
+      "verdict": "FAIL",
+      "correct": true,
+      "gate_active": true,
+      "violations": [
+        {
+          "contract": "candidate admin-auth ordering rule",
+          "guarantee": "candidate admin-auth ordering rule"
+        }
+      ]
+    },
+    {
+      "trace_id": "train_violates_19",
+      "expected": "violates",
+      "predicted": "violates",
+      "verdict": "FAIL",
+      "correct": true,
+      "gate_active": true,
+      "violations": [
+        {
+          "contract": "candidate admin-auth ordering rule",
+          "guarantee": "candidate admin-auth ordering rule"
+        }
+      ]
+    },
+    {
+      "trace_id": "train_violates_20",
+      "expected": "violates",
+      "predicted": "violates",
+      "verdict": "FAIL",
+      "correct": true,
+      "gate_active": true,
+      "violations": [
+        {
+          "contract": "candidate admin-auth ordering rule",
+          "guarantee": "candidate admin-auth ordering rule"
+        }
+      ]
+    },
+    {
+      "trace_id": "holdout_conforms_01",
+      "expected": "conforms",
+      "predicted": "conforms",
+      "verdict": "PASS",
+      "correct": true,
+      "gate_active": true,
+      "violations": []
+    },
+    {
+      "trace_id": "holdout_conforms_02",
+      "expected": "conforms",
+      "predicted": "conforms",
+      "verdict": "PASS",
+      "correct": true,
+      "gate_active": true,
+      "violations": []
+    },
+    {
+      "trace_id": "holdout_conforms_03",
+      "expected": "conforms",
+      "predicted": "conforms",
+      "verdict": "PASS",
+      "correct": true,
+      "gate_active": true,
+      "violations": []
+    },
+    {
+      "trace_id": "holdout_conforms_04",
+      "expected": "conforms",
+      "predicted": "conforms",
+      "verdict": "PASS",
+      "correct": true,
+      "gate_active": true,
+      "violations": []
+    },
+    {
+      "trace_id": "holdout_conforms_05",
+      "expected": "conforms",
+      "predicted": "conforms",
+      "verdict": "PASS",
+      "correct": true,
+      "gate_active": true,
+      "violations": []
+    },
+    {
+      "trace_id": "holdout_conforms_06",
+      "expected": "conforms",
+      "predicted": "conforms",
+      "verdict": "PASS",
+      "correct": true,
+      "gate_active": true,
+      "violations": []
+    },
+    {
+      "trace_id": "holdout_conforms_07",
+      "expected": "conforms",
+      "predicted": "conforms",
+      "verdict": "PASS",
+      "correct": true,
+      "gate_active": true,
+      "violations": []
+    },
+    {
+      "trace_id": "holdout_conforms_08",
+      "expected": "conforms",
+      "predicted": "conforms",
+      "verdict": "PASS",
+      "correct": true,
+      "gate_active": true,
+      "violations": []
+    },
+    {
+      "trace_id": "holdout_conforms_09",
+      "expected": "conforms",
+      "predicted": "conforms",
+      "verdict": "PASS",
+      "correct": true,
+      "gate_active": true,
+      "violations": []
+    },
+    {
+      "trace_id": "holdout_conforms_10",
+      "expected": "conforms",
+      "predicted": "conforms",
+      "verdict": "PASS",
+      "correct": true,
+      "gate_active": true,
+      "violations": []
+    },
+    {
+      "trace_id": "holdout_violates_01",
+      "expected": "violates",
+      "predicted": "violates",
+      "verdict": "FAIL",
+      "correct": true,
+      "gate_active": true,
+      "violations": [
+        {
+          "contract": "candidate admin-auth ordering rule",
+          "guarantee": "candidate admin-auth ordering rule"
+        }
+      ]
+    },
+    {
+      "trace_id": "holdout_violates_02",
+      "expected": "violates",
+      "predicted": "violates",
+      "verdict": "FAIL",
+      "correct": true,
+      "gate_active": true,
+      "violations": [
+        {
+          "contract": "candidate admin-auth ordering rule",
+          "guarantee": "candidate admin-auth ordering rule"
+        }
+      ]
+    },
+    {
+      "trace_id": "holdout_violates_03",
+      "expected": "violates",
+      "predicted": "violates",
+      "verdict": "FAIL",
+      "correct": true,
+      "gate_active": true,
+      "violations": [
+        {
+          "contract": "candidate admin-auth ordering rule",
+          "guarantee": "candidate admin-auth ordering rule"
+        }
+      ]
+    },
+    {
+      "trace_id": "holdout_violates_04",
+      "expected": "violates",
+      "predicted": "violates",
+      "verdict": "FAIL",
+      "correct": true,
+      "gate_active": true,
+      "violations": [
+        {
+          "contract": "candidate admin-auth ordering rule",
+          "guarantee": "candidate admin-auth ordering rule"
+        }
+      ]
+    },
+    {
+      "trace_id": "holdout_violates_05",
+      "expected": "violates",
+      "predicted": "violates",
+      "verdict": "FAIL",
+      "correct": true,
+      "gate_active": true,
+      "violations": [
+        {
+          "contract": "candidate admin-auth ordering rule",
+          "guarantee": "candidate admin-auth ordering rule"
+        }
+      ]
+    },
+    {
+      "trace_id": "holdout_violates_06",
+      "expected": "violates",
+      "predicted": "violates",
+      "verdict": "FAIL",
+      "correct": true,
+      "gate_active": true,
+      "violations": [
+        {
+          "contract": "candidate admin-auth ordering rule",
+          "guarantee": "candidate admin-auth ordering rule"
+        }
+      ]
+    },
+    {
+      "trace_id": "holdout_violates_07",
+      "expected": "violates",
+      "predicted": "violates",
+      "verdict": "FAIL",
+      "correct": true,
+      "gate_active": true,
+      "violations": [
+        {
+          "contract": "candidate admin-auth ordering rule",
+          "guarantee": "candidate admin-auth ordering rule"
+        }
+      ]
+    },
+    {
+      "trace_id": "holdout_violates_08",
+      "expected": "violates",
+      "predicted": "violates",
+      "verdict": "FAIL",
+      "correct": true,
+      "gate_active": true,
+      "violations": [
+        {
+          "contract": "candidate admin-auth ordering rule",
+          "guarantee": "candidate admin-auth ordering rule"
+        }
+      ]
+    },
+    {
+      "trace_id": "holdout_violates_09",
+      "expected": "violates",
+      "predicted": "violates",
+      "verdict": "FAIL",
+      "correct": true,
+      "gate_active": true,
+      "violations": [
+        {
+          "contract": "candidate admin-auth ordering rule",
+          "guarantee": "candidate admin-auth ordering rule"
+        }
+      ]
+    },
+    {
+      "trace_id": "holdout_violates_10",
+      "expected": "violates",
+      "predicted": "violates",
+      "verdict": "FAIL",
+      "correct": true,
+      "gate_active": true,
+      "violations": [
+        {
+          "contract": "candidate admin-auth ordering rule",
+          "guarantee": "candidate admin-auth ordering rule"
+        }
+      ]
+    },
+    {
+      "trace_id": "inactive_no_auth_a",
+      "expected": "conforms",
+      "predicted": "violates",
+      "verdict": "FAIL",
+      "correct": false,
+      "gate_active": false,
+      "violations": [
+        {
+          "contract": "candidate admin-auth ordering rule",
+          "guarantee": "candidate admin-auth ordering rule"
+        }
+      ]
+    },
+    {
+      "trace_id": "inactive_auth_after_a",
+      "expected": "conforms",
+      "predicted": "violates",
+      "verdict": "FAIL",
+      "correct": false,
+      "gate_active": false,
+      "violations": [
+        {
+          "contract": "candidate admin-auth ordering rule",
+          "guarantee": "candidate admin-auth ordering rule"
+        }
+      ]
+    },
+    {
+      "trace_id": "inactive_no_auth_b",
+      "expected": "conforms",
+      "predicted": "violates",
+      "verdict": "FAIL",
+      "correct": false,
+      "gate_active": false,
+      "violations": [
+        {
+          "contract": "candidate admin-auth ordering rule",
+          "guarantee": "candidate admin-auth ordering rule"
+        }
+      ]
+    },
+    {
+      "trace_id": "inactive_auth_after_b",
+      "expected": "conforms",
+      "predicted": "violates",
+      "verdict": "FAIL",
+      "correct": false,
+      "gate_active": false,
+      "violations": [
+        {
+          "contract": "candidate admin-auth ordering rule",
+          "guarantee": "candidate admin-auth ordering rule"
+        }
+      ]
+    },
+    {
+      "trace_id": "active_no_transfer_a",
+      "expected": "conforms",
+      "predicted": "conforms",
+      "verdict": "PASS",
+      "correct": true,
+      "gate_active": true,
+      "violations": []
+    },
+    {
+      "trace_id": "active_no_transfer_b",
+      "expected": "conforms",
+      "predicted": "conforms",
+      "verdict": "PASS",
+      "correct": true,
+      "gate_active": true,
+      "violations": []
+    },
+    {
+      "trace_id": "active_only_failed_transfer",
+      "expected": "conforms",
+      "predicted": "conforms",
+      "verdict": "PASS",
+      "correct": true,
+      "gate_active": true,
+      "violations": []
+    },
+    {
+      "trace_id": "active_failed_transfer_then_success",
+      "expected": "conforms",
+      "predicted": "conforms",
+      "verdict": "PASS",
+      "correct": true,
+      "gate_active": true,
+      "violations": []
+    }
+  ],
+  "prompt_path": "admin-auth-order-miner-prompt-v2-20-per-class.txt",
+  "dataset_path": "admin-auth-order-mining-dataset-v2-20-per-class.json",
+  "parse_error": null
+}

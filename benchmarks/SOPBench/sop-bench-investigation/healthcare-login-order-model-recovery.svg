@@ -1,0 +1,46 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1800" height="560" viewBox="0 0 1800 560" role="img" aria-labelledby="title desc">
+<title id="title">Healthcare SOPBench model recovery results</title>
+<desc id="desc">Three models mine login-before-update ordering. Two are partial; GPT-6 Astra recovers the rule on holdout. Gate scope is untested for all models.</desc>
+<rect width="1800" height="560" fill="#ffffff"/>
+<line x1="50" y1="34" x2="1750" y2="34" stroke="#9aa6ad" stroke-width="2"/>
+<text x="65" y="71" font-family="Arial, Helvetica, sans-serif" font-size="23" font-weight="700" fill="#253746">Model</text>
+<text x="310" y="71" font-family="Arial, Helvetica, sans-serif" font-size="23" font-weight="700" fill="#253746">Training</text>
+<text x="530" y="71" font-family="Arial, Helvetica, sans-serif" font-size="23" font-weight="700" fill="#253746">Holdout</text>
+<text x="750" y="71" font-family="Arial, Helvetica, sans-serif" font-size="23" font-weight="700" fill="#253746">Order recovered?</text>
+<text x="1000" y="71" font-family="Arial, Helvetica, sans-serif" font-size="23" font-weight="700" fill="#253746">Gate scope?</text>
+<text x="1220" y="71" font-family="Arial, Helvetica, sans-serif" font-size="23" font-weight="700" fill="#253746">Notes / misses</text>
+<line x1="50" y1="96" x2="1750" y2="96" stroke="#9aa6ad" stroke-width="2"/>
+<rect x="741" y="110" width="236" height="118" fill="#fff0c5"/>
+<rect x="991" y="110" width="206" height="118" fill="#e5e7e9"/>
+<text x="65" y="154" font-family="Arial, Helvetica, sans-serif" font-size="22" font-weight="700" fill="#253746">Gemini 3.8 Flash</text>
+<text x="310" y="154" font-family="Arial, Helvetica, sans-serif" font-size="20" font-weight="400" fill="#526779">GMI · 20 + 20</text>
+<text x="530" y="154" font-family="Arial, Helvetica, sans-serif" font-size="21" font-weight="700" fill="#253746">18/20 · 90%</text>
+<text x="860" y="167" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="20" font-weight="700" fill="#805600">PARTIAL</text>
+<text x="1095" y="167" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="20" font-weight="700" fill="#505b63">NOT TESTED</text>
+<text x="1220" y="137" font-family="Arial, Helvetica, sans-serif" font-size="19" font-weight="400" fill="#526779">Detected all 10 violations, but rejected 2</text>
+<text x="1220" y="164" font-family="Arial, Helvetica, sans-serif" font-size="19" font-weight="400" fill="#526779">conforming traces: required login even</text>
+<text x="1220" y="191" font-family="Arial, Helvetica, sans-serif" font-size="19" font-weight="400" fill="#526779">when no update succeeded.</text>
+<line x1="50" y1="238" x2="1750" y2="238" stroke="#dce2e6" stroke-width="1.5"/>
+<rect x="741" y="248" width="236" height="118" fill="#fff0c5"/>
+<rect x="991" y="248" width="206" height="118" fill="#e5e7e9"/>
+<text x="65" y="292" font-family="Arial, Helvetica, sans-serif" font-size="22" font-weight="700" fill="#253746">Qwen3.5 27B</text>
+<text x="310" y="292" font-family="Arial, Helvetica, sans-serif" font-size="20" font-weight="400" fill="#526779">GMI · 20 + 20</text>
+<text x="530" y="292" font-family="Arial, Helvetica, sans-serif" font-size="21" font-weight="700" fill="#253746">18/20 · 90%</text>
+<text x="860" y="305" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="20" font-weight="700" fill="#805600">PARTIAL</text>
+<text x="1095" y="305" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="20" font-weight="700" fill="#505b63">NOT TESTED</text>
+<text x="1220" y="275" font-family="Arial, Helvetica, sans-serif" font-size="19" font-weight="400" fill="#526779">Detected all 10 violations, but rejected 2</text>
+<text x="1220" y="302" font-family="Arial, Helvetica, sans-serif" font-size="19" font-weight="400" fill="#526779">conforming traces: required login even</text>
+<text x="1220" y="329" font-family="Arial, Helvetica, sans-serif" font-size="19" font-weight="400" fill="#526779">when no update succeeded.</text>
+<line x1="50" y1="376" x2="1750" y2="376" stroke="#dce2e6" stroke-width="1.5"/>
+<rect x="741" y="386" width="236" height="118" fill="#dcefe4"/>
+<rect x="991" y="386" width="206" height="118" fill="#e5e7e9"/>
+<text x="65" y="430" font-family="Arial, Helvetica, sans-serif" font-size="22" font-weight="700" fill="#253746">GPT-6-Astra</text>
+<text x="310" y="430" font-family="Arial, Helvetica, sans-serif" font-size="20" font-weight="400" fill="#526779">GMI · 20 + 20</text>
+<text x="530" y="430" font-family="Arial, Helvetica, sans-serif" font-size="21" font-weight="700" fill="#253746">20/20 · 100%</text>
+<text x="860" y="443" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="20" font-weight="700" fill="#176b3b">RECOVERED</text>
+<text x="1095" y="443" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="20" font-weight="700" fill="#505b63">NOT TESTED</text>
+<text x="1220" y="413" font-family="Arial, Helvetica, sans-serif" font-size="19" font-weight="400" fill="#526779">Detected all 10 ordering violations;</text>
+<text x="1220" y="440" font-family="Arial, Helvetica, sans-serif" font-size="19" font-weight="400" fill="#526779">accepted no-success traces without</text>
+<text x="1220" y="467" font-family="Arial, Helvetica, sans-serif" font-size="19" font-weight="400" fill="#526779">false rejections on this holdout.</text>
+<line x1="50" y1="514" x2="1750" y2="514" stroke="#dce2e6" stroke-width="1.5"/>
+</svg>

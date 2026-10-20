@@ -1,0 +1,58 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1400" height="850" viewBox="0 0 1400 850" role="img" aria-labelledby="title desc">
+<title id="title">Experimental setup: mining admin-auth ordering from traces</title>
+<desc id="desc">Synthetic labeled traces are split into a training set used to prompt an LLM and a held-out set used to evaluate its candidate LTLf contract. The v3 prompt explicitly describes gate scope.</desc>
+<defs>
+  <marker id="arrow" markerWidth="12" markerHeight="12" refX="10" refY="6" orient="auto" markerUnits="strokeWidth"><path d="M1,1 L11,6 L1,11" fill="none" stroke="#26343b" stroke-width="1.8"/></marker>
+</defs>
+<rect width="1400" height="850" fill="#ffffff"/>
+<g font-family="Arial, Helvetica, sans-serif" fill="#17252c">
+  <text x="70" y="67" font-size="34" font-weight="700">Experimental setup</text>
+  <text x="70" y="106" font-size="22" fill="#40515a">Synthetic trace mining for the admin-auth ordering rule</text>
+
+  <!-- Input -->
+  <rect x="70" y="164" width="330" height="172" fill="#f5f7f7" stroke="#53636b" stroke-width="2"/>
+  <text x="96" y="204" font-size="23" font-weight="700">Construct labeled traces</text>
+  <text x="96" y="244" font-size="20">Ordered tool calls + success results</text>
+  <text x="96" y="278" font-size="20">Label each against a reference rule</text>
+  <text x="96" y="312" font-size="19" fill="#40515a">Synthetic; not bank-run traces</text>
+
+  <line x1="405" y1="250" x2="477" y2="250" stroke="#26343b" stroke-width="2.5" marker-end="url(#arrow)"/>
+  <rect x="490" y="164" width="370" height="172" fill="#f5f7f7" stroke="#53636b" stroke-width="2"/>
+  <text x="516" y="204" font-size="23" font-weight="700">Split by purpose</text>
+  <text x="516" y="246" font-size="21"><tspan font-weight="700">Training:</tspan> 40 active-gate traces</text>
+  <text x="516" y="280" font-size="20">20 conforming · 20 violating</text>
+  <text x="516" y="313" font-size="19" fill="#40515a">Labels + events go to the miner</text>
+
+  <line x1="865" y1="250" x2="937" y2="250" stroke="#26343b" stroke-width="2.5" marker-end="url(#arrow)"/>
+  <rect x="950" y="164" width="380" height="172" fill="#f5f7f7" stroke="#53636b" stroke-width="2"/>
+  <text x="976" y="204" font-size="23" font-weight="700">LLM proposes a contract</text>
+  <text x="976" y="246" font-size="20">Prompt includes labeled training traces</text>
+  <text x="976" y="280" font-size="20">Output: one candidate LTLf formula</text>
+  <text x="976" y="313" font-size="19" fill="#40515a">Held-out traces are withheld</text>
+
+  <!-- split -->
+  <path d="M1140 337 V390 H420 V430" fill="none" stroke="#26343b" stroke-width="2.2" marker-end="url(#arrow)"/>
+  <path d="M1140 390 H1040 V430" fill="none" stroke="#26343b" stroke-width="2.2" marker-end="url(#arrow)"/>
+  <text x="70" y="414" font-size="23" font-weight="700">Evaluate candidate on separate traces</text>
+
+  <rect x="210" y="446" width="420" height="160" fill="#eef5f1" stroke="#34765a" stroke-width="2.5"/>
+  <text x="238" y="485" font-size="23" font-weight="700">Active-gate holdout · 20</text>
+  <text x="238" y="527" font-size="20">10 conforming · 10 violating</text>
+  <text x="238" y="563" font-size="19">Tests ordering on unseen sequences</text>
+  <text x="238" y="590" font-size="18" fill="#40515a">Successful transfer requires prior successful auth</text>
+
+  <rect x="790" y="446" width="420" height="160" fill="#f5f2e9" stroke="#9a7628" stroke-width="2.5"/>
+  <text x="818" y="485" font-size="23" font-weight="700">Controls · 8</text>
+  <text x="818" y="527" font-size="20">Inactive-gate traces + no-transfer cases</text>
+  <text x="818" y="563" font-size="19">Checks scope and unnecessary obligations</text>
+  <text x="818" y="590" font-size="18" fill="#40515a">Rule should not require auth when gate is inactive</text>
+
+  <line x1="420" y1="608" x2="420" y2="652" stroke="#26343b" stroke-width="2.5" marker-end="url(#arrow)"/>
+  <line x1="1000" y1="608" x2="1000" y2="652" stroke="#26343b" stroke-width="2.5" marker-end="url(#arrow)"/>
+  <rect x="210" y="666" width="1000" height="108" fill="#ffffff" stroke="#26343b" stroke-width="2.5"/>
+  <text x="246" y="709" font-size="23" font-weight="700">Score the candidate against the reference semantics</text>
+  <text x="246" y="747" font-size="20">Check trace acceptance/rejection; report active ordering and inactive-gate behavior separately.</text>
+
+  <text x="70" y="816" font-size="18" fill="#40515a">Scope caveat: v3 explicitly tells the model what to do when the gate is inactive. Passing that control shows instruction-following, not rediscovery of gate scope from examples.</text>
+</g>
+</svg>

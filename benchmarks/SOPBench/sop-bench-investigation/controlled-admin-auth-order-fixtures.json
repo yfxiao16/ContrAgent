@@ -1,0 +1,37 @@
+{
+  "kind": "synthetic_counterfactual_fixtures",
+  "purpose": "Unit-check whether an LTLf evaluator distinguishes admin authentication before versus after transfer.",
+  "not_observed_agent_runs": true,
+  "task_context": {
+    "user_goal": "transfer_funds",
+    "authenticated_admin_password_gate_active": true,
+    "same_account_and_credentials_across_traces": true
+  },
+  "events": {
+    "auth_success": {
+      "event": "authenticate_admin_password",
+      "succeeded": true
+    },
+    "transfer_success": {
+      "event": "transfer_funds",
+      "succeeded": true
+    },
+    "conversation_end": {
+      "event": "exit_conversation",
+      "succeeded": true
+    }
+  },
+  "traces": [
+    {
+      "trace_id": "auth_before_transfer",
+      "intended_ordering_label": "conforms",
+      "events": ["auth_success", "transfer_success", "conversation_end"]
+    },
+    {
+      "trace_id": "transfer_before_auth",
+      "intended_ordering_label": "violates",
+      "events": ["transfer_success", "auth_success", "conversation_end"]
+    }
+  ],
+  "usage_note": "Keep these fixtures out of miner training. They are a controlled evaluation pair for trace encoding and contract-monitor semantics, not empirical bank-agent evidence."
+}

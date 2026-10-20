@@ -1,0 +1,64 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="940" viewBox="0 0 1600 940" role="img" aria-labelledby="title desc">
+<title id="title">Healthcare SOPBench login-before-update trace mining setup and results</title>
+<desc id="desc">Four-step flow from recorded healthcare SOPBench traces through sanitization, LLM contract proposal, and evaluation, followed by three model holdout scores.</desc>
+<rect width="1600" height="940" fill="#ffffff"/>
+<g font-family="Arial, Helvetica, sans-serif">
+<text x="52" y="64" font-size="31" font-weight="700" fill="#17252c">Healthcare SOPBench: mining login-before-update order</text>
+<text x="52" y="103" font-size="20" font-weight="400" fill="#40515a">Recorded traces → sanitized examples → LTLf candidates → finite-trace evaluation</text>
+<rect x="52" y="145" width="350" height="176" fill="#f5f7f7" stroke="#26343b" stroke-width="2"/>
+<text x="74" y="185" font-size="21" font-weight="700" fill="#17252c">1  Source traces</text>
+<text x="74" y="229" font-size="17" font-weight="400" fill="#40515a">9,646 healthcare records scanned</text>
+<text x="74" y="260" font-size="17" font-weight="400" fill="#40515a">2,814 eligible update_policy runs</text>
+<text x="74" y="291" font-size="17" font-weight="400" fill="#40515a">123 violate login-before-update</text>
+<rect x="456" y="145" width="326" height="176" fill="#f5f7f7" stroke="#26343b" stroke-width="2"/>
+<text x="478" y="185" font-size="21" font-weight="700" fill="#17252c">2  Sanitize and split</text>
+<text x="478" y="229" font-size="17" font-weight="400" fill="#40515a">Keep tool, success, and SOP gate</text>
+<text x="478" y="260" font-size="17" font-weight="400" fill="#40515a">20 + 20 training; 10 + 10 holdout</text>
+<text x="478" y="291" font-size="17" font-weight="400" fill="#40515a">Split by task configuration</text>
+<rect x="836" y="145" width="326" height="176" fill="#f5f7f7" stroke="#26343b" stroke-width="2"/>
+<text x="858" y="185" font-size="21" font-weight="700" fill="#17252c">3  LLM proposes LTLf</text>
+<text x="858" y="229" font-size="17" font-weight="400" fill="#40515a">Receives labeled training traces only</text>
+<text x="858" y="260" font-size="17" font-weight="400" fill="#40515a">Candidate formula is saved</text>
+<text x="858" y="291" font-size="17" font-weight="400" fill="#40515a">Holdout remains hidden</text>
+<rect x="1216" y="145" width="332" height="176" fill="#f5f7f7" stroke="#26343b" stroke-width="2"/>
+<text x="1238" y="185" font-size="21" font-weight="700" fill="#17252c">4  Evaluate candidate</text>
+<text x="1238" y="229" font-size="17" font-weight="400" fill="#40515a">ContrAgent finite-trace semantics</text>
+<text x="1238" y="260" font-size="17" font-weight="400" fill="#40515a">Compare with ordering labels</text>
+<text x="1238" y="291" font-size="17" font-weight="400" fill="#40515a">Also check 8 no-success controls</text>
+<line x1="407" y1="233" x2="447" y2="233" stroke="#26343b" stroke-width="2.5" marker-end="url(#arrow)"/>
+<line x1="787" y1="233" x2="827" y2="233" stroke="#26343b" stroke-width="2.5" marker-end="url(#arrow)"/>
+<line x1="1167" y1="233" x2="1207" y2="233" stroke="#26343b" stroke-width="2.5" marker-end="url(#arrow)"/>
+<defs><marker id="arrow" markerWidth="12" markerHeight="12" refX="10" refY="6" orient="auto"><path d="M1,1 L11,6 L1,11" fill="none" stroke="#26343b" stroke-width="1.8"/></marker></defs>
+<text x="52" y="385" font-size="24" font-weight="700" fill="#17252c">Active-gate held-out results</text>
+<text x="52" y="418" font-size="18" font-weight="400" fill="#40515a">20 traces: 10 conforming · 10 violating</text>
+<rect x="52" y="446" width="315" height="55" fill="#e9edef" stroke="#26343b" stroke-width="1.5"/>
+<text x="67" y="481" font-size="18" font-weight="700" fill="#17252c">Model</text>
+<rect x="367" y="446" width="175" height="55" fill="#e9edef" stroke="#26343b" stroke-width="1.5"/>
+<text x="382" y="481" font-size="18" font-weight="700" fill="#17252c">Score</text>
+<rect x="542" y="446" width="1006" height="55" fill="#e9edef" stroke="#26343b" stroke-width="1.5"/>
+<text x="557" y="481" font-size="18" font-weight="700" fill="#17252c">What the candidate captured / missed</text>
+<rect x="52" y="501" width="315" height="61" fill="#eef5f1" stroke="#34765a" stroke-width="1.4"/>
+<text x="67" y="539" font-size="17" font-weight="700" fill="#17252c">Gemini 3.8 Flash</text>
+<rect x="367" y="501" width="175" height="61" fill="#eef5f1" stroke="#34765a" stroke-width="1.4"/>
+<text x="382" y="539" font-size="17" font-weight="700" fill="#17252c">18 / 20</text>
+<rect x="542" y="501" width="1006" height="61" fill="#eef5f1" stroke="#34765a" stroke-width="1.4"/>
+<text x="557" y="539" font-size="17" font-weight="400" fill="#17252c">Recovered ordering; falsely requires login when no update succeeds.</text>
+<rect x="52" y="562" width="315" height="61" fill="#eef5f1" stroke="#34765a" stroke-width="1.4"/>
+<text x="67" y="600" font-size="17" font-weight="700" fill="#17252c">Qwen3.5 27B</text>
+<rect x="367" y="562" width="175" height="61" fill="#eef5f1" stroke="#34765a" stroke-width="1.4"/>
+<text x="382" y="600" font-size="17" font-weight="700" fill="#17252c">18 / 20</text>
+<rect x="542" y="562" width="1006" height="61" fill="#eef5f1" stroke="#34765a" stroke-width="1.4"/>
+<text x="557" y="600" font-size="17" font-weight="400" fill="#17252c">Recovered successful-update order; same false rejection of no-update traces.</text>
+<rect x="52" y="623" width="315" height="61" fill="#eef5f1" stroke="#34765a" stroke-width="1.4"/>
+<text x="67" y="661" font-size="17" font-weight="700" fill="#17252c">GPT-6-Astra</text>
+<rect x="367" y="623" width="175" height="61" fill="#eef5f1" stroke="#34765a" stroke-width="1.4"/>
+<text x="382" y="661" font-size="17" font-weight="700" fill="#17252c">20 / 20</text>
+<rect x="542" y="623" width="1006" height="61" fill="#eef5f1" stroke="#34765a" stroke-width="1.4"/>
+<text x="557" y="661" font-size="17" font-weight="400" fill="#17252c">Recovered ordering and accepted traces with no successful update.</text>
+<line x1="52" y1="720" x2="1548" y2="720" stroke="#26343b" stroke-width="1.6"/>
+<text x="52" y="758" font-size="19" font-weight="700" fill="#17252c">Interpretation</text>
+<text x="255" y="758" font-size="17" font-weight="400" fill="#40515a">All eligible update_policy traces had the login gate active; inactive-gate scope was not tested.</text>
+<text x="52" y="803" font-size="16" font-weight="400" fill="#40515a">Labels measure this procedural ordering only—not overall task safety, permission, or completion.</text>
+<text x="52" y="838" font-size="16" font-weight="400" fill="#40515a">Successful logout traces were excluded to focus on ordering without session-reset semantics.</text>
+<text x="52" y="895" font-size="15" font-weight="400" fill="#40515a">The run split is by task configuration; prompts, arguments, database values, and benchmark safety labels were discarded.</text>
+</g></svg>

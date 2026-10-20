@@ -1,0 +1,26 @@
+{
+  "provider": "GMI Cloud",
+  "model_id": "google/gemini-3.5-flash-lite",
+  "display_name": "Gemini 3.5 Flash-Lite",
+  "prompt_file": "admin-auth-order-miner-prompt-v3-scoped-gate.txt",
+  "dataset_file": "admin-auth-order-mining-dataset-v2-20-per-class.json",
+  "training_examples": 40,
+  "heldout_sent_to_model": false,
+  "request": {
+    "temperature": 0,
+    "max_tokens": 2048
+  },
+  "candidate_raw": "G: ((arg_value(transfer_funds, gate_authenticated_admin_password_active) >= 1 & (called(transfer_funds) & arg_value(transfer_funds, succeeded) >= 1)) -> (!((called(transfer_funds) & arg_value(transfer_funds, succeeded) >= 1)) U (called(authenticate_admin_password) & arg_value(authenticate_admin_password, succeeded) >= 1)))",
+  "usage": {
+    "completion_tokens": 98,
+    "completion_tokens_details": {
+      "reasoning_tokens": 0
+    },
+    "prompt_tokens": 5848,
+    "prompt_tokens_details": {
+      "cached_tokens": 0
+    },
+    "total_tokens": 5946
+  },
+  "finish_reason": "stop"
+}

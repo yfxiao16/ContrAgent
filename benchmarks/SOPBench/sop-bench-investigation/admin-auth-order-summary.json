@@ -1,0 +1,129 @@
+{
+  "source": {
+    "repository": "https://github.com/Leezekun/SOPBench",
+    "commit": "8790ed7406acbd22270f90bd1c4038de3fc5db8f",
+    "domain": "bank"
+  },
+  "scope": "transfer_funds traces whose task constraints include authenticated_admin_password",
+  "scoped_run_records": 794,
+  "unique_task_scenarios": {
+    "Permitted": 4,
+    "Forbidden": 8
+  },
+  "run_patterns_by_task_permission": {
+    "Permitted": {
+      "Successful admin auth before transfer": 184,
+      "No transfer attempted": 52,
+      "No admin-auth call": 4
+    },
+    "Forbidden": {
+      "No transfer attempted": 492,
+      "Failed admin auth before transfer": 19,
+      "Successful admin auth before transfer": 15,
+      "No admin-auth call": 28
+    }
+  },
+  "run_patterns_all": {
+    "Successful admin auth before transfer": 199,
+    "No transfer attempted": 544,
+    "Failed admin auth before transfer": 19,
+    "No admin-auth call": 32,
+    "Admin auth before transfer; result unclear": 0,
+    "Admin auth only after transfer": 0
+  },
+  "after_successful_transfer": {
+    "Exit conversation is next tool": 192,
+    "Another tool is next": 37,
+    "No later tool call in trace": 20
+  },
+  "unique_scenario_majority_pattern": {
+    "Permitted": {
+      "Successful admin auth before transfer": 4
+    },
+    "Forbidden": {
+      "No transfer attempted": 8
+    }
+  },
+  "scenario_variation": {
+    "scenarios_with_multiple_patterns": 12,
+    "scenarios_with_successful_auth_before_transfer": 7,
+    "scenarios_with_failed_auth_before_transfer": 5,
+    "scenarios_with_no_auth_call": 11
+  },
+  "limitations": [
+    "Repeated configurations are not independent runs; unique scenarios are separately counted.",
+    "A true tool return is the logged result of authenticate_admin_password; the trace does not prove the model's internal belief.",
+    "Task permission (action_should_succeed) can be false because of another blocker, so it is not an auth-validity label.",
+    "Task gate context is derived from task.constraints; mining from traces alone would need this context encoded or inferred."
+  ],
+  "input_files": 67,
+  "input_file_names": [
+    "ast_claude-3-5-sonnet-20241022-mode_act-only-dep_full-fmt_structured-tool_full-shuffle_False.json",
+    "ast_claude-3-5-sonnet-20241022-mode_fc-dep_full-fmt_structured-tool_full-shuffle_False.json",
+    "ast_claude-3-5-sonnet-20241022-mode_fc-dep_full-fmt_structured-tool_oracle-shuffle_False.json",
+    "ast_claude-3-5-sonnet-20241022-mode_react-dep_full-fmt_structured-tool_full-shuffle_False.json",
+    "ast_claude-3-5-sonnet-20241022-mode_react-v-dep_full-fmt_structured-tool_full-shuffle_False.json",
+    "ast_claude-3-7-sonnet-20250219-mode_fc-dep_full-fmt_structured-tool_full-shuffle_False.json",
+    "ast_claude-3-7-sonnet-20250219-thinking-mode_fc-dep_full-fmt_structured-tool_full-shuffle_False.json",
+    "ast_claude-3-7-sonnet-20250219-thinking-mode_fc-dep_full-fmt_structured-tool_oracle-shuffle_False.json",
+    "ast_deepseek-r1-mode_react-dep_full-fmt_structured-tool_full-shuffle_False.json",
+    "ast_gemini-1.5-pro-mode_fc-dep_full-fmt_structured-tool_full-shuffle_False.json",
+    "ast_gemini-1.5-pro-mode_fc-dep_full-fmt_structured-tool_oracle-shuffle_False.json",
+    "ast_gemini-2.0-flash-001-mode_act-only-dep_full-fmt_structured-tool_full-shuffle_False.json",
+    "ast_gemini-2.0-flash-001-mode_fc-dep_full-fmt_structured-tool_full-shuffle_False.json",
+    "ast_gemini-2.0-flash-001-mode_fc-dep_full-fmt_structured-tool_oracle-shuffle_False.json",
+    "ast_gemini-2.0-flash-001-mode_react-dep_full-fmt_structured-tool_full-shuffle_False.json",
+    "ast_gemini-2.0-flash-thinking-exp-mode_react-dep_full-fmt_structured-tool_full-shuffle_False.json",
+    "ast_gemini-2.5-flash-mode_fc-dep_full-fmt_structured-tool_full-shuffle_False.json",
+    "ast_gemini-2.5-pro-mode_fc-dep_full-fmt_structured-tool_full-shuffle_False.json",
+    "ast_gemma-4-e2b-it-mode_fc-dep_full-fmt_structured-tool_full-shuffle_False.json",
+    "ast_gemma-4-e4b-it-mode_fc-dep_full-fmt_structured-tool_full-shuffle_False.json",
+    "ast_gpt-4.1-mini-mode_fc-dep_full-fmt_structured-tool_full-shuffle_False.json",
+    "ast_gpt-4.1-mode_fc-dep_full-fmt_structured-tool_full-shuffle_False.json",
+    "ast_gpt-4o-mini-mode_act-only-dep_full-fmt_structured-tool_full-shuffle_False.json",
+    "ast_gpt-4o-mini-mode_fc-dep_full-fmt_structured-tool_full-shuffle_False.json",
+    "ast_gpt-4o-mini-mode_fc-dep_full-fmt_structured-tool_oracle-shuffle_False.json",
+    "ast_gpt-4o-mini-mode_react-dep_full-fmt_structured-tool_full-shuffle_False.json",
+    "ast_gpt-4o-mode_act-only-dep_full-fmt_structured-tool_full-shuffle_False.json",
+    "ast_gpt-4o-mode_fc-dep_full-fmt_structured-tool_full-shuffle_False.json",
+    "ast_gpt-4o-mode_fc-dep_full-fmt_structured-tool_oracle-shuffle_False.json",
+    "ast_gpt-4o-mode_react-dep_full-fmt_structured-tool_full-shuffle_False.json",
+    "ast_gpt-4o-mode_react-v-dep_full-fmt_structured-tool_full-shuffle_False.json",
+    "ast_gpt-5-mini-mode_fc-dep_full-fmt_structured-tool_full-shuffle_False.json",
+    "ast_gpt-5-mini-mode_fc-dep_full-fmt_structured-tool_oracle-shuffle_False.json",
+    "ast_gpt-5-mode_fc-dep_full-fmt_structured-tool_full-shuffle_False.json",
+    "ast_gpt-5-mode_fc-dep_full-fmt_structured-tool_oracle-shuffle_False.json",
+    "ast_llama3.1-70b-instruct-mode_react-dep_full-fmt_structured-tool_full-shuffle_False.json",
+    "ast_llama3.1-70b-it-fireworks-mode_act-only-dep_full-fmt_structured-tool_full-shuffle_False.json",
+    "ast_llama3.1-70b-it-fireworks-mode_fc-dep_full-fmt_structured-tool_full-shuffle_False.json",
+    "ast_llama3.1-70b-it-fireworks-mode_fc-dep_full-fmt_structured-tool_oracle-shuffle_False.json",
+    "ast_llama3.1-70b-it-fireworks-mode_react-dep_full-fmt_structured-tool_full-shuffle_False.json",
+    "ast_llama3.1-70b-it-fireworks-mode_react-dep_full-fmt_structured-tool_oracle-shuffle_False.json",
+    "ast_llama3.1-8b-instruct-mode_react-dep_full-fmt_structured-tool_full-shuffle_False.json",
+    "ast_llama3.1-8b-instruct-mode_react-dep_full-fmt_structured-tool_oracle-shuffle_False.json",
+    "ast_llama3.1-8b-instruct-mode_react-v-dep_full-fmt_structured-tool_full-shuffle_False.json",
+    "ast_o4-mini-high-mode_fc-dep_full-fmt_structured-tool_full-shuffle_False.json",
+    "ast_o4-mini-mode_fc-dep_full-fmt_structured-tool_full-shuffle_False.json",
+    "ast_qwen2.5-14b-instruct-mode_react-dep_full-fmt_structured-tool_full-shuffle_False.json",
+    "ast_qwen2.5-14b-instruct-mode_react-dep_full-fmt_structured-tool_oracle-shuffle_False.json",
+    "ast_qwen2.5-14b-instruct-mode_react-v-dep_full-fmt_structured-tool_full-shuffle_False.json",
+    "ast_qwen2.5-32b-instruct-mode_react-dep_full-fmt_structured-tool_full-shuffle_False.json",
+    "ast_qwen2.5-32b-instruct-mode_react-dep_full-fmt_structured-tool_oracle-shuffle_False.json",
+    "ast_qwen2.5-32b-instruct-mode_react-v-dep_full-fmt_structured-tool_full-shuffle_False.json",
+    "ast_qwen2.5-72b-instruct-mode_react-dep_full-fmt_structured-tool_full-shuffle_False.json",
+    "ast_qwen2.5-72b-it-fireworks-mode_act-only-dep_full-fmt_structured-tool_full-shuffle_False.json",
+    "ast_qwen2.5-72b-it-fireworks-mode_fc-dep_full-fmt_structured-tool_full-shuffle_False.json",
+    "ast_qwen2.5-72b-it-fireworks-mode_fc-dep_full-fmt_structured-tool_oracle-shuffle_False.json",
+    "ast_qwen2.5-72b-it-fireworks-mode_react-dep_full-fmt_structured-tool_full-shuffle_False.json",
+    "ast_qwen2.5-7b-instruct-mode_react-dep_full-fmt_structured-tool_full-shuffle_False.json",
+    "ast_qwen2.5-7b-instruct-mode_react-dep_full-fmt_structured-tool_oracle-shuffle_False.json",
+    "ast_qwen3.5-2b-mode_fc-dep_full-fmt_structured-tool_full-shuffle_False.json",
+    "ast_qwen3.5-4b-mode_fc-dep_full-fmt_structured-tool_full-shuffle_False.json",
+    "usr_adv-ast_llama3.1-70b-instruct-mode_react-dep_full-fmt_structured-tool_full-shuffle_False.json",
+    "usr_adv-ast_llama3.1-8b-instruct-mode_react-dep_full-fmt_structured-tool_full-shuffle_False.json",
+    "usr_adv-ast_qwen2.5-14b-instruct-mode_react-dep_full-fmt_structured-tool_full-shuffle_False.json",
+    "usr_adv-ast_qwen2.5-32b-instruct-mode_react-dep_full-fmt_structured-tool_full-shuffle_False.json",
+    "usr_adv-ast_qwen2.5-72b-instruct-mode_react-dep_full-fmt_structured-tool_full-shuffle_False.json",
+    "usr_adv-ast_qwen2.5-7b-instruct-mode_react-dep_full-fmt_structured-tool_full-shuffle_False.json"
+  ]
+}
